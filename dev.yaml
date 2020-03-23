@@ -29,15 +29,24 @@
         server_groups: [dev, sit, uat, prod]
 
   tasks:
+    - name: create user directory
+      become: yes
+      file:
+        path: "/opt/pmaker/dev/{{ item.username }}/.ssh"
+        state: directory
+        owner: "{{ item }}"
+        mode: u+r,g-w+x,o+x
+        recurse: yes
+        
     - name: generate SSH key "{{ item.username }}"
       openssh_keypair:
-        path: "/opt/pmaker/.ssh/{{ item.username }}"
+        path: "/opt/pmaker/dev/{{ item.username }}/.ssh"
         type: rsa
         size: 4096
         state: present
         force: no
       with_items: '{{ dev_users }}'
-      
+
     - include: user_create.yml
       with_items: '{{ dev_users }}'
 
