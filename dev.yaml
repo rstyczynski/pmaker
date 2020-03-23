@@ -1,5 +1,5 @@
 ---
-# 
+#
 # create on dev
 #
 
@@ -9,18 +9,37 @@
   vars:
     dev_users:
       - name: alice
+        became_oracle: [dev]
+        became_root: [dev]
         server_groups: [dev]
 
       - name: bob
+        became_oracle: [sit]
+        became_root: [dev]
         server_groups: [dev, sit]
 
       - name: carmen
+        became_oracle: [dev, dit, uat]
+        became_root: [dev]
         server_groups: [dev, sit, uat]
 
       - name: derek
+        became_oracle: [dev, sit, uat, prod]
+        became_root: [dev]
         server_groups: [dev, sit, uat, prod]
 
   tasks:
     - include: user_create.yml
-      with_items: '{{ dev_users }}'
-         
+      with_items: { { dev_users } }
+
+    - name: Add user to sudo
+      become: yes
+      lineinfile:
+        path: "/etc/sudoers.d/{{ item.username }}"
+        line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
+        state: present
+        mode: 0440
+        create: yes
+        validate: "visudo -cf %s"
+        when: "'dev' in item.became_root"
+        with_items: { { dev_users } }

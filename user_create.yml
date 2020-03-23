@@ -2,31 +2,31 @@
 - name: Create  user
   become: yes
   user:
-    name: "{{ item }}"
+    name: "{{ item.username }}"
 
-- name: check if /home/{{ item }}/.ssh file exists
+- name: check if /home/{{ item.username }}/.ssh file exists
   become: yes
   stat: 
-    path: /home/{{ item }}/.ssh
+    path: /home/{{ item.username }}/.ssh
   register: ssh_available
 
-- name: check if /home/{{ item }}/.ssh/authorized_keys file exists
+- name: check if /home/{{ item.username }}/.ssh/authorized_keys file exists
   become: yes
   stat: 
-    path: /home/{{ item }}/.ssh/authorized_keys
+    path: /home/{{ item.username }}/.ssh/authorized_keys
   register: authorized_keys_available
 
 - name: Protect .ssh
   become: yes
   file:
-    path: /home/{{ item }}/.ssh
+    path: /home/{{ item.username }}/.ssh
     attributes: -i
   when: ssh_available.stat.exists
 
 - name: Protect authorized_keys
   become: yes
   file:
-    path: /home/{{ item }}/.ssh/authorized_keys
+    path: /home/{{ item.username }}/.ssh/authorized_keys
     attributes: -i
   when: authorized_keys_available.stat.exists
 
@@ -41,19 +41,12 @@
 - name: Protect authorized_keys
   become: yes
   file:
-    path: /home/{{ item }}/.ssh/authorized_keys
+    path: /home/{{ item.username }}/.ssh/authorized_keys
     attributes: +i
+
 - name: Protect .ssh
   become: yes
   file:
-    path: /home/{{ item }}/.ssh
+    path: /home/{{ item.username }}/.ssh
     attributes: +i
-- name: Add pmaker to sudo
-  become: yes
-  lineinfile:
-    path: "/etc/sudoers.d/{{ item }}"
-    line: "{{ item }} ALL=(ALL) NOPASSWD: ALL"
-    state: present
-    mode: 0440
-    create: yes
-    validate: "visudo -cf %s"
+
