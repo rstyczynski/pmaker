@@ -1,6 +1,6 @@
 ---
 users:
-  - username: alex
+  - name: alex
     became_oracle: [sit]    
     became_root: []
     server_groups: [dev, sit, uat]

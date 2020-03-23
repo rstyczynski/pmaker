@@ -8,22 +8,22 @@
 
   vars:
     dev_users:
-      - name: alice
+      - username: alice
         became_oracle: [dev]
         became_root: [dev]
         server_groups: [dev]
 
-      - name: bob
+      - username: bob
         became_oracle: [sit]
         became_root: [dev]
         server_groups: [dev, sit]
 
-      - name: carmen
+      - username: carmen
         became_oracle: [dev, dit, uat]
         became_root: [dev]
         server_groups: [dev, sit, uat]
 
-      - name: derek
+      - username: derek
         became_oracle: [dev, sit, uat, prod]
         became_root: [dev]
         server_groups: [dev, sit, uat, prod]
