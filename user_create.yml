@@ -39,15 +39,15 @@
     manage_dir: yes
     key: "{{ lookup('file', '/opt/pmaker/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub') }}"
 
-- name: Protect authorized_keys
-  become: yes
-  file:
-    path: /home/{{ item.username }}/.ssh/authorized_keys
-    attributes: +i
+# - name: Protect authorized_keys
+#   become: yes
+#   file:
+#     path: /home/{{ item.username }}/.ssh/authorized_keys
+#     attributes: +i
 
-- name: Protect .ssh
-  become: yes
-  file:
-    path: /home/{{ item.username }}/.ssh
-    attributes: +i
+# - name: Protect .ssh
+#   become: yes
+#   file:
+#     path: /home/{{ item.username }}/.ssh
+#     attributes: +i
 
