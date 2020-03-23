@@ -1,19 +1,20 @@
-- username: alice
-  became_oracle: [dev]
-  became_root: [dev]
-  server_groups: [dev]
+users:
+  - username: alice
+    became_oracle: [dev]
+    became_root: [dev]
+    server_groups: [dev]
 
-- username: bob
-  became_oracle: [sit]
-  became_root: [dev]
-  server_groups: [dev, sit]
+  - username: bob
+    became_oracle: [sit]
+    became_root: [dev]
+    server_groups: [dev, sit]
 
-- username: carmen
-  became_oracle: [dev, dit, uat]
-  became_root: [dev]
-  server_groups: [dev, sit, uat]
+  - username: carmen
+    became_oracle: [dev, dit, uat]
+    became_root: [dev]
+    server_groups: [dev, sit, uat]
 
-- username: derek
-  became_oracle: [dev, sit, uat, prod]
-  became_root: [dev]
-  server_groups: [dev, sit, uat, prod]
+  - username: derek
+    became_oracle: [dev, sit, uat, prod]
+    became_root: [dev]
+    server_groups: [dev, sit, uat, prod]

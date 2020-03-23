@@ -23,7 +23,7 @@
         owner: "pmaker"
         mode: u+r,g-w+x,o+x
         recurse: yes
-      with_items: '{{ dev_users }}'
+      with_items: '{{ users }}'
 
     - name: generate SSH key "{{ item.username }}"
       become: yes
@@ -33,7 +33,7 @@
         size: 4096
         state: present
         force: no
-      with_items: '{{ dev_users }}'
+      with_items: '{{ users }}'
 
 - hosts: dev
 
@@ -47,7 +47,7 @@
     - include_vars: dev_users.yaml
 
     - include: user_create.yml
-      with_items: '{{ dev_users }}'
+      with_items: '{{ users }}'
 
     - name: Add user to sudo
       become: yes
@@ -59,4 +59,4 @@
         create: yes
         validate: "visudo -cf %s"
       when: "'dev' in item.became_root"
-      with_items: '{{ dev_users }}'
+      with_items: '{{ users }}'
