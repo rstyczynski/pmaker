@@ -1,0 +1,98 @@
+---
+#
+# select users belonging to given environment
+#
+
+- hosts: localhost
+  connection: local
+
+  vars:
+    users:
+      - name: alice
+        server_groups: [dev]
+
+      - name: bob
+        server_groups: [dev, sit]
+
+      - name: carmen
+        server_groups: [dev, sit, uat]
+
+      - name: derek
+        server_groups: [dev, sit, uat, prod]
+
+  tasks:
+    #
+    # do it for each host
+    #
+    - debug: var=item
+
+      with_items: "{{users}}"
+
+    #
+    # do it only for uat
+    #
+    - debug:
+        msg: "{{ item.name }}"
+
+      when: "'uat' in item.server_groups"
+      with_items: "{{users}}"
+
+    #
+    # write dev users to dev_users.yaml
+    #
+    - name: set fact
+      set_fact:
+        dev_users: "{{ dev_users|default([]) + [ item ]  }}"
+
+      when: "'dev' in item.server_groups"
+      with_items: "{{users}}"
+
+    - name: Write dev_users to a file
+      copy:
+        content: "{{ dev_users | to_nice_yaml }}"
+        dest: dev_users.yaml
+
+    #
+    # write sit users to sit_users.yaml
+    #
+    - name: set fact
+      set_fact:
+        sit_users: "{{ sit_users|default([]) + [ item ]  }}"
+
+      when: "'sit' in item.server_groups"
+      with_items: "{{users}}"
+
+    - name: Write sit_users to a file
+      copy:
+        content: "{{ sit_users | to_nice_yaml }}"
+        dest: sit_users.yaml
+
+    #
+    # write uat users to uat_users.yaml
+    #
+    - name: set fact
+      set_fact:
+        uat_users: "{{ uat_users|default([]) + [ item ]  }}"
+
+      when: "'uat' in item.server_groups"
+      with_items: "{{users}}"
+
+    - name: Write uat_users to a file
+      copy:
+        content: "{{ uat_users | to_nice_yaml }}"
+        dest: uat_users.yaml
+
+    #
+    # write prod users to prod_users.yaml
+    #
+    - name: set fact
+      set_fact:
+        urod_users: "{{ prod_users|default([]) + [ item ]  }}"
+
+      when: "'prod' in item.server_groups"
+      with_items: "{{users}}"
+
+    - name: Write prod_users to a file
+      copy:
+        content: "{{ prod_users | to_nice_yaml }}"
+        dest: prod_users.yaml
