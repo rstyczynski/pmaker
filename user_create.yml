@@ -1,10 +1,8 @@
 ---
-
 - name: Create  user
   become: yes
   user:
     name: "{{ item.username }}"
-    password: "{{ pwgen.stdout }}"
 
 - name: check if /home/{{ item.username }}/.ssh file exists
   become: yes
