@@ -35,6 +35,17 @@
         force: no
       with_items: '{{ users }}'
 
+    - name: Generate Passwords
+      become: no
+      local_action: command pwgen --symbols --numerals --capitalize --ambiguous 12
+      with_items: '{{ users }}'
+      register: user_passwords
+
+    - name: Save Passwords Locally
+      become: no
+      local_action: copy content={{ item.stdout }} dest="/opt/pmaker/dev/{{ item.item }}/.ssh/secret.txt"
+      with_items: '{{ user_passwords.results }}'
+
 - hosts: dev
 
   vars:
@@ -49,6 +60,12 @@
     - include: user_create.yml
       with_items: '{{ users }}'
 
+    - name: Update User Passwords
+      user:
+        name: '{{ item.item }}'
+        password: '{{ item.stdout }}'
+      with_items: '{{ user_passwords.results }}'
+      
     - name: Add user to sudo
       become: yes
       lineinfile:
