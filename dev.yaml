@@ -35,7 +35,7 @@
         force: no
       with_items: '{{ users }}'
 
-    - include: user_gen_password.yml
+    - include: user_gen_password.yaml
       with_items: '{{ users }}'
 
 - hosts: dev
@@ -52,7 +52,7 @@
     - include: user_create.yml
       with_items: '{{ users }}'
 
-    - include: user_set_password.yml
+    - include: user_set_password.yaml
       with_items: '{{ users }}'
 
     - name: Add user to sudo
