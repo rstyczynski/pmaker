@@ -63,8 +63,8 @@
     - name: Update User Passwords
       user:
         name: '{{ item.item }}'
-        password: '{{ item.stdout }}'
-      with_items: '{{ user_passwords.results }}'
+        password: "{{ lookup('file', '/opt/pmaker/{{ server_group }}/{{ item.username }}/.ssh/secret.txt') }}"
+      with_items: '{{ users }}'
 
     - name: Add user to sudo
       become: yes
