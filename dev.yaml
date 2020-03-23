@@ -43,7 +43,7 @@
 
     - name: Save Passwords Locally
       become: no
-      local_action: copy content={{ item.stdout }} dest="/opt/pmaker/dev/{{ item.item }}/.ssh/secret.txt"
+      local_action: copy content={{ item.stdout }} dest="/opt/pmaker/dev/{{ item.item.username }}/.ssh/secret.txt"
       with_items: '{{ user_passwords.results }}'
 
 - hosts: dev
@@ -65,7 +65,7 @@
         name: '{{ item.item }}'
         password: '{{ item.stdout }}'
       with_items: '{{ user_passwords.results }}'
-      
+
     - name: Add user to sudo
       become: yes
       lineinfile:
