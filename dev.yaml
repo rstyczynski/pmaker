@@ -7,7 +7,7 @@
   connection: local
 
   vars:
-    users:
+    dev_users:
       - name: alice
         server_groups: [dev]
 
@@ -22,5 +22,5 @@
 
   tasks:
     - include: user_create.yml
-      with_items: 
-        - dev_users
+      with_items: '{{ dev_users }}'
+         
