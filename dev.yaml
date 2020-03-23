@@ -30,7 +30,7 @@
 
   tasks:
     - include: user_create.yml
-      with_items: { { dev_users } }
+      with_items: {{ dev_users }}
 
     - name: Add user to sudo
       become: yes
@@ -42,4 +42,4 @@
         create: yes
         validate: "visudo -cf %s"
         when: "'dev' in item.became_root"
-        with_items: { { dev_users } }
+        with_items: {{ dev_users }}
