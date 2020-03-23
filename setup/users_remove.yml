@@ -1,0 +1,5 @@
+---
+- name: remove users
+  become: yes
+  user: name={{ item }} state=absent remove=yes
+

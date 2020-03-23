@@ -1,0 +1,28 @@
+---
+#
+# remove pmaker users
+#
+- hosts: all
+  tasks:
+    - include: remove_users.yml
+      with_items: 
+        - pmaker
+
+#
+# create pmaker user, pmaker home directory, copy keys to pmaker home
+#
+- hosts: controller
+  tasks:
+  - include: create_pmaker_home.yml
+    with_items: 
+      - pmaker  
+
+#
+# create pmaker users on all hosts; verify that key is in place
+#
+- hosts: all
+  tasks:
+  - include: create_pmaker_workers.yml
+    with_items: 
+      - pmaker  
+
