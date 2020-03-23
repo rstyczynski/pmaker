@@ -3,4 +3,4 @@
   become: true
   tasks:
   - name: Enable password authentication
-    lineinfile: dest=/etc/ssh/sshd_config regexp='^#?PasswordAuthentication' line='PasswordAuthentication no'
+    lineinfile: dest=/etc/ssh/sshd_config regexp='^#?PasswordAuthentication' line='PasswordAuthentication yes'
