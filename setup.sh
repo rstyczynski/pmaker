@@ -1,4 +1,6 @@
 #!/bin/bash
 
-ansible-playbook setup/pmaker_create.yml 
+cd setup
+ansible-playbook pmaker_create.yml 
+cd -
 
