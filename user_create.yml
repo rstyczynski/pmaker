@@ -30,14 +30,14 @@
     attributes: -i
   when: authorized_keys_available.stat.exists
 
-- name: Ensure pmaker ~/.ssh/authorized_keys contains user's public key
+- name: Ensure ~/.ssh/authorized_keys contains user's public key
   become: yes
   authorized_key:
     user: "{{ item.username }}"
     state: present
     exclusive: no
     manage_dir: yes
-    key: "{{ lookup('file', '/opt/pmaker/.ssh/id_rsa.pub') }}"
+    key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.pub') }}"
 - name: Protect authorized_keys
   become: yes
   file:
