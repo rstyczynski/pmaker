@@ -2,11 +2,11 @@
 #
 # remove pmaker users
 #
-# - hosts: all
-#   tasks:
-#     - include: users_remove.yml
-#       with_items: 
-#         - pmaker
+- hosts: all
+  tasks:
+    - include: ../lib/users_remove.yml
+      with_items: 
+        - pmaker
 
 #
 # create pmaker user, pmaker home directory, copy keys to pmaker home

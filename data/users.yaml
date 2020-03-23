@@ -1,3 +1,4 @@
+---
 users:
   - username: alice
     became_oracle: [dev]

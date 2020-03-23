@@ -1,4 +1,0 @@
----
-- name: Enable password authentication
-  become: yes
-  - lineinfile: dest=/etc/ssh/sshd_config regexp='^#?PasswordAuthentication' line='PasswordAuthentication no'

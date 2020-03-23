@@ -7,18 +7,19 @@
   connection: local
 
   vars:
+    pmaker_home: /home/pmaker
     server_group: dev
 
   tasks:
     #
     # execute on controller
     #
-    - include_vars: dev_users.yaml
+    - include_vars: "{{ pmaker_home }}/state/{{ server_group }}/users.yaml"
 
     - name: create user directory
       become: yes
       file:
-        path: "/opt/pmaker/dev/{{ item.username }}/.ssh"
+        path: "{{ pmaker_home }}/state/{{ server_group }}/{{ item.username }}/.ssh"
         state: directory
         owner: "pmaker"
         mode: u+r,g-w+x,o+x
@@ -28,14 +29,14 @@
     - name: generate SSH key "{{ item.username }}"
       become: yes
       openssh_keypair:
-        path: "/opt/pmaker/dev/{{ item.username }}/.ssh/id_rsa"
+        path: "{{ pmaker_home }}/state/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"
         type: rsa
         size: 4096
         state: present
         force: no
       with_items: '{{ users }}'
 
-    - include: user_gen_password.yaml
+    - include: "{{ pmaker_home }}/lib/user_gen_password.yaml"
       with_items: '{{ users }}'
 
 - hosts: dev
@@ -47,12 +48,12 @@
     # execute on remote host
     #
   tasks:
-    - include_vars: dev_users.yaml
+    - include_vars: "{{ pmaker_home }}/data/derived/dev_users.yaml"
 
-    - include: user_create.yml
+    - include: "{{ pmaker_home }}lib/user_create.yml"
       with_items: '{{ users }}'
 
-    - include: user_set_password.yaml
+    - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
       with_items: '{{ users }}'
 
     - name: Add user to sudo
