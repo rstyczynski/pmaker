@@ -1,5 +1,5 @@
 ---
-- hosts: myhosts
+- hosts: all
   become: true
   tasks:
   - name: Enable password authentication
