@@ -7,6 +7,7 @@
   connection: local
 
   vars:
+    server_group: dev
     dev_users:
       - username: alice
         became_oracle: [dev]
@@ -29,6 +30,9 @@
         server_groups: [dev, sit, uat, prod]
 
   tasks:
+    #
+    # execute on controller
+    #
     - name: create user directory
       become: yes
       file:
@@ -49,6 +53,9 @@
         force: no
       with_items: '{{ dev_users }}'
 
+    #
+    # execute on remote host
+    #
     - include: user_create.yml
       with_items: '{{ dev_users }}'
 
