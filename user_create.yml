@@ -33,7 +33,7 @@
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   authorized_key:
-    user: "{{ item }}"
+    user: "{{ item.username }}"
     state: present
     exclusive: no
     manage_dir: yes
