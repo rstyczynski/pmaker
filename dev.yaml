@@ -46,7 +46,7 @@
     - name: generate SSH key "{{ item.username }}"
       become: yes
       openssh_keypair:
-        path: "/opt/pmaker/dev/{{ item.username }}/.ssh/id_rsa.pub"
+        path: "/opt/pmaker/dev/{{ item.username }}/.ssh/id_rsa"
         type: rsa
         size: 4096
         state: present
