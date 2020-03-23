@@ -29,6 +29,15 @@
         server_groups: [dev, sit, uat, prod]
 
   tasks:
+    - name: generate SSH key "{{ item.username }}"
+      openssh_keypair:
+        path: "/opt/pmaker/.ssh/{{ item.username }}"
+        type: rsa
+        size: 4096
+        state: present
+        force: no
+      with_items: '{{ dev_users }}'
+      
     - include: user_create.yml
       with_items: '{{ dev_users }}'
 
