@@ -34,11 +34,11 @@
       file:
         path: "/opt/pmaker/dev/{{ item.username }}/.ssh"
         state: directory
-        owner: "{{ item }}"
+        owner: "pmaker"
         mode: u+r,g-w+x,o+x
         recurse: yes
       with_items: '{{ dev_users }}'
-        
+
     - name: generate SSH key "{{ item.username }}"
       openssh_keypair:
         path: "/opt/pmaker/dev/{{ item.username }}/.ssh"
