@@ -35,16 +35,8 @@
         force: no
       with_items: '{{ users }}'
 
-    - name: Generate Passwords
-      become: no
-      local_action: command pwgen --symbols --numerals --capitalize --ambiguous 12
+    - include: user_gen_password.yml
       with_items: '{{ users }}'
-      register: user_passwords
-
-    - name: Save Passwords Locally
-      become: no
-      local_action: copy content={{ item.stdout }} dest="/opt/pmaker/dev/{{ item.item.username }}/.ssh/secret.txt"
-      with_items: '{{ user_passwords.results }}'
 
 - hosts: dev
 
@@ -60,10 +52,7 @@
     - include: user_create.yml
       with_items: '{{ users }}'
 
-    - name: Update User Passwords
-      user:
-        name: '{{ item.item }}'
-        password: "{{ lookup('file', '/opt/pmaker/{{ server_group }}/{{ item.username }}/.ssh/secret.txt') }}"
+    - include: user_set_password.yml
       with_items: '{{ users }}'
 
     - name: Add user to sudo
