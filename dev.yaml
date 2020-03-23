@@ -1,0 +1,26 @@
+---
+# 
+# create on dev
+#
+
+- hosts: localhost
+  connection: local
+
+  vars:
+    users:
+      - name: alice
+        server_groups: [dev]
+
+      - name: bob
+        server_groups: [dev, sit]
+
+      - name: carmen
+        server_groups: [dev, sit, uat]
+
+      - name: derek
+        server_groups: [dev, sit, uat, prod]
+
+  tasks:
+    - include: user_create.yml
+      with_items: 
+        - dev_users
