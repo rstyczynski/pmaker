@@ -41,5 +41,5 @@
         mode: 0440
         create: yes
         validate: "visudo -cf %s"
-        when: "'dev' in item.became_root"
-        with_items: '{{ dev_users }}'
+      when: "'dev' in item.became_root"
+      with_items: '{{ dev_users }}'
