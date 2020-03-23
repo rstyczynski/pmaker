@@ -4,7 +4,7 @@
 #
 - hosts: all
   tasks:
-    - include: remove_users.yml
+    - include: users_remove.yml
       with_items: 
         - pmaker
 
@@ -13,7 +13,7 @@
 #
 - hosts: controller
   tasks:
-  - include: create_pmaker_home.yml
+  - include: pmaker_create_home.yml
     with_items: 
       - pmaker  
 
@@ -22,7 +22,7 @@
 #
 - hosts: all
   tasks:
-  - include: create_pmaker_workers.yml
+  - include: pmaker_create_workers.yml
     with_items: 
       - pmaker  
 
