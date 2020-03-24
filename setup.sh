@@ -5,6 +5,9 @@ pmaker_home=/opt/pmaker
 cd setup
 ansible-playbook pmaker_create.yml
 if [ $? -eq 0 ]; then
+
+  sudo chown -R pmaker $pmaker_home
+
   sudo su pmaker bash -c"
   mkdir -p $pmaker_home/state
   mkdir -p $pmaker_home/state/dev
