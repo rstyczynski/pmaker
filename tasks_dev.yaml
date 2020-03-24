@@ -7,7 +7,7 @@
   connection: local
 
   vars:
-    pmaker_home: /home/pmaker
+    pmaker_home: /opt/pmaker
     server_group: dev
 
   tasks:
