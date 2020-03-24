@@ -1,16 +1,22 @@
 #!/bin/bash
 
-cp -r . ~/
+pmaker_home=/opt/pmaker
 
 cd setup
 ansible-playbook pmaker_create.yml
 if [ $? -eq 0 ]; then
+  sudo su pmaker bash -c"
+  mkdir -p $pmaker_home/state
+  mkdir -p $pmaker_home/state/dev
+  mkdir -p $pmaker_home/state/sit
+  mkdir -p $pmaker_home/state/uat
+  mkdir -p $pmaker_home/state/prod
+  
   cd
-  mkdir -p state
-  mkdir -p state/dev
-  mkdir -p state/sit
-  mkdir -p state/uat
-  mkdir -p state/prod
+  git clone https://github.com/rstyczynski/pmaker.git
+  cp -r pmaker/* $pmaker_home/
+  "
+
   exit 0
 fi
 
