@@ -14,12 +14,6 @@ sudo chown -R pmaker $pmaker_home
 sudo su pmaker bash -c"
 umask 077
 
-mkdir -p $pmaker_home/state
-mkdir -p $pmaker_home/state/dev
-mkdir -p $pmaker_home/state/sit
-mkdir -p $pmaker_home/state/uat
-mkdir -p $pmaker_home/state/prod
-
 cd
 if [ ! -d pmaker ]; then
    git clone https://github.com/rstyczynski/pmaker.git
