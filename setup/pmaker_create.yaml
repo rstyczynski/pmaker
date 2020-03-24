@@ -6,7 +6,7 @@
   become: yes
 
   tasks:
-    - include: ../lib/user_remove.yml
+    - include: ../lib/user_remove.yaml
       with_items: 
         - pmaker
 
@@ -15,7 +15,7 @@
 #
 - hosts: controller
   tasks:
-  - include: pmaker_create_home.yml
+  - include: pmaker_create_home.yaml
     with_items: 
       - pmaker  
 
@@ -24,7 +24,7 @@
 #
 - hosts: all
   tasks:
-  - include: pmaker_create_workers.yml
+  - include: pmaker_create_workers.yaml
     with_items: 
       - pmaker  
 
