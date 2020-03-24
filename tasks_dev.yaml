@@ -3,12 +3,6 @@
 # create on dev
 #
 
-- vars:
-  pmaker_home: /opt/pmaker
-  server_group: dev
-  user_group:   test
-
-  
 - hosts: localhost
   connection: local
 
@@ -21,7 +15,7 @@
     - name: create user directory
       become: yes
       file:
-        path: "{{ pmaker_home }}/state/{{ server_group }}/{{ item.username }}/.ssh"
+        path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh"
         state: directory
         owner: "pmaker"
         mode: u+r,g-w+x,o+x
@@ -31,7 +25,7 @@
     - name: generate SSH key "{{ item.username }}"
       become: yes
       openssh_keypair:
-        path: "{{ pmaker_home }}/state/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"
+        path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"
         type: rsa
         size: 4096
         state: present
@@ -42,12 +36,11 @@
       with_items: '{{ users }}'
 
 - hosts: dev
-
     #
     # execute on remote host
     #
   tasks:
-    - include_vars: "{{ pmaker_home }}/state/{{ server_group }}/users.yaml"
+    - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
     - include: "{{ pmaker_home }}/lib/user_create.yaml"
       with_items: '{{ users }}'
