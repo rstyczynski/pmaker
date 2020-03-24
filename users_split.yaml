@@ -29,7 +29,7 @@
         dest: "{{ pmaker_home }}/state/dev/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/dev/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/dev/users.yaml"
 
     #
     # write sit users to sit_users.yaml
@@ -47,7 +47,7 @@
         dest: "{{ pmaker_home }}/state/sit/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/sit/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/sit/users.yaml"
 
 
     #
@@ -66,7 +66,7 @@
         dest: "{{ pmaker_home }}/state/uat/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/uat/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/uat/users.yaml"
 
 
     #
@@ -85,4 +85,4 @@
         dest: "{{ pmaker_home }}/state/prod/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/prod/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/prod/users.yaml"

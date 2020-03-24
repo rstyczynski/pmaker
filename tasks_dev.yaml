@@ -42,6 +42,7 @@
 - hosts: dev
 
   vars:
+    pmaker_home: /opt/pmaker
     server_group: dev
 
     #
