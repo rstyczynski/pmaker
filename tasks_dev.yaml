@@ -12,11 +12,9 @@
 
   vars:
       server_group: dev
-  vars_files:
-    - config.yaml
 
   tasks:
-
+    - include_vars: config.yaml
     - include_vars: "{{ pmaker_home }}/state/{{ server_group }}/users.yaml"
 
     - name: create user directory
@@ -49,10 +47,9 @@
 
   vars:
       server_group: dev
-  vars_files:
-    - config.yaml
 
   tasks:
+    - include_vars: config.yaml
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
     - include: "{{ pmaker_home }}/lib/user_create.yaml"
