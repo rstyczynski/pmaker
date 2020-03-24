@@ -19,7 +19,12 @@ mkdir -p $pmaker_home/state/uat
 mkdir -p $pmaker_home/state/prod
 
 cd
-git clone https://github.com/rstyczynski/pmaker.git
+if [ !-d pmaker ]; then
+   git clone https://github.com/rstyczynski/pmaker.git
+else
+   git pull
+fi
+
 cp -r pmaker/* $pmaker_home/
 
 cd /opt/pmaker
