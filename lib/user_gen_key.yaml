@@ -35,3 +35,9 @@
   local_action: command openssl rsa -aes256 -in "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -out "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc" -passout "pass:{{ pwgen.stdout }}"
   when: key_password_created.stat.exists == False
   register: openssl
+
+- name: converting the key to putyt format
+  become: no
+  local_action: command puttygen "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -o "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.ppk" -O private --new-passphrase "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key" 
+  when: key_password_created.stat.exists == False
+  register: puttygen

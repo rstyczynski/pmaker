@@ -1,6 +1,17 @@
 #!/bin/bash
 
+sudo yum install -y git pwgen putty openssl
+
 pmaker_home=/opt/pmaker
+
+cd ~
+if [ ! -d pmaker ]; then
+   git clone https://github.com/rstyczynski/pmaker.git
+else
+  cd pmaker
+  git pull
+  cd -
+fi
 
 cat inventory.cfg | sed "s/=pmaker/=$(whoami)/g" > setup/inventory.cfg
 
