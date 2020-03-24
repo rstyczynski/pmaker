@@ -1,0 +1,15 @@
+---
+- name: create user directory
+  file:
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh"
+    state: directory
+    owner: "pmaker"
+    mode: u+r
+
+- name: generate SSH key "{{ item.username }}"
+  openssh_keypair:
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"
+    type: rsa
+    size: 4096
+    state: present
+    force: no

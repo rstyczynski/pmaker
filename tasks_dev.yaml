@@ -15,28 +15,11 @@
 
   tasks:
     - include_vars: config.yaml
-    - include_vars: "{{ pmaker_home }}/state/{{ server_group }}/users.yaml"
+    - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
-    - name: create user directory
-      become: yes
-      file:
-        path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh"
-        state: directory
-        owner: "pmaker"
-        mode: u+r,g-w+x,o+x
-        recurse: yes
+    - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
       with_items: '{{ users }}'
-
-    - name: generate SSH key "{{ item.username }}"
-      become: yes
-      openssh_keypair:
-        path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"
-        type: rsa
-        size: 4096
-        state: present
-        force: no
-      with_items: '{{ users }}'
-
+      
     - include: "{{ pmaker_home }}/lib/user_gen_password.yaml"
       with_items: '{{ users }}'
 
