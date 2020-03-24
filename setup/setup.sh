@@ -10,7 +10,7 @@ if [ $? -eq 0 ]; then
   mkdir state/sit
   mkdir state/uat
   mkdir state/prod
-  exit 0
+  return 0
 fi
 
-exit 1
+return 1
