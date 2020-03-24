@@ -2,6 +2,7 @@
 
 cp -r . ~/
 
+cd setup
 ansible-playbook pmaker_create.yml
 if [ $? -eq 0 ]; then
   cd
