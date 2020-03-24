@@ -3,12 +3,14 @@
 # create on dev
 #
 
+- vars:
+  pmaker_home: /opt/pmaker
+  server_group: dev
+  user_group:   test
+
+  
 - hosts: localhost
   connection: local
-
-  vars:
-    pmaker_home: /opt/pmaker
-    server_group: dev
 
   tasks:
     #
@@ -40,10 +42,6 @@
       with_items: '{{ users }}'
 
 - hosts: dev
-
-  vars:
-    pmaker_home: /opt/pmaker
-    server_group: dev
 
     #
     # execute on remote host
