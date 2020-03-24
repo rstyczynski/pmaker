@@ -15,19 +15,17 @@ sudo chown -R pmaker $pmaker_home
 sudo su pmaker bash -c"
 umask 077
 
-cd
-if [ ! -d pmaker ]; then
+cd /home/pmaker
+if [ ! -d src ]; then
    git clone https://github.com/rstyczynski/pmaker.git
+   mv pmaker src
 else
-  cd pmaker
+  cd src
   git pull
 fi
 
 cp -r * $pmaker_home/
 
-cd /opt/pmaker
-\rm -f setup.sh
-\rm -rf setup
 
 grep 'umask 077' /home/pmaker/.bash_profile
 if [ $? -ne 0 ]; then
