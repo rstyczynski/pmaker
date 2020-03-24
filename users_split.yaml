@@ -28,6 +28,9 @@
         content: "{{ dev_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/dev/users.yaml"
 
+    - name: Insert proper header
+      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/dev/users.yaml"
+
     #
     # write sit users to sit_users.yaml
     #
@@ -42,6 +45,10 @@
       copy:
         content: "{{ sit_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/sit/users.yaml"
+
+    - name: Insert proper header
+      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/sit/users.yaml"
+
 
     #
     # write uat users to uat_users.yaml
@@ -58,6 +65,10 @@
         content: "{{ uat_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/uat/users.yaml"
 
+    - name: Insert proper header
+      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/uat/users.yaml"
+
+
     #
     # write prod users to prod_users.yaml
     #
@@ -72,3 +83,6 @@
       copy:
         content: "{{ prod_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/prod/users.yaml"
+
+    - name: Insert proper header
+      shell: sed -i '1 i\---\nusers:\n' "{{ pmaker_home }}/state/prod/users.yaml"
