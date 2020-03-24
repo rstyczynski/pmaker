@@ -67,5 +67,7 @@
         mode: 0440
         create: yes
         validate: "visudo -cf %s"
-      when: "'{{ server_group }}' in item.became_root"
+      #[WARNING]: conditional statements should not include jinja2 templating delimiters such as {{ }} or {% %}. Found: '{{ server_group }}' in item.became_root
+      #when: "'{{ user_group }}' in item.became_root"
+      when: "'dev' in item.became_root"
       with_items: '{{ users }}'
