@@ -1,5 +1,11 @@
 ---
+- name: Change home file permission
+  become: yes
+  file:
+    path: "/home/{{ item }}"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+
 - name: remove users
   become: yes
   user: name={{ item }} state=absent remove=yes
-
