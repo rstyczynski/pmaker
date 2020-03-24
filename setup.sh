@@ -2,7 +2,9 @@
 
 pmaker_home=/opt/pmaker
 
-ansible-playbook setup/pmaker_create.yaml
+cat inventory.cfg | sed "s/pmaker/$(whoami)/g" > setup/inventory.cfg
+
+ansible-playbook -i setup/inventory.cfg setup/pmaker_create.yaml
 if [ $? -ne 0 ]; then
   echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
   exit 1
