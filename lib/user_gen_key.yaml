@@ -13,3 +13,25 @@
     size: 4096
     state: present
     force: no
+
+- name: Check if key password file exists i.e. password already generated
+  stat: 
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key"
+  register: key_password_created
+
+- name: Generate key password
+  become: no
+  local_action: command pwgen --symbols --numerals --capitalize --ambiguous 15
+  when: key_password_created.stat.exists == False
+  register: pwgen
+
+- name: Save key password locally
+  become: no
+  local_action: copy content={{ pwgen.stdout }} dest="{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key"
+  when: key_password_created.stat.exists == False
+
+- name: encrypting the key
+  become: no
+  local_action: command openssl rsa -aes256 -in "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -out "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc" -passout "pass:{{ pwgen.stdout }}"
+  when: key_password_created.stat.exists == False
+  register: openssl
