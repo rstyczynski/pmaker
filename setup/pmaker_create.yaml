@@ -5,13 +5,13 @@
 # !!! USE ONLY DURING INTIAL SETUP !!! 
 # THIS PROCEDURE REMOVES HOME DIRECTORY
 #
-# - hosts: all
-#   become: yes
+- hosts: all
+  become: yes
 
-#   tasks:
-#     - include: ../lib/user_remove.yaml
-#       with_items: 
-#         - pmaker
+  tasks:
+    - include: ../lib/user_remove.yaml
+      with_items: 
+        - pmaker
 
 #
 # create pmaker user, pmaker home directory, copy keys to pmaker home
