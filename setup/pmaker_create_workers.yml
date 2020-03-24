@@ -39,17 +39,17 @@
     manage_dir: yes
     key: "{{ lookup('file', '/opt/pmaker/.ssh/id_rsa.pub') }}"
 
-- name: Protect authorized_keys
-  become: yes
-  file:
-    path: /home/{{ item }}/.ssh/authorized_keys
-    attributes: +i
+# - name: Protect authorized_keys
+#   become: yes
+#   file:
+#     path: /home/{{ item }}/.ssh/authorized_keys
+#     attributes: +i
 
-- name: Protect .ssh
-  become: yes
-  file:
-    path: /home/{{ item }}/.ssh
-    attributes: +i
+# - name: Protect .ssh
+#   become: yes
+#   file:
+#     path: /home/{{ item }}/.ssh
+#     attributes: +i
     
 - name: Add pmaker to sudo
   become: yes
