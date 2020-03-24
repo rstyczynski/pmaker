@@ -22,7 +22,7 @@ users:
     server_groups: [dev, sit, uat]
 
   - username: derek
-    email: derek@seris.tv
+    email: derek@series.tv
     mobile: +48 010 011 012
     became_oracle: [dev, sit, uat, prod]
     became_root:   [dev]
