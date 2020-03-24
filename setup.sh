@@ -2,8 +2,7 @@
 
 pmaker_home=/opt/pmaker
 
-cd setup
-ansible-playbook pmaker_create.yaml
+ansible-playbook setup/pmaker_create.yaml
 if [ $? -ne 0 ]; then
   echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
   exit 1
