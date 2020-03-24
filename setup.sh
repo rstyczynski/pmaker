@@ -22,10 +22,11 @@ cd
 if [ ! -d pmaker ]; then
    git clone https://github.com/rstyczynski/pmaker.git
 else
-   git pull
+  cd pmaker
+  git pull
 fi
 
-cp -r pmaker/* $pmaker_home/
+cp -r * $pmaker_home/
 
 cd /opt/pmaker
 \rm -f setup.sh
