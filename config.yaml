@@ -1,0 +1,4 @@
+---
+vars:
+  pmaker_home: /opt/pmaker
+  user_group: sample

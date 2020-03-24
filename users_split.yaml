@@ -7,6 +7,9 @@
 - hosts: localhost
   connection: local
 
+  vars_files:
+    - config.yaml
+    
   tasks:
     - include_vars: "{{ pmaker_home }}/data/{{ user_group }}.yaml"
 

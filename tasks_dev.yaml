@@ -3,13 +3,20 @@
 # create on dev
 #
 
+
+#
+# execute on controller
+#
 - hosts: localhost
   connection: local
 
+  vars:
+      server_group: dev
+  vars_files:
+    - config.yaml
+
   tasks:
-    #
-    # execute on controller
-    #
+
     - include_vars: "{{ pmaker_home }}/state/{{ server_group }}/users.yaml"
 
     - name: create user directory
@@ -35,10 +42,16 @@
     - include: "{{ pmaker_home }}/lib/user_gen_password.yaml"
       with_items: '{{ users }}'
 
+#
+# execute on remote host
+#
 - hosts: dev
-    #
-    # execute on remote host
-    #
+
+  vars:
+      server_group: dev
+  vars_files:
+    - config.yaml
+
   tasks:
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
