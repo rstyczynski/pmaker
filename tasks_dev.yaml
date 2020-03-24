@@ -51,7 +51,7 @@
   tasks:
     - include_vars: "{{ pmaker_home }}/data/derived/dev_users.yaml"
 
-    - include: "{{ pmaker_home }}lib/user_create.yml"
+    - include: "{{ pmaker_home }}lib/user_create.yaml"
       with_items: '{{ users }}'
 
     - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
