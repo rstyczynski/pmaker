@@ -63,7 +63,7 @@
     #
     - name: set fact
       set_fact:
-        urod_users: "{{ prod_users|default([]) + [ item ]  }}"
+        prod_users: "{{ prod_users|default([]) + [ item ]  }}"
 
       when: "'prod' in item.server_groups"
       with_items: "{{users}}"
