@@ -23,10 +23,10 @@
     - name: Write dev_users to a file
       copy:
         content: "{{ dev_users | to_nice_yaml }}"
-        dest: "{{ pmaker_home }}/state/{{ user_group }}/dev/users.yaml"
+        dest: "{{ pmaker_home }}/{{ user_group }}/state/dev/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/dev/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/{{ user_group }}/state/dev/users.yaml"
 
     #
     # write sit users to sit_users.yaml
@@ -41,10 +41,10 @@
     - name: Write sit_users to a file
       copy:
         content: "{{ sit_users | to_nice_yaml }}"
-        dest: "{{ pmaker_home }}/state/{{ user_group }}/sit/users.yaml"
+        dest: "{{ pmaker_home }}/{{ user_group }}/state/sit/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/sit/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/{{ user_group }}/state/sit/users.yaml"
 
 
     #
@@ -60,10 +60,10 @@
     - name: Write uat_users to a file
       copy:
         content: "{{ uat_users | to_nice_yaml }}"
-        dest: "{{ pmaker_home }}/state/{{ user_group }}/uat/users.yaml"
+        dest: "{{ pmaker_home }}/{{ user_group }}/state/uat/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/uat/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/{{ user_group }}/state/uat/users.yaml"
 
 
     #
@@ -79,7 +79,7 @@
     - name: Write prod_users to a file
       copy:
         content: "{{ prod_users | to_nice_yaml }}"
-        dest: "{{ pmaker_home }}/state/{{ user_group }}/prod/users.yaml"
+        dest: "{{ pmaker_home }}/{{ user_group }}/state/prod/users.yaml"
 
     - name: Insert proper header
-      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/prod/users.yaml"
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/{{ user_group }}/state/prod/users.yaml"
