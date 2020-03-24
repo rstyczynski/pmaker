@@ -15,6 +15,7 @@ sudo chown -R pmaker $pmaker_home
 sudo su pmaker bash -c"
 umask 077
 
+# get from git as pmaker to avoid issue with file ownership / umask
 cd /home/pmaker
 if [ ! -d src ]; then
    git clone https://github.com/rstyczynski/pmaker.git
