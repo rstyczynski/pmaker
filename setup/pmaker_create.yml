@@ -4,7 +4,7 @@
 #
 - hosts: all
   tasks:
-    - include: ../lib/users_remove.yml
+    - include: ../lib/user_remove.yml
       with_items: 
         - pmaker
 
