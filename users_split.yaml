@@ -8,7 +8,7 @@
   connection: local
 
   vars:
-    pmaker_home: /home/pmaker
+    pmaker_home: /opt/pmaker
 
   tasks:
     - include_vars: "{{ pmaker_home }}/data/users.yaml"
