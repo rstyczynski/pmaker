@@ -3,7 +3,7 @@
 # remove pmaker users
 #
 - hosts: all
-  became: yes
+  become: yes
 
   tasks:
     - include: ../lib/user_remove.yml
