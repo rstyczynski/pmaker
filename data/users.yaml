@@ -1,21 +1,26 @@
 ---
 users:
   - username: alice
+    email: alice@wonder.land
     became_oracle: [dev]
-    became_root: [dev]
+    became_root:   [dev]
     server_groups: [dev]
 
   - username: bob
+    email: bob@builder.the
     became_oracle: [sit]
-    became_root: [dev]
+    became_root:   [dev]
     server_groups: [dev, sit]
 
   - username: carmen
-    became_oracle: [dev, dit, uat]
-    became_root: [dev]
+    email: carmen@opera.world
+    became_oracle: [dev, sit, uat]
+    became_root:   [dev]
     server_groups: [dev, sit, uat]
 
   - username: derek
+    email: derek@seris.tv
     became_oracle: [dev, sit, uat, prod]
-    became_root: [dev]
+    became_root:   [dev]
     server_groups: [dev, sit, uat, prod]
+

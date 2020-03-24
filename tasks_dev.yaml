@@ -57,7 +57,7 @@
     - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
       with_items: '{{ users }}'
 
-    - name: Add user to sudo
+    - name: Add user to root sudoers
       become: yes
       lineinfile:
         path: "/etc/sudoers.d/{{ item.username }}"
@@ -66,5 +66,5 @@
         mode: 0440
         create: yes
         validate: "visudo -cf %s"
-      when: "'dev' in item.became_root"
+      when: "'{{ server_group }}' in item.became_root"
       with_items: '{{ users }}'
