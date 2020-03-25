@@ -72,7 +72,7 @@
       when: "'dev' in item.became_oracle"
       with_items: '{{ users }}'
 
-    - name: Add user to appl* sudoers
+    - name: Add user to appl sudoers
       become: yes
       blockinfile:
         path: "/etc/sudoers.d/{{ item.username }}"
@@ -83,5 +83,5 @@
         mode: 0440
         create: yes
         validate: "visudo -cf %s"
-      when: "'dev' in item.became_appl*"
+      when: "'dev' in item.became_appl"
       with_items: '{{ users }}'
