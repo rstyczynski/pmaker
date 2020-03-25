@@ -54,7 +54,7 @@ function generateWelcomeEmail() {
 	mkdir -p tmp
 	cat templates/welcome_email.j2 |
 		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
-		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc >tmp/welcome_email.j2
+		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.ppk >tmp/welcome_email.j2
 	j2 tmp/welcome_email.j2
 }
 
