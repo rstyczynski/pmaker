@@ -57,3 +57,31 @@
       #when: "'{{ user_group }}' in item.became_root"
       when: "'dev' in item.became_root"
       with_items: '{{ users }}'
+
+    - name: Add user to oracle sudoers
+      become: yes
+      blockinfile:
+        path: "/etc/sudoers.d/{{ item.username }}"
+        block: |
+          {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
+          {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
+        state: present
+        mode: 0440
+        create: yes
+        validate: "visudo -cf %s"
+      when: "'dev' in item.became_oracle"
+      with_items: '{{ users }}'
+
+    - name: Add user to appl* sudoers
+      become: yes
+      blockinfile:
+        path: "/etc/sudoers.d/{{ item.username }}"
+        block: |
+          {{ item.username }} ALL=(root) NOPASSWD: /bin/su appl*
+          {{ item.username }} ALL=(root) NOPASSWD: /bin/su - appl*
+        state: present
+        mode: 0440
+        create: yes
+        validate: "visudo -cf %s"
+      when: "'dev' in item.became_appl*"
+      with_items: '{{ users }}'
