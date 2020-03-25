@@ -2,7 +2,7 @@ User management
 ===============
 
 ```
-cat /opt/pmaker/data/science.users.yaml
+> cat /opt/pmaker/data/science.users.yaml
 ---
 users:
   - username: carmen
@@ -31,16 +31,24 @@ Carmen has 1 week to connect to hosts and change passwords. After this time, sys
 
 Identification keys are revoked each 6 months. Carmen receives email with new key and its password over text message, month before key termination.
 
-# Peace maker
+# Peacemaker
 
 Managing above user stories may easily became a nightmare for system operator. Doing above without extensive level of automation is a quite difficult job. To make it easier pmaker automates it with help of Ansible configuration manager.
 
 Pmaker runs on dedicated host, and of cource does not need to use full capacity, ocuping just few megabytes in /opt/pmaker directory. From this directory system administrator runs all the tasks; it's the place with user details, and here are stored all the passwords, and keys. Pmaker account is like root for the system. System operator must take care of it in the same way root details are protected.
 
+## installation
+
+Pacemaker is an open source project hosted at github. To instal one clones the repository, defines list of hosts, and runs setup.sh script.
+
+
+
+## file layout
+
 Pmaker sits in /opt/pmaker
 
 ```
-ls -1 # manually sorted
+> ls -1 # manually sorted
 
 data                user database
 state               system state i.e. all password, keys
@@ -56,11 +64,13 @@ src                 pmaker project
 Pmaker comes with sample system, described in data directory. Note that both user nad server database is started with name of the group. In real life it will be department, organisation, or project name, or any other business level name identifying group of people.
 
 ```
-ls -1 data
+> ls -1 data
 
 sample.users.yaml       list of users
 sample.inventory.cfg    list of insnaces
 ```
+
+# user definition
 
 User database is the place where all uses are described. username is users identifier on all the servers; server_groups says to wchich environments user has access; password/key defines authentication method; become informs is user may sodo to oracle, root, and/or appl* users. Email and phone are informative for system operator. 
 
@@ -68,7 +78,7 @@ User database is the place where all uses are described. username is users ident
 Let's take a look how the user is described:
 
 ```
-head -15 data/sample.users.yaml
+> head -15 data/sample.users.yaml
 
 ---
 users:
@@ -86,10 +96,12 @@ users:
     mobile: +48 001 002 003
 ```
 
+# server definition
+
 Servers belonging to Sample project are described in Ansible inventory file. With this information Ansible is aware of instances belonging to logical groups and how to access them.
 
 ```
-cat data/sample.inventory.cfg 
+> cat data/sample.inventory.cfg 
 
 [controller]
 localhost ansible_connection=local
@@ -106,18 +118,39 @@ pmaker-test-4 ansible_user=pmaker
 ```
 
 
-## Deploying user accounts to servers
+# Deploying user accounts to servers
 
-After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment. Note the this time system admin specifies user group name and host definition file.
+After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment. Note the this time system admin specifies user group name and host definition file. Note that sysadmin operated as pmaker user.
 
 ```
-cd /opt/pmaker
+> whoami
+pmaker
+
+? cd /opt/pmaker
 ansible-playbook users_split.yaml -e user_group=sample -i data/sample.inventory.cfg 
 ```
 
 Having users split into environments, system admin runs ansible playbook for each environment.
 
 ```
-cd /opt/pmaker
+> cd /opt/pmaker
 ansible-playbook tasks_dev.yaml -e user_group=sample -i data/sample.inventory.cfg 
 ```
+
+Above is repeated for each environmnet: dev, sit, uat, preprod, and prod, what may be automated usign bash.
+
+```
+for env in dev sit ust preprod prod; do 
+   ansible-playbook tasks_$env.yaml -e user_group=sample -i data/sample.inventory.cfg 
+done
+```
+
+Ansible playbook does following things:
+1. prepares passwords and openssh/putty keys incl. encrypted ones
+2. creates users accounts
+3. sets passowrds if selected for given user
+4. register public keys in servers' authorized keys
+5. maintains sudoers configuration.
+
+Once completed XXX
+
