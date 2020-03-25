@@ -52,6 +52,12 @@ grep 'umask 077' /home/pmaker/.bash_profile
 if [ $? -ne 0 ]; then
    echo umask 077 >>/home/pmaker/.bash_profile
 fi
+
+grep 'export pmaker_home=' /home/pmaker/.bash_profile
+if [ $? -ne 0 ]; then
+   echo export pmaker_home=$pmaker_home >>/home/pmaker/.bash_profile
+fi
+
 "
 
 cd -
