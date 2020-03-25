@@ -31,7 +31,7 @@
 - hosts: dev_jump
 
   vars:
-      server_group: dev_jump
+      server_group: dev
 
   tasks:
     - include_vars: config.yaml
