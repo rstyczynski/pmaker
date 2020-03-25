@@ -28,6 +28,26 @@
 #
 # execute on remote host
 #
+- hosts: dev_jump
+
+  vars:
+      server_group: dev_jump
+
+  tasks:
+    - include_vars: config.yaml
+    - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
+
+    - include: "{{ pmaker_home }}/lib/user_create.yaml"
+      with_items: '{{ users }}'
+
+    - include: "{{ pmaker_home }}/lib/user_set_key.yaml"
+      when: (item.key is defined) and (item.key == 'yes')
+      with_items: '{{ users }}'
+    
+    - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
+      when: (item.pasword is defined) and (item.pasword == 'yes')
+      with_items: '{{ users }}'
+
 - hosts: dev
 
   vars:

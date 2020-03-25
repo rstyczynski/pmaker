@@ -19,7 +19,7 @@ users:
     mobile: +48 007 008 009
 ```
 
-Carmen is a member of Science project, having access to dozen of servers in dev, sit, and uat environments. She may connect to systems using password authentication or rsa identification key. She can switch to application accounts to manage dev as root, and other environments as oracle, applmgr, and applsoad. She may be contacted by email and mobile.
+Carmen is a member of Science project, having access to dozens of servers in dev, sit, and uat environments. She may connect to systems using password authentication or rsa identification key. She can switch to application accounts to manage dev as root, and other environments as oracle, applmgr, and applsoad. She may be contacted by email and mobile.
 
 Creating accounts for Carmen, system admin uses auto generated safe password, and encrypted identification key. As Carmen may use putty to connect from Windows and ssh to connect from Linux, system admin creates keys in desired formats. 
 
@@ -27,7 +27,9 @@ Creating accounts for Carmen, system admin uses auto generated safe password, an
 
 Once accounts are created on all hosts Carmen receives text message on her mobile with Linux password, and another text message with password to encrypted keys. Username and keys are delivered using e-mail to her desktop. Carmen may access her key repository over https protocol with authentication.
 
-Carmen has 1 week to connect to hosts and change passwords. After this time, system randomizes the password on all hosts having system generated ones.
+From this moment Carmen may access all the servers, however from internet side she uses bastion host to connect to rest of machines.
+
+Carmen has one week to connect to hosts and change passwords. After this time, system randomizes the password on all hosts having system generated ones.
 
 Identification keys are revoked each 6 months. Carmen receives email with new key and its password over text message, month before key termination.
 
@@ -35,13 +37,13 @@ Identification keys are revoked each 6 months. Carmen receives email with new ke
 
 Managing above user stories may easily became a nightmare for system operator. Doing above without extensive level of automation is a quite difficult job. To make it easier pmaker automates it with help of Ansible configuration manager.
 
-Pmaker runs on dedicated host, and of cource does not need to use full capacity, ocuping just few megabytes in /opt/pmaker directory. From this directory system administrator runs all the tasks; it's the place with user details, and here are stored all the passwords, and keys. Pmaker account is like root for the system. System operator must take care of it in the same way root details are protected.
+Pmaker runs on dedicated host - the controller; of course, does not need to use its full capacity, occupying just few megabytes in /opt/pmaker directory. From this directory system administrator as pmaker runs all the tasks; it's the place with user details, and here are stored all the passwords, and keys. Pmaker account is like root for the system. System operator must take care of it in the same way root details are protected.
 
-## installation
+Each group of servers has associated jump server, where pmaker creates accounts, however without other services as ability to sudo. According to preferences user may connect to jump using password authentication or in password less way. Preferred method is the latter one.
 
-Pacemaker is an open source project hosted at github. To instal one clones the repository, defines list of hosts, and runs setup.sh script.
-
-
+```
+ssh -J carmen@dev_jump.scence.org carmen@dev1.science.org
+```
 
 ## file layout
 
@@ -53,7 +55,7 @@ Pmaker sits in /opt/pmaker
 data                user database
 state               system state i.e. all password, keys
 tasks_dev.yaml      playbook to handle dev
-users_split.yaml    playbook to pre process user database       
+users_split.yaml    playbook to preprocess user database       
 config.yaml         playbook defaults (user group)
 ansible.cfg         ansible defaults (server group)
 README.md           this file
@@ -61,19 +63,18 @@ lib                 ansible functions
 src                 pmaker project
 ```
 
-Pmaker comes with sample system, described in data directory. Note that both user nad server database is started with name of the group. In real life it will be department, organisation, or project name, or any other business level name identifying group of people.
+Pmaker comes with sample system, described in data directory. Note that both user and server database is started with name of the group. In real life it will be department, organization, or project name, or any other business level name identifying group of people.
 
 ```
 > ls -1 data
 
 sample.users.yaml       list of users
-sample.inventory.cfg    list of insnaces
+sample.inventory.cfg    list of instances
 ```
 
 # user definition
 
-User database is the place where all uses are described. username is users identifier on all the servers; server_groups says to wchich environments user has access; password/key defines authentication method; become informs is user may sodo to oracle, root, and/or appl* users. Email and phone are informative for system operator. 
-
+User database is the place where all uses are described. username is user’s identifier on all the servers; server_groups says to which environments user has access; password/key defines authentication method; become informs is user may sodo to oracle, root, and/or appl* users. Email and phone are informative for system operator. 
 
 Let's take a look how the user is described:
 
@@ -106,23 +107,65 @@ Servers belonging to Sample project are described in Ansible inventory file. Wit
 [controller]
 localhost ansible_connection=local
 
-[dev]
+[dev_jump]
 pmaker-test-1 ansible_user=pmaker
+
+[dev]
 pmaker-test-2 ansible_user=pmaker
+
+[sit_jump]
+pmaker-test-1 ansible_user=pmaker
 
 [sit]
 pmaker-test-3 ansible_user=pmaker
+pmaker-test-4 ansible_user=pmaker
+
+[uat_jump]
+pmaker-test-1 ansible_user=pmaker
 
 [uat]
 pmaker-test-4 ansible_user=pmaker
 ```
 
+# Installation
+
+Pacemaker is an open source project hosted at github. To install, one clones the repository using git, defines list of hosts, and runs setup.sh script.
+
+```
+sudo yum install -y  git
+
+git clone https://github.com/rstyczynski/pmaker.git
+```
+
+Now edit inventory file adding your servers. Keep dev, sit, uat env names to simplify cfg. Once completed you may create sample team of alice, bob, carmen, and derek. Please remember to keep pmaker as connection user. 
+
+```
+vi data/sample.inventory.cfg 
+
+<< do the editing >>
+```
+
+Note that ansible uses password less SSH protocol to access all the hosts. It's mandatory that:
+- you may access all the servers this way. Setup scripts pings all the hosts before proceeding. In case of any communication issues setup stops,
+- you operate from user with sudo rights. setup script creates pmaker user which will be used after installation to work with user management.
+
+Once configure proceed with setup.
+
+```
+cd pmaker
+./setup.sh
+```
+
+After successful completion on all the hosts pmaker will be created with password less access. Moreover, sshd will be configured for password access to make it possible to use passwords if any user needs it.
+
+
 
 # Deploying user accounts to servers
 
-After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment. Note the this time system admin specifies user group name and host definition file. Note that sysadmin operated as pmaker user.
+After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment. Note that this time system admin specifies user group name and host definition file. Note that sysadmin operated as pmaker user; use sudo to switch identity.
 
 ```
+> sudo su - pmaker
 > whoami
 pmaker
 
@@ -137,10 +180,10 @@ Having users split into environments, system admin runs ansible playbook for eac
 ansible-playbook tasks_dev.yaml -e user_group=sample -i data/sample.inventory.cfg 
 ```
 
-Above is repeated for each environmnet: dev, sit, uat, preprod, and prod, what may be automated usign bash.
+Above is repeated for each environment: dev, sit, uat, preprod, and prod, what may be automated using bash.
 
 ```
-for env in dev sit ust preprod prod; do 
+for env in dev sit uat preprod prod; do 
    ansible-playbook tasks_$env.yaml -e user_group=sample -i data/sample.inventory.cfg 
 done
 ```
@@ -148,9 +191,10 @@ done
 Ansible playbook does following things:
 1. prepares passwords and openssh/putty keys incl. encrypted ones
 2. creates users accounts
-3. sets passowrds if selected for given user
+3. sets passwords if selected for given user
 4. register public keys in servers' authorized keys
 5. maintains sudoers configuration.
 
 Once completed XXX
+
 
