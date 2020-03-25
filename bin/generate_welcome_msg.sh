@@ -66,7 +66,7 @@ function generateUserMessages() {
 	local user_id=$1
 
 	mkdir -p state/$user_group/$server_group/$username/outbox
-	getUserData $user_id
+	getUserData $user_group $server_group $user_id
 	generateWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
 	generatePasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
 	ggenerateKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
@@ -86,17 +86,25 @@ function generateAllMessages() {
 }
 
 function getWelcomeEmail() {
-	local username=$1
+	local user_group=$1
+	local server_group=$2
+	local username=$3
 
 	cat state/$user_group/$server_group/$username/outbox/welcome_mail.txt
 }
 
 function getPasswordSMS() {
-	local username=$1
+	local user_group=$1
+	local server_group=$2
+	local username=$3
+
 	cat state/$user_group/$server_group/$username/outbox/pass_sms.txt
 }
 
 function getKeySMS() {
-	local username=$1
+	local user_group=$1
+	local server_group=$2
+	local username=$3
+	
 	cat state/$user_group/$server_group/$username/outbox/key_sms.txt
 }
