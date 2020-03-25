@@ -22,9 +22,9 @@ function insertFile() {
 # Source: https://unix.stackexchange.com/questions/141387/sed-replace-string-with-file-contents
 
 function getUserData() {
-	export  user_group=$1
-	export  server_group=$2
-	export  username=$3
+	export user_group=$1
+	export server_group=$2
+	export username=$3
 
 	export full_name=$(getField $user_group $server_group $username full_name)
 	export password_access=$(getField $user_group $server_group $username password)
@@ -37,7 +37,7 @@ function getUserData() {
 
 	export jump_server=$(cat data/$user_group.inventory.cfg | grep -A1 "\[$server_group\_jump\]" | grep public_ip | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
 	export first_host=$(cat data/$user_group.inventory.cfg | grep -A1 "\[$server_group\]" | grep ansible | cut -f1 -d' ')
-	
+
 	export date=$(date +"%F %T")
 
 	if [ -z "$admin" ]; then
@@ -46,16 +46,21 @@ function getUserData() {
 
 }
 
-function generateWelcomeEmail() {
+function generateWelcomeEmailBody() {
 	local user_group=$1
 	local server_group=$2
 	local username=$3
 
 	mkdir -p tmp
-	cat templates/welcome_email.j2 |
+	cat templates/welcome_email-body.j2 |
 		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
-		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.ppk >tmp/welcome_email.j2
-	j2 tmp/welcome_email.j2
+		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.ppk >tmp/welcome_email-body.j2
+	j2 tmp/welcome_email-body.j2
+	rm -f tmp/welcome_email-body.j2
+}
+
+function generateWelcomeEmailHeader() {
+	j2 tmp/welcome_email-header.j2
 }
 
 function generatePasswordSMS() {
@@ -88,7 +93,8 @@ function generateUserMessages() {
 
 	echo Generating messages...
 	echo -n "\- welcome mail..."
-	generateWelcomeEmail $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
+	generateWelcomeEmailBody $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
+	generateWelcomeEmailHeader >state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
 	echo OK
 
 	echo -n "\- access password..."
@@ -128,15 +134,20 @@ function generateAllMessages() {
 		echo Processing user $username...
 		generateUserMessages $user_group $server_group $username
 	done
-	echo All done. Use getWelcomeEmail, getPasswordSMS, getKeySMS to get messages. 
+	echo All done. Use getWelcomeEmail, getPasswordSMS, getKeySMS to get messages.
 }
 
 function getWelcomeEmail() {
 	local user_group=$1
 	local server_group=$2
 	local username=$3
+	local header=$4
 
-	cat state/$user_group/$server_group/$username/outbox/welcome_mail.txt
+	if [ "$header" == "header" ]; then
+		cat state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
+		echo '---'
+	fi
+	cat state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
 }
 
 function getPasswordSMS() {
