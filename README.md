@@ -108,15 +108,16 @@ pmaker-test-4 ansible_user=pmaker
 
 ## Deploying user accounts to servers
 
-After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment.
+After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment. Note the this time system admin specifies user group name and host definition file.
 
 ```
 cd /opt/pmaker
 ansible-playbook users_split.yaml -e user_group=sample -i data/sample.inventory.cfg 
 ```
 
+Having users split into environments, system admin runs ansible playbook for each environment.
 
 ```
 cd /opt/pmaker
-ansible-playbook tasks_dev.yaml 
+ansible-playbook tasks_dev.yaml -e user_group=sample -i data/sample.inventory.cfg 
 ```
