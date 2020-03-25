@@ -154,7 +154,7 @@ Once configure proceed with setup.
 
 ```
 cd pmaker
-./setup.sh
+./setup/setup.sh
 ```
 
 After successful completion on all the hosts pmaker will be created with password less access. Moreover, sshd will be configured for password access to make it possible to use passwords if any user needs it.
