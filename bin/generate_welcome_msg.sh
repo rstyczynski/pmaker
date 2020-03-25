@@ -34,7 +34,7 @@ function getUserData() {
 	export email=$(getField $username email)
 
 	export key_ssh_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.enc)
-	export key_ppk_enc=$(cat state/user_group/$server_group/$username/.ssh/id_rsa.ppk)
+	export key_ppk_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.ppk)
 
 	export jump_server=$(cat data/$user_group.inventory.cfg | grep -A1 $server_group\_jump | grep ansible_user | cut -f1 -d' ')
 	export date=$(date +"%F %T")
@@ -45,7 +45,7 @@ function getUserData() {
 
 }
 
-function getWelcomeEmail() {
+function generateWelcomeEmail() {
 	mkdir -p tmp
 	cat templates/welcome_email.j2 |
 		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
@@ -53,24 +53,37 @@ function getWelcomeEmail() {
 	j2 tmp/welcome_email.j2
 }
 
-function getPasswordSMS() {
-	export password_account=$(state/$user_group/$server_group/$username/.ssh/secret.txt)
+function generatePasswordSMS() {
+	export password_account=$(cat state/$user_group/$server_group/$username/.ssh/secret.txt)
 	j2 templates/welcome_password_account.j2
 }
 
-function getKeySMS() {
-	export password_key=$(state/$user_group/$server_group/$username/.ssh/secret.key)
+function generateKeySMS() {
+	export password_key=$(cat state/$user_group/$server_group/$username/.ssh/secret.key)
 	j2 templates/welcome_password_key.j2
 }
 
+function generateAllMessages() {
+	users_def=$pmaker_home/state/$user_group/$server_group/users.yaml
+	users=$(cat $users_def | y2j | jq -r '.users[].username')
 
-users_def=$pmaker_home/state/$user_group/$server_group/users.yaml
-users=$(cat $users_def | y2j | jq -r '.users[].username')
+	for user_id in $users; do
+		mkdir -p state/$user_group/$server_group/$username/outbox
+		getUserData $user_group $server_group $user_id
+		generateWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
+		generatePasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
+		ggenerateKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
+	done
+}
 
-for user_id in $users; do
-	mkdir -p state/$user_group/$server_group/$username/outbox
-	getUserData $user_group $server_group $user_id
-	getWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
-	getPasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
-	getKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
-done
+function getWelcomeEmail() {
+	cat state/$user_group/$server_group/$username/outbox/welcome_mail.txt
+}
+
+function getPasswordSMS() {
+	cat state/$user_group/$server_group/$username/outbox/pass_sms.txt
+}
+
+function getKeySMS() {
+	cat state/$user_group/$server_group/$username/outbox/key_sms.txt
+}
