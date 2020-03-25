@@ -60,7 +60,7 @@ function generateWelcomeEmailBody() {
 }
 
 function generateWelcomeEmailHeader() {
-	j2 tmp/welcome_email-header.j2
+	j2 templates/welcome_email-header.j2
 }
 
 function generatePasswordSMS() {

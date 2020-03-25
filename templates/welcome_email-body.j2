@@ -4,7 +4,7 @@ Your access to {{ server_group }} has been granted as {{ username }}.
 {%+ if password_access %}
 You may use password to authenticate. Password for authentication is sent by sms to your mobile at {{ mobile_number }}.
 {% endif %}{%+ if key_access %}
-You may use private key to authenticate. Your openssh encrypted private key is:
+You may use private key to authenticate. Your private encrypted openssh key is:
 
 cat >~/.ssh/id_rsa_dev.enc <<EOF
 {{ key_ssh_enc }}
@@ -14,11 +14,11 @@ chmod 600 ~/.ssh/id_rsa_dev.enc
 
 With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
-ou may use encrypted keys, or decrypted for your convinience. To decrypt the key, using SMS provided password, execute the following:
+You may use encrypted keys, or decrypted for your convinience. To decrypt the key, using SMS provided password, execute the following:
 
 openssl rsa -in ~/.ssh/id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
 
-Your putty encrypted private key is:
+Your private encrypted putty key is:
 
 cat >~/.ssh/id_rsa_dev.ppk <<EOF
 {{ key_ppk_enc }}
