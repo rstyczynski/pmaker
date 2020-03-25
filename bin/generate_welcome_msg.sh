@@ -1,5 +1,8 @@
 #!/bin/bash
 
+user_group=$1
+server_group=$2
+
 alias j2y="ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'"
 alias y2j="ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'"
 
@@ -60,13 +63,14 @@ function getKeySMS() {
 	j2 templates/welcome_password_key.j2
 }
 
-user_group=$1
-server_group=$2
 
-cat ($pmaker_home/state/$user_group/$server_group/) | y2j | jq -r '.users[].username'
+users_def=$pmaker_home/state/$user_group/$server_group/users.yaml
+users=$(cat $users_def | y2j | jq -r '.users[].username')
 
-mkdir -p state/$user_group/$server_group/$username/outbox
-getUserData ocs dev rstyczynski
-getWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
-getPasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
-getKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
+for user_id in $users; do
+	mkdir -p state/$user_group/$server_group/$username/outbox
+	getUserData $user_group $server_group $user_id
+	getWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
+	getPasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
+	getKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
+done
