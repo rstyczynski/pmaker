@@ -258,7 +258,7 @@ secret.txt - 12 character long password used for authentication.
 
 Pmaker does not deliver data to users on this stage.
 
-User management administrator should deliver passowrd and keys in a secure way. One of commonly used techniques is to send passwords using gsm sms channel, and encrypted keys using e-mail.
+User management administrator should deliver password and keys in a secure way. One of commonly used techniques is to send passwords using gsm sms channel, and encrypted keys using e-mail.
 
 <verbatim>
 

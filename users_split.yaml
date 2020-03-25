@@ -25,14 +25,17 @@
       file:
         path: "{{ pmaker_home }}/state/{{ user_group }}/dev"
         state: directory
+      when: dev_users is defined
 
     - name: Write dev_users to a file
       copy:
         content: "{{ dev_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/{{ user_group }}/dev/users.yaml"
+      when: dev_users is defined
 
     - name: Insert proper header
       shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/dev/users.yaml"
+      when: dev_users is defined
 
     #
     # write sit users to sit_users.yaml
@@ -48,15 +51,17 @@
       file:
         path: "{{ pmaker_home }}/state/{{ user_group }}/sit"
         state: directory
+      when: sit_users is defined
 
     - name: Write sit_users to a file
       copy:
         content: "{{ sit_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/{{ user_group }}/sit/users.yaml"
+      when: sit_users is defined
 
     - name: Insert proper header
       shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/sit/users.yaml"
-
+      when: sit_users is defined
 
     #
     # write uat users to uat_users.yaml
@@ -72,15 +77,17 @@
       file:
         path: "{{ pmaker_home }}/state/{{ user_group }}/uat"
         state: directory
+      when: uat_users is defined
 
     - name: Write uat_users to a file
       copy:
         content: "{{ uat_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/{{ user_group }}/uat/users.yaml"
+      when: uat_users is defined
 
     - name: Insert proper header
       shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/uat/users.yaml"
-
+      when: uat_users is defined
 
     #
     # write prod users to prod_users.yaml
@@ -96,11 +103,15 @@
       file:
         path: "{{ pmaker_home }}/state/{{ user_group }}/prod"
         state: directory
+      when: prod_users is defined
 
     - name: Write prod_users to a file
       copy:
         content: "{{ prod_users | to_nice_yaml }}"
         dest: "{{ pmaker_home }}/state/{{ user_group }}/prod/users.yaml"
+      when: prod_users is defined
 
     - name: Insert proper header
       shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/prod/users.yaml"
+      when: prod_users is defined
+      
