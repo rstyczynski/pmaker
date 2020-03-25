@@ -1,6 +1,6 @@
 User management
 ===============
-> ryszard.styczynski@oracle.com, march 2020, version 0.1-dev
+> rstyczynski@gmail.com, march 2020, version 0.1-dev
 
 ```
 > cat /opt/pmaker/data/science.users.yaml
@@ -245,7 +245,7 @@ User management administrator should deliver passowrd and keys in a secure way. 
 ###
 
 # AUTHOR
-ryszard.styczynski@oracle.com, march 2020
+rstyczynski@gmail.com, march 2020
 
 # TODO
 [] protect top secret files using additional level of encryption
