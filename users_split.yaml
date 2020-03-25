@@ -9,7 +9,7 @@
 
   tasks:
     - include_vars: config.yaml
-    - include_vars: "{{ pmaker_home }}/data/{{ user_group }}.yaml"
+    - include_vars: "{{ pmaker_home }}/data/{{ user_group }}.users.yaml"
 
     #
     # write dev users to dev_users.yaml

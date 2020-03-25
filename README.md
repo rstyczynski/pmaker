@@ -2,7 +2,7 @@ User management
 ===============
 
 ```
-cat /opt/pmaker/data/science.yaml
+cat /opt/pmaker/data/science.users.yaml
 ---
 users:
   - username: carmen
@@ -44,42 +44,77 @@ ls -1 # manually sorted
 
 data                user database
 state               system state i.e. all password, keys
-tasks_dev.yaml      ansible scripts to handle dev
-users_split.yaml    ansible scripts to pre process user database       
-config.yaml         default variables for ansible scripts
-ansible.cfg         ansible configuration
+tasks_dev.yaml      playbook to handle dev
+users_split.yaml    playbook to pre process user database       
+config.yaml         playbook defaults (user group)
+ansible.cfg         ansible defaults (server group)
 README.md           this file
 lib                 ansible functions
 src                 pmaker project
 ```
 
-
-## System layout
+Pmaker comes with sample system, described in data directory. Note that both user nad server database is started with name of the group. In real life it will be department, organisation, or project name, or any other business level name identifying group of people.
 
 ```
-cat /opt/pmaker/inventory.cfg
+ls -1 data
+
+sample.users.yaml       list of users
+sample.inventory.cfg    list of insnaces
+```
+
+User database is the place where all uses are described. username is users identifier on all the servers; server_groups says to wchich environments user has access; password/key defines authentication method; become informs is user may sodo to oracle, root, and/or appl* users. Email and phone are informative for system operator. 
+
+
+Let's take a look how the user is described:
+
+```
+head -15 data/sample.users.yaml
+
+---
+users:
+  - username: alice
+    server_groups: [dev]
+    
+    password: yes
+    key: yes
+
+    became_oracle: [dev]
+    became_root:   [dev]
+    became_appl:  [dev]
+
+    email: alice@wonder.land
+    mobile: +48 001 002 003
+```
+
+Servers belonging to Sample project are described in Ansible inventory file. With this information Ansible is aware of instances belonging to logical groups and how to access them.
+
+```
+cat data/sample.inventory.cfg 
 
 [controller]
 localhost ansible_connection=local
 
 [dev]
-dev1-dc2.cloud ansible_user=pmaker
-dev2-dc1.cloud ansible_user=pmaker
-dev3-dc2.cloud ansible_user=pmaker
+pmaker-test-1 ansible_user=pmaker
+pmaker-test-2 ansible_user=pmaker
 
 [sit]
-sit1-dc2.cloud ansible_user=pmaker
+pmaker-test-3 ansible_user=pmaker
 
 [uat]
-uat1-dc3.cloud ansible_user=pmaker
-
+pmaker-test-4 ansible_user=pmaker
 ```
 
-Servers belonging to Science project are described in Ansible inventory file. With information Ansible is aware of instances belonging to logical groups and how to access them.
 
-## Creating users
+## Deploying user accounts to servers
 
-After adding users to science.yaml, system administrator runs parser which aplits users to lists associated with each environment.
+After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment.
+
+```
+cd /opt/pmaker
+ansible-playbook users_split.yaml -e user_group=sample -i data/sample.inventory.cfg 
+```
+
 
 ```
 cd /opt/pmaker
