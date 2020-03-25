@@ -16,6 +16,7 @@ users:
     password:      yes
     key:           yes
     
+    full_name: O.W. Carmen
     email: carmen@opera.world
     mobile: +48 007 008 009
 ```
@@ -60,6 +61,7 @@ users_split.yaml    playbook to preprocess user database
 config.yaml         playbook defaults (user group)
 ansible.cfg         ansible defaults (server group)
 README.md           this file
+templates           notificatino message templates
 lib                 ansible functions
 src                 pmaker project
 ```
@@ -92,8 +94,9 @@ users:
 
     became_oracle: [dev]
     became_root:   [dev]
-    became_appl:  [dev]
+    became_appl:   [dev]
 
+    full_name: Alice Liddell
     email: alice@wonder.land
     mobile: +48 001 002 003
 ```
@@ -109,36 +112,41 @@ Servers belonging to Sample project are described in Ansible inventory file. Wit
 localhost ansible_connection=local
 
 [dev_jump]
-pmaker-test-1 ansible_user=pmaker
+pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1
 
 [dev]
 pmaker-test-2 ansible_user=pmaker
 
 [sit_jump]
-pmaker-test-1 ansible_user=pmaker
+pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1
 
 [sit]
 pmaker-test-3 ansible_user=pmaker
 pmaker-test-4 ansible_user=pmaker
 
 [uat_jump]
-pmaker-test-1 ansible_user=pmaker
+pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1
 
 [uat]
 pmaker-test-4 ansible_user=pmaker
 ```
 
+Plese note the public_ip is not regular Ansible field. It's added by pmaker to kepp tracke of external public addresses of jump servers. It's mainly used for user notification after account creation.
+
 # Installation
 
-Pacemaker is an open source project hosted at github. To install, one clones the repository using git, defines list of hosts, and runs setup.sh script.
+Pacemaker is an open source project hosted at github. To install, one clones the repository using git, and runs setup.sh script.
 
 ```
 sudo yum install -y  git
 
 git clone https://github.com/rstyczynski/pmaker.git
+./pmaker/setup/setup.sh
 ```
 
-Now edit inventory file adding your servers. Keep dev, sit, uat env names to simplify cfg. Once completed you may create sample team of alice, bob, carmen, and derek. Please remember to keep pmaker as connection user. 
+Initial setup prepares localhost as the ansible controller. Please note that after succesful setup you will see pmaker user on the host with sodo rights. Pmaker takes /opt/pmaker directory for its private use.
+
+Having controller ready, you need to configure your whole system. Collect list of servers on all your environments, and put this informatino into Ansible inventory file. At beginning use sample file, keep dev, sit, uat env names to simplify configuration, and just replace hostnames. Once completed you may create sample team of alice, bob, carmen, and derek. Please remember to keep pmaker as connection user. 
 
 ```
 vi data/sample.inventory.cfg 
@@ -146,22 +154,22 @@ vi data/sample.inventory.cfg
 << do the editing >>
 ```
 
-Note that ansible uses password less SSH protocol to access all the hosts. It's mandatory that:
+Note that ansible uses password less SSH protocol to access all the hosts. It's mandatory to ensure that:
 - you may access all the servers this way. Setup scripts pings all the hosts before proceeding. In case of any communication issues setup stops,
 - you operate from user with sudo rights. setup script creates pmaker user which will be used after installation to work with user management.
 
-Once configure proceed with setup.
+Once configured proceed with setup of all the hosts.
 
 ```
 cd pmaker
-./setup/setup.sh
+./setup/configure.sh
 ```
 
-After successful completion on all the hosts pmaker will be created with password less access. Moreover, sshd will be configured for password access to make it possible to use passwords if any user needs it.
+After successful completion, pmaker will be created with password less access on all the hosts. Moreover, sshd will be configured for password access to make it possible to use passwords if any user needs it. In case of ssh issues configure will give up. In such situatuion fix errors, and retry.
 
 # Deploying user accounts to servers
 
-After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment. Note that this time system admin specifies user group name and host definition file. Note that sysadmin operated as pmaker user; use sudo to switch identity.
+Having all the users defined in data/sample.users.yaml, system administrator runs parser which splits users into lists associated with each environment. Note that this time system admin specifies user group name and host definition file. Note that sysadmin operated as pmaker user; use sudo to switch identity.
 
 ```
 > sudo su - pmaker

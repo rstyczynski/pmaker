@@ -1,7 +1,8 @@
 #!/bin/bash
 
-
-cat data/sample.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" > setup/inventory.cfg
+if [ ! -f setup/inventory.cfg ]; then
+  cat data/sample.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" >setup/inventory.cfg
+fi
 
 ansible -m ping all -i setup/inventory.cfg
 if [ $? -ne 0 ]; then
@@ -15,3 +16,4 @@ if [ $? -ne 0 ]; then
   exit 2
 fi
 
+rm -f setup/inventory.cfg
