@@ -10,10 +10,8 @@ if [ ! -d pmaker ]; then
 else
   cd pmaker
   git pull
-  cd -
 fi
 
-cd pmaker
 cat data/sample.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" > setup/inventory.cfg
 
 ansible -m ping all -i setup/inventory.cfg
@@ -54,4 +52,5 @@ if [ $? -ne 0 ]; then
 fi
 "
 
+cd -
 exit 0
