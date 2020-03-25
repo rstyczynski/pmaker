@@ -1,8 +1,5 @@
 #!/bin/bash
 
-user_group=$1
-server_group=$2
-
 alias j2y="ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'"
 alias y2j="ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'"
 
@@ -64,6 +61,8 @@ function generateKeySMS() {
 }
 
 function generateUserMessages() {
+	local user_group=$1
+	local server_group=$2
 	local user_id=$1
 
 	mkdir -p state/$user_group/$server_group/$username/outbox
@@ -75,11 +74,14 @@ function generateUserMessages() {
 }
 
 function generateAllMessages() {
+	local user_group=$1
+	local server_group=$2
+
 	users_def=$pmaker_home/state/$user_group/$server_group/users.yaml
 	users=$(cat $users_def | y2j | jq -r '.users[].username')
 
 	for user_id in $users; do
-		generateUserMessages $user_id
+		generateUserMessages $user_group $server_group $user_id
 	done
 }
 
