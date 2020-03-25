@@ -38,6 +38,9 @@
     - include: "{{ pmaker_home }}/lib/user_create.yaml"
       with_items: '{{ users }}'
 
+    - include: "{{ pmaker_home }}/lib/user_set_key.yaml"
+      with_items: '{{ users }}'
+
     - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
       with_items: '{{ users }}'
 
