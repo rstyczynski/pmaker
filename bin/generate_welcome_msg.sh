@@ -47,7 +47,7 @@ function getUserData() {
 function generateWelcomeEmail() {
 	local user_group=$1
 	local server_group=$2
-	local username=$1
+	local username=$3
 
 	mkdir -p tmp
 	cat templates/welcome_email.j2 |
