@@ -31,13 +31,14 @@ fi
 sudo mkdir -p $pmaker_home
 sudo chown -R pmaker $pmaker_home
 
+ln -s $pmaker_home ~/pmaker
+
 sudo su pmaker bash -c"
 umask 077
 
-ln -s $pmaker_home ~/pmaker
-
 # get from git as pmaker to avoid issue with file ownership / umask
 cd /home/pmaker
+
 if [ ! -d src ]; then
    git clone https://github.com/rstyczynski/pmaker.git
    mv pmaker src
@@ -46,7 +47,7 @@ else
   git pull
 fi
 
-cp -r * $pmaker_home/
+cp -r * $pmaker_home/ 2>/dev/null
 
 grep 'umask 077' /home/pmaker/.bash_profile
 if [ \$? -ne 0 ]; then
@@ -63,10 +64,8 @@ fi
 grep '/bin/generate_welcome_msg.sh' /home/pmaker/.bash_profile
 if [ \$? -ne 0 ]; then
    echo >>/home/pmaker/.bash_profile
-   echo "source $pmaker_home/bin/generate_welcome_msg.sh" >>/home/pmaker/.bash_profile
+   echo source $pmaker_home/bin/generate_welcome_msg.sh >>/home/pmaker/.bash_profile
 fi
-
-
 "
 
 cd -
