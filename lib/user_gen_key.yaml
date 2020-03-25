@@ -1,10 +1,11 @@
 ---
 - name: create user directory
   file:
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/"
     state: directory
-    owner: "pmaker"
-    mode: u+r
+    owner: pmaker
+    group: pmaker
+    mode: u+r,g-r-w-x,o-r-w-w
 
 - name: generate SSH key "{{ item.username }}"
   openssh_keypair:
@@ -36,7 +37,7 @@
   when: key_password_created.stat.exists == False
   register: openssl
 
-- name: convert the key to putyt format
+- name: convert the key to putty format
   become: no
   local_action: command puttygen "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -o "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.ppk" -O private --new-passphrase "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key" 
   when: key_password_created.stat.exists == False

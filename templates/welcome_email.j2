@@ -3,8 +3,7 @@ Welcome {{ full_name }}!
 Your access to {{ server_group }} has been granted as {{ username }}.
 {%+ if password_access %}
 You may use password to authenticate. Password for authentication is sent by sms to your mobile at {{ mobile_number }}.
-{% endif %}
-{%+ if key_access %}
+{% endif %}{%+ if key_access %}
 You may use private key to authenticate. Your openssh encrypted private key is:
 
 cat >~/.ssh/id_rsa_dev.enc <<EOF
@@ -13,9 +12,9 @@ cat >~/.ssh/id_rsa_dev.enc <<EOF
 EOF
 chmod 600 ~/.ssh/id_rsa_dev.enc
 
-With password delivered via sms. You may use encrypted keys. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
+With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
-To decrypt the key, using provided password using exeute the following:
+You may use encrypted keys, or you may decrypt for your convinience. To decrypt the key, using SMS provided password, execute the following:
 
 openssl rsa -aes256 -in id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
 
@@ -27,9 +26,9 @@ cat >~/.ssh/id_rsa_dev.ppk <<EOF
 EOF
 chmod 600 ~/.ssh/id_rsa_dev.ppk
 
-With password delivered via sms. You may use encrypted keys. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
+With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
-To decrypt the key, using provided password using exeute the following:
+You may use encrypted keys, or you may decrypt for your convinience. To decrypt the key, using SMS provided password, execute the following:
 
 puttygen ~/.ssh/id_rsa_dev.ppk -o ~/.ssh/id_rsa_dev.ppk -O private 
 {% endif %}
