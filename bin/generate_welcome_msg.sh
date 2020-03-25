@@ -6,8 +6,8 @@ alias y2j="ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'"
 function getField() {
 	local user_group=$1
 	local server_group=$2
-	local username=$1
-	local attr=$2
+	local username=$3
+	local attr=$4
 
 	users_def=state/$user_group/$server_group/users.yaml
 	cat $users_def | y2j | jq -r ".users[] | select(.username == \"$username\") | .$attr"
