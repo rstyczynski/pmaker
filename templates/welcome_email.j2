@@ -34,11 +34,11 @@ puttygen ~/.ssh/id_rsa_dev.ppk -o ~/.ssh/id_rsa_dev.ppk -O private
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. 
 
-When using ssh, remember to benefit from jump server support. Assuming that you want to access server.ip.adr, execute:
+When using ssh, remember to benefit from jump server support. Assuming that you want to access {{ first_host }}, execute:
 
-ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@server.ip.adr
-scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@server.ip.adr:~/
-scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@server.ip.adr:~/remote_file .
+ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
+scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@{{ first_host }}:~/
+scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/remote_file .
 
 Note that even having Windows you can benefit from ssh after installing Cygwin.
 
