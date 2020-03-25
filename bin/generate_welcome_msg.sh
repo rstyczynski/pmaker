@@ -86,13 +86,17 @@ function generateAllMessages() {
 }
 
 function getWelcomeEmail() {
+	local username=$1
+
 	cat state/$user_group/$server_group/$username/outbox/welcome_mail.txt
 }
 
 function getPasswordSMS() {
+	local username=$1
 	cat state/$user_group/$server_group/$username/outbox/pass_sms.txt
 }
 
 function getKeySMS() {
+	local username=$1
 	cat state/$user_group/$server_group/$username/outbox/key_sms.txt
 }
