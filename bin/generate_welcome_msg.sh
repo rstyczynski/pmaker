@@ -69,7 +69,7 @@ function generateUserMessages() {
 	getUserData $user_group $server_group $user_id
 	generateWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
 	generatePasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
-	ggenerateKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
+	generateKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
 
 }
 
