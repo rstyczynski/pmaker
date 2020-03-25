@@ -4,9 +4,13 @@ alias j2y="ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'"
 alias y2j="ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'"
 
 function getField() {
-	local uname=$1
+	local user_group=$1
+	local server_group=$2
+	local username=$1
 	local attr=$2
-	cat $users_def | y2j | jq -r ".users[] | select(.username == \"$uname\") | .$attr"
+
+	users_def=state/$user_group/$server_group/users.yaml
+	cat $users_def | y2j | jq -r ".users[] | select(.username == \"$username\") | .$attr"
 }
 
 function insertFile() {
@@ -18,17 +22,15 @@ function insertFile() {
 # Source: https://unix.stackexchange.com/questions/141387/sed-replace-string-with-file-contents
 
 function getUserData() {
+	local user_group=$1
+	local server_group=$2
+	local username=$3
 
-	export user_group=$1
-	export server_group=$2
-	export username=$3
-
-	export users_def=state/$user_group/$server_group/users.yaml
-	export full_name=$(getField $username username)
-	export password_access=$(getField $username password)
-	export key_access=$(getField $username key)
-	export mobile_number=$(getField $username mobile_number)
-	export email=$(getField $username email)
+	export full_name=$(getField $user_group $server_group $username username)
+	export password_access=$(getField $user_group $server_group $username password)
+	export key_access=$(getField $user_group $server_group $username key)
+	export mobile_number=$(getField $user_group $server_group $username mobile_number)
+	export email=$(getField $user_group $server_group $username email)
 
 	export key_ssh_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.enc)
 	export key_ppk_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.ppk)
