@@ -73,12 +73,19 @@ function generateUserMessages() {
 
 }
 
-function generateAllMessages() {
+function getAllUsers() {
 	local user_group=$1
 	local server_group=$2
 
 	users_def=$pmaker_home/state/$user_group/$server_group/users.yaml
-	users=$(cat $users_def | y2j | jq -r '.users[].username')
+	cat $users_def | y2j | jq -r '.users[].username'
+}
+
+function generateAllMessages() {
+	local user_group=$1
+	local server_group=$2
+
+	users=$(getAllUsers $user_group $server_group)
 
 	for user_id in $users; do
 		generateUserMessages $user_group $server_group $user_id
