@@ -1,34 +1,54 @@
 ---
 users:
   - username: alice
-    email: alice@wonder.land
-    mobile: +48 001 002 003
+    server_groups: [dev]
+    
+    password: yes
+    key: yes
+
     became_oracle: [dev]
     became_root:   [dev]
     became_appl:  [dev]
-    server_groups: [dev]
+
+    email: alice@wonder.land
+    mobile: +48 001 002 003
 
   - username: bob
-    email: bob@builder.the
-    mobile: +48 004 005 006
+    server_groups: [dev, sit]
+
+    password: no
+    key: yes
+
     became_oracle: [sit]
     became_root:   [dev]
     became_appl:  [dev]
-    server_groups: [dev, sit]
+
+    email: bob@builder.the
+    mobile: +48 004 005 006
 
   - username: carmen
-    email: carmen@opera.world
-    mobile: +48 007 008 009
+    server_groups: [dev, sit, uat]
+
+    password: yes
+    key: no
+
     became_oracle: [dev, sit, uat]
     became_root:   [dev]
     became_appl:  [dev, sit, uat]
-    server_groups: [dev, sit, uat]
+
+    email: carmen@opera.world
+    mobile: +48 007 008 009
 
   - username: derek
-    email: derek@series.tv
-    mobile: +48 010 011 012
+    server_groups: [dev, sit, uat, prod]
+
+    password: no
+    key: no
+
     became_oracle: [dev, sit, uat, prod]
     became_root:   [dev]
     became_appl:  [dev, sit, uat, prod]
-    server_groups: [dev, sit, uat, prod]
+
+    email: derek@series.tv
+    mobile: +48 010 011 012
 
