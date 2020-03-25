@@ -45,7 +45,7 @@
       with_items: '{{ users }}'
     
     - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
-      when: (item.pasword is defined) and (item.pasword == true)
+      when: (item.pasword is defined) and (item.password == true)
       with_items: '{{ users }}'
 
 - hosts: dev
@@ -65,7 +65,7 @@
       with_items: '{{ users }}'
     
     - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
-      when: (item.pasword is defined) and (item.pasword == true)
+      when: (item.pasword is defined) and (item.password == true)
       with_items: '{{ users }}'
 
     - name: Add user to root sudoers
