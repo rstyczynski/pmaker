@@ -57,7 +57,7 @@ function generateWelcomeEmail() {
 function generatePasswordSMS() {
 	local user_group=$1
 	local server_group=$2
-	local username=$1
+	local username=$3
 
 	export password_account=$(cat state/$user_group/$server_group/$username/.ssh/secret.txt)
 	j2 templates/welcome_password_account.j2
@@ -66,7 +66,7 @@ function generatePasswordSMS() {
 function generateKeySMS() {
 	local user_group=$1
 	local server_group=$2
-	local username=$1
+	local username=$3
 
 	export password_key=$(cat state/$user_group/$server_group/$username/.ssh/secret.key)
 	j2 templates/welcome_password_key.j2
