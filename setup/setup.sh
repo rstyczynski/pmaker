@@ -61,11 +61,18 @@ if [ \$? -ne 0 ]; then
    echo export pmaker_home=$pmaker_home >>/home/pmaker/.bash_profile
 fi
 
-grep '/bin/generate_welcome_msg.sh' /home/pmaker/.bash_profile
+grep '/lib/generate_welcome_msg.sh' /home/pmaker/.bash_profile
 if [ \$? -ne 0 ]; then
    echo >>/home/pmaker/.bash_profile
-   echo source $pmaker_home/bin/generate_welcome_msg.sh >>/home/pmaker/.bash_profile
+   echo source $pmaker_home/lib/generate_welcome_msg.sh >>/home/pmaker/.bash_profile
 fi
+
+grep 'cd /opt/pmaker' /home/pmaker/.bash_profile
+if [ \$? -ne 0 ]; then
+   echo >>/home/pmaker/.bash_profile
+   echo cd /opt/pmaker >>/home/pmaker/.bash_profile
+fi
+
 "
 
 cd -

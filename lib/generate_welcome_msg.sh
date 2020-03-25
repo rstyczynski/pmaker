@@ -22,9 +22,9 @@ function insertFile() {
 # Source: https://unix.stackexchange.com/questions/141387/sed-replace-string-with-file-contents
 
 function getUserData() {
-	local user_group=$1
-	local server_group=$2
-	local username=$3
+	export  user_group=$1
+	export  server_group=$2
+	export  username=$3
 
 	export full_name=$(getField $user_group $server_group $username full_name)
 	export password_access=$(getField $user_group $server_group $username password)
