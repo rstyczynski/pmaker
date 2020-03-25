@@ -13,6 +13,7 @@ else
   cd -
 fi
 
+cd pmaker
 cat data/sample.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" > setup/inventory.cfg
 
 ansible -m ping all -i setup/inventory.cfg
