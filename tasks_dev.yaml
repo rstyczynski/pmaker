@@ -18,11 +18,11 @@
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
     - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
-      when: (item.key is defined) and (item.key == 'yes')
+      when: (item.key is defined) and (item.key == true)
       with_items: '{{ users }}'
       
     - include: "{{ pmaker_home }}/lib/user_gen_password.yaml"
-      when: (item.pasword is defined) and (item.pasword == 'yes')
+      when: (item.password is defined) and (item.password == true)
       with_items: '{{ users }}'
 
 #
