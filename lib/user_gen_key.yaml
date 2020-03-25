@@ -48,4 +48,4 @@
     dest: "{{ item }}"
     mode: u+r,g-r-w-x,o-r-w-w
   with_fileglob:
-    - '"{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/*'
+    - '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/*'
