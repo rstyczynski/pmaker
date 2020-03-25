@@ -261,6 +261,8 @@ Pmaker does not deliver data to users on this stage.
 User management administrator should deliver passowrd and keys in a secure way. One of commonly used techniques is to send passwords using gsm sms channel, and encrypted keys using e-mail.
 
 <verbatim>
+
+
 <p align="center">###</p>
 </verbatim>
 
