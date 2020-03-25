@@ -94,6 +94,7 @@ function generateUserMessages() {
 		generatePasswordSMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/pass_sms.txt
 		echo OK
 	else
+		rm state/$user_group/$server_group/$username/outbox/pass_sms.txt
 		echo Skipped
 	fi
 
@@ -102,6 +103,7 @@ function generateUserMessages() {
 		generateKeySMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/key_sms.txt
 		echo OK
 	else
+		rm state/$user_group/$server_group/$username/outbox/key_sms.txt
 		echo Skipped
 	fi
 
