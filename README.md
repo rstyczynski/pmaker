@@ -43,7 +43,7 @@ Pmaker runs on dedicated host - the controller; of course, does not need to use 
 Each group of servers has associated jump server, where pmaker creates accounts, however without other services as ability to sudo. According to preferences user may connect to jump using password authentication or in password less way. Preferred method is the latter one.
 
 ```
-ssh -J carmen@dev_jump.scence.org carmen@dev1.science.org
+ssh -J carmen@dev_jump.science.org carmen@dev1.science.org
 ```
 
 ## file layout
@@ -168,7 +168,7 @@ After adding users to science.users.yaml, system administrator runs parser which
 > whoami
 pmaker
 
-? cd /opt/pmaker
+> cd /opt/pmaker
 ansible-playbook users_split.yaml -e user_group=sample -i data/sample.inventory.cfg 
 ```
 
@@ -256,9 +256,64 @@ secret.txt - 12 character long password used for authentication.
 
 # Keys and passwords delivery to users
 
-Pmaker does not deliver data to users on this stage.
-
 User management administrator should deliver password and keys in a secure way. One of commonly used techniques is to send passwords using gsm sms channel, and encrypted keys using e-mail.
+
+Pmaker does not deliver data to users on this stage, however generates messages for both e-mail and sms channels.
+
+```
+> generateAllMessages sample dev
+
+Processing user alice...
+Getting data...
+Generating messages...
+\- welcome mail...OK
+\- access password...OK
+\- key password...OK
+Processing user bob...
+Getting data...
+Generating messages...
+\- welcome mail...OK
+\- access password...Skipped
+\- key password...OK
+Processing user carmen...
+Getting data...
+Generating messages...
+\- welcome mail...OK
+\- access password...OK
+\- key password...Skipped
+Processing user derek...
+Getting data...
+Generating messages...
+\- welcome mail...OK
+\- access password...Skipped
+\- key password...Skipped
+All done. Use getWelcomeEmail, getPasswordSMS, getKeySMS to get messages.
+```
+
+Generated messages are stored in user's state repository under directory outbox. All messages are generated using templates, so customisation is not only possible, but is easy.
+
+```
+> ls -1 state/sample/dev/alice/outbox/
+key_sms.txt
+pass_sms.txt
+welcome_mail-body.txt
+welcome_mail-header.txt
+
+> cat state/sample/dev/alice/outbox/key_sms.txt
+Password for your account: aeYee4Eec@ee | Generated on 2020-03-25 22:20:55 to be sent to +48 001 002 003
+
+> cat templates/welcome_password_key.j2 
+Password for your key: {{ password_key }} | Generated on {{ date }} to be sent to {{ mobile_number }}
+```
+
+You may access messages directly or use one of available functions:
+- getWelcomeEmail sample dev alice
+- getWelcomeEmail sample dev alice header
+- getKeySMS sample dev alice
+- getPasswordSMS sample dev alice
+
+Above should be used to privide data do CLI e-mail and sms senders. If not available you may scp files to your desktop and use copy to clipboard utilities as e.g. pbcopy available on OSX to speed up e-mail and sms delivery process.
+
 
 <verbatim>
 
