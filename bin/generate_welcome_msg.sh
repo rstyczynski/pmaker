@@ -78,10 +78,30 @@ function generateUserMessages() {
 	local username=$3
 
 	mkdir -p state/$user_group/$server_group/$username/outbox
+
+	echo Getting data...
 	getUserData $user_group $server_group $username
+
+	echo Generating messages...
+	echo -n "\- welcome mail..."
 	generateWelcomeEmail $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
-	generatePasswordSMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/pass_sms.txt
-	generateKeySMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/key_sms.txt
+	echo OK
+
+	echo -n "\- access password..."
+	if [ "$password_access" == true ]; then
+		generatePasswordSMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/pass_sms.txt
+		echo OK
+	else
+		echo Skipped
+	fi
+
+	echo -n "\- key password..."
+	if [ "$key_access" == true ]; then
+		generateKeySMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/key_sms.txt
+		echo OK
+	else
+		echo Skipped
+	fi
 
 }
 
@@ -124,6 +144,6 @@ function getKeySMS() {
 	local user_group=$1
 	local server_group=$2
 	local username=$3
-	
+
 	cat state/$user_group/$server_group/$username/outbox/key_sms.txt
 }
