@@ -9,7 +9,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-ansible-playbook controller -i setup/inventory.cfg setup/pmaker_create.yaml
+ansible-playbook -i setup/inventory.cfg setup/pmaker_create.yaml
 if [ $? -ne 0 ]; then
   echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
   exit 2
