@@ -60,7 +60,7 @@ fi
 
 grep '/bin/generate_welcome_msg.sh' /home/pmaker/.bash_profile
 if [ $? -ne 0 ]; then
-   echo "source $pmaker_home/bin/generate_welcome_msg.sh >>/home/pmaker/.bash_profile
+   echo "source $pmaker_home/bin/generate_welcome_msg.sh" >>/home/pmaker/.bash_profile
 fi
 
 
