@@ -196,6 +196,24 @@ Ansible playbook does following things:
 
 Once completed user management admin may access keys to distribute them to users. 
 
+# Permement switch to project name
+
+To set default name of user group to freal value, and escape from sample one, set your value in ansible.cfg and config.yaml.
+
+```
+> cat ansible.cfg 
+
+[defaults]
+inventory = /opt/pmaker/data/science.inventory.cfg
+
+> cat config.yaml 
+---
+pmaker_home: /opt/pmaker
+user_group: science
+```
+
+Having this playbooks will default to science inventory and science user group.
+
 # System state repository
 
 Pmaker playbooks configure the system, having reflected system cfg. in state reposistory. Of course it's generally speaking unsafe, however all pmaker files are available only for this user. 
