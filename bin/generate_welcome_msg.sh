@@ -63,16 +63,23 @@ function generateKeySMS() {
 	j2 templates/welcome_password_key.j2
 }
 
+function generateUserMessages() {
+	local user_id=$1
+
+	mkdir -p state/$user_group/$server_group/$username/outbox
+	getUserData $user_id
+	generateWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
+	generatePasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
+	ggenerateKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
+
+}
+
 function generateAllMessages() {
 	users_def=$pmaker_home/state/$user_group/$server_group/users.yaml
 	users=$(cat $users_def | y2j | jq -r '.users[].username')
 
 	for user_id in $users; do
-		mkdir -p state/$user_group/$server_group/$username/outbox
-		getUserData $user_group $server_group $user_id
-		generateWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
-		generatePasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
-		ggenerateKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
+		generateUserMessages $user_id
 	done
 }
 
