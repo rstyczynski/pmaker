@@ -38,7 +38,8 @@
     state: present
     exclusive: no
     manage_dir: yes
-    key: "{{ lookup('file', '/opt/pmaker/.ssh/id_rsa.pub') }}"
+    key: "{{ lookup('file', '/opt/pmaker/public/id_rsa.pub') }}"
+    # key: "{{ lookup('file', '/opt/pmaker/.ssh/id_rsa.pub') }}"
 
 # - name: Protect authorized_keys
 #   become: yes
