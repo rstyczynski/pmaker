@@ -1,6 +1,8 @@
 #!/bin/bash
 
-sudo yum install -y git pwgen putty openssl
+sudo yum install -y git pwgen putty openssl python-pip
+sudo pip install --upgrade pip
+pip install Jinja2 j2cli
 
 pmaker_home=/opt/pmaker
 
