@@ -21,10 +21,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+sudo mkdir -p $pmaker_home
 sudo chown -R pmaker $pmaker_home
 
 sudo su pmaker bash -c"
 umask 077
+
+ln -s $pmaker_home ~/pmaker
 
 # get from git as pmaker to avoid issue with file ownership / umask
 cd /home/pmaker
@@ -37,7 +40,6 @@ else
 fi
 
 cp -r * $pmaker_home/
-
 
 grep 'umask 077' /home/pmaker/.bash_profile
 if [ $? -ne 0 ]; then
