@@ -15,7 +15,8 @@ chmod 600 ~/.ssh/id_rsa_dev.enc
 
 With password delivered via sms. You may use encrypted keys. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
-To decrypt the key, using provided password using exeute the following: 
+To decrypt the key, using provided password using exeute the following:
+
 openssl rsa -aes256 -in id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
 
 Your putty encrypted private key is:
@@ -28,7 +29,8 @@ chmod 600 ~/.ssh/id_rsa_dev.ppk
 
 With password delivered via sms. You may use encrypted keys. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
-To decrypt the key, using provided password using exeute the following: 
+To decrypt the key, using provided password using exeute the following:
+
 puttygen ~/.ssh/id_rsa_dev.ppk -o ~/.ssh/id_rsa_dev.ppk -O private 
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. 
