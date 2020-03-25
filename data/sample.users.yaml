@@ -10,6 +10,7 @@ users:
     became_root:   [dev]
     became_appl:  [dev]
 
+    full_name: Alice from The Wonderland
     email: alice@wonder.land
     mobile: +48 001 002 003
 
@@ -23,6 +24,7 @@ users:
     became_root:   [dev]
     became_appl:  [dev]
 
+    full_name: Bob The Builder
     email: bob@builder.the
     mobile: +48 004 005 006
 
@@ -36,6 +38,7 @@ users:
     became_root:   [dev]
     became_appl:  [dev, sit, uat]
 
+    full_name: Carmen - The Opera POne
     email: carmen@opera.world
     mobile: +48 007 008 009
 
@@ -49,6 +52,7 @@ users:
     became_root:   [dev]
     became_appl:  [dev, sit, uat, prod]
 
+    full_name:  Derek From TV
     email: derek@series.tv
     mobile: +48 010 011 012
 

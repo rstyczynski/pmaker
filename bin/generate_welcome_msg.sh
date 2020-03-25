@@ -26,10 +26,10 @@ function getUserData() {
 	local server_group=$2
 	local username=$3
 
-	export full_name=$(getField $user_group $server_group $username username)
+	export full_name=$(getField $user_group $server_group $username full_name)
 	export password_access=$(getField $user_group $server_group $username password)
 	export key_access=$(getField $user_group $server_group $username key)
-	export mobile_number=$(getField $user_group $server_group $username mobile_number)
+	export mobile_number=$(getField $user_group $server_group $username mobile)
 	export email=$(getField $user_group $server_group $username email)
 
 	export key_ssh_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.enc)
@@ -94,7 +94,7 @@ function generateUserMessages() {
 		generatePasswordSMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/pass_sms.txt
 		echo OK
 	else
-		rm state/$user_group/$server_group/$username/outbox/pass_sms.txt
+		rm -f state/$user_group/$server_group/$username/outbox/pass_sms.txt
 		echo Skipped
 	fi
 
@@ -103,10 +103,9 @@ function generateUserMessages() {
 		generateKeySMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/key_sms.txt
 		echo OK
 	else
-		rm state/$user_group/$server_group/$username/outbox/key_sms.txt
+		rm -f state/$user_group/$server_group/$username/outbox/key_sms.txt
 		echo Skipped
 	fi
-
 }
 
 function getAllUsers() {
