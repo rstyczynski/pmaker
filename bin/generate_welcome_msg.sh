@@ -75,7 +75,7 @@ function generateKeySMS() {
 function generateUserMessages() {
 	local user_group=$1
 	local server_group=$2
-	local username=$1
+	local username=$3
 
 	mkdir -p state/$user_group/$server_group/$username/outbox
 	getUserData $user_group $server_group $username
