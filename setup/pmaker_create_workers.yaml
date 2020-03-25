@@ -5,13 +5,11 @@
     name: "{{ item }}"
 
 - name: check if /home/{{ item }}/.ssh file exists
-  become: yes
   stat: 
     path: /home/{{ item }}/.ssh
   register: ssh_available
 
 - name: check if /home/{{ item }}/.ssh/authorized_keys file exists
-  become: yes
   stat: 
     path: /home/{{ item }}/.ssh/authorized_keys
   register: authorized_keys_available
@@ -31,7 +29,6 @@
 #   when: authorized_keys_available.stat.exists
 
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
-  become: yes
   authorized_key:
     user: "{{ item }}"
     state: present
