@@ -248,8 +248,7 @@ User management administrator should deliver passowrd and keys in a secure way. 
 rstyczynski@gmail.com, march 2020
 
 # TODO
-[] protect top secret files using additional level of encryption
-[] automated email delivery
-[] automated sms delivery
-[] http access to repository
-[] 
+- protect top secret files using additional level of encryption
+- automated email delivery
+- automated sms delivery
+- http access to repository
