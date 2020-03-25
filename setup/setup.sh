@@ -49,17 +49,20 @@ fi
 cp -r * $pmaker_home/
 
 grep 'umask 077' /home/pmaker/.bash_profile
-if [ $? -ne 0 ]; then
+if [ \$? -ne 0 ]; then
+   echo >>/home/pmaker/.bash_profile
    echo umask 077 >>/home/pmaker/.bash_profile
 fi
 
 grep 'export pmaker_home=' /home/pmaker/.bash_profile
-if [ $? -ne 0 ]; then
+if [ \$? -ne 0 ]; then
+   echo >>/home/pmaker/.bash_profile
    echo export pmaker_home=$pmaker_home >>/home/pmaker/.bash_profile
 fi
 
 grep '/bin/generate_welcome_msg.sh' /home/pmaker/.bash_profile
-if [ $? -ne 0 ]; then
+if [ \$? -ne 0 ]; then
+   echo >>/home/pmaker/.bash_profile
    echo "source $pmaker_home/bin/generate_welcome_msg.sh" >>/home/pmaker/.bash_profile
 fi
 
