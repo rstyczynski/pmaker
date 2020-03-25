@@ -5,6 +5,7 @@ users:
     mobile: +48 001 002 003
     became_oracle: [dev]
     became_root:   [dev]
+    became_appl*:  [dev]
     server_groups: [dev]
 
   - username: bob
@@ -12,6 +13,7 @@ users:
     mobile: +48 004 005 006
     became_oracle: [sit]
     became_root:   [dev]
+    became_appl*:  [dev]
     server_groups: [dev, sit]
 
   - username: carmen
@@ -19,6 +21,7 @@ users:
     mobile: +48 007 008 009
     became_oracle: [dev, sit, uat]
     became_root:   [dev]
+    became_appl*:  [dev, sit, uat]
     server_groups: [dev, sit, uat]
 
   - username: derek
@@ -26,5 +29,6 @@ users:
     mobile: +48 010 011 012
     became_oracle: [dev, sit, uat, prod]
     became_root:   [dev]
+    became_appl*:  [dev, sit, uat, prod]
     server_groups: [dev, sit, uat, prod]
 
