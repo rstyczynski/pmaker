@@ -196,7 +196,7 @@ Ansible playbook does following things:
 
 Once completed user management admin may access keys to distribute them to users. 
 
-# Permement switch to project name
+# Permament switch to project name
 
 To set default name of user group to freal value, and escape from sample one, set your value in ansible.cfg and config.yaml.
 
