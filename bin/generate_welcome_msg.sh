@@ -43,6 +43,10 @@ function getUserData() {
 }
 
 function generateWelcomeEmail() {
+	local user_group=$1
+	local server_group=$2
+	local user_id=$1
+	
 	mkdir -p tmp
 	cat templates/welcome_email.j2 |
 		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
@@ -51,11 +55,19 @@ function generateWelcomeEmail() {
 }
 
 function generatePasswordSMS() {
+	local user_group=$1
+	local server_group=$2
+	local user_id=$1
+
 	export password_account=$(cat state/$user_group/$server_group/$username/.ssh/secret.txt)
 	j2 templates/welcome_password_account.j2
 }
 
 function generateKeySMS() {
+	local user_group=$1
+	local server_group=$2
+	local user_id=$1
+
 	export password_key=$(cat state/$user_group/$server_group/$username/.ssh/secret.key)
 	j2 templates/welcome_password_key.j2
 }
@@ -67,9 +79,9 @@ function generateUserMessages() {
 
 	mkdir -p state/$user_group/$server_group/$username/outbox
 	getUserData $user_group $server_group $user_id
-	generateWelcomeEmail >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
-	generatePasswordSMS >state/$user_group/$server_group/$username/outbox/pass_sms.txt
-	generateKeySMS >state/$user_group/$server_group/$username/outbox/key_sms.txt
+	generateWelcomeEmail $user_group $server_group $user_id >state/$user_group/$server_group/$username/outbox/welcome_mail.txt
+	generatePasswordSMS $user_group $server_group $user_id >state/$user_group/$server_group/$username/outbox/pass_sms.txt
+	generateKeySMS $user_group $server_group $user_id >state/$user_group/$server_group/$username/outbox/key_sms.txt
 
 }
 
