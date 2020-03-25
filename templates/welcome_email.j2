@@ -1,16 +1,17 @@
 Welcome {{ full_name }}!
 
 Your access to {{ server_group }} has been granted as {{ username }}.
-
 {%+ if password_access %}
+
 You may use password to authenticate. Password for authentication is sent by sms to your mobile at {{ mobile_number }}.
 {% endif %}
-
 {%+ if key_access %}
+
 You may use private key to authenticate. Your openssh encrypted private key is:
 
 cat >~/.ssh/id_rsa_dev.enc <<EOF
 {{ key_ssh_enc }}
+{{ key_ssh_enc_stop }}
 EOF
 chmod 600 ~/.ssh/id_rsa_dev.enc
 
@@ -22,6 +23,7 @@ Your putty encrypted private key is:
 
 cat >~/.ssh/id_rsa_dev.ppk <<EOF
 {{ key_ppk_enc }}
+{{ key_ppk_enc_stop }}
 EOF
 chmod 600 ~/.ssh/id_rsa_dev.ppk
 
