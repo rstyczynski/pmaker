@@ -120,8 +120,10 @@ function generateAllMessages() {
 	users=$(getAllUsers $user_group $server_group)
 
 	for username in $users; do
+		echo Processing user $username...
 		generateUserMessages $user_group $server_group $username
 	done
+	echo All done. Use getWelcomeEmail, getPasswordSMS, getKeySMS to get messages. 
 }
 
 function getWelcomeEmail() {
