@@ -1,5 +1,6 @@
 User management
 ===============
+> ryszard.styczynski@oracle.com, march 2020, version 0.1-dev
 
 ```
 > cat /opt/pmaker/data/science.users.yaml
@@ -158,8 +159,6 @@ cd pmaker
 
 After successful completion on all the hosts pmaker will be created with password less access. Moreover, sshd will be configured for password access to make it possible to use passwords if any user needs it.
 
-
-
 # Deploying user accounts to servers
 
 After adding users to science.users.yaml, system administrator runs parser which aplits users to lists associated with each environment. Note that this time system admin specifies user group name and host definition file. Note that sysadmin operated as pmaker user; use sudo to switch identity.
@@ -190,11 +189,67 @@ done
 
 Ansible playbook does following things:
 1. prepares passwords and openssh/putty keys incl. encrypted ones
-2. creates users accounts
-3. sets passwords if selected for given user
+2. creates user accounts
+3. sets passwords
 4. register public keys in servers' authorized keys
 5. maintains sudoers configuration.
 
-Once completed XXX
+Once completed user management admin may access keys to distribute them to users. 
 
+# System state repository
 
+Pmaker playbooks configure the system, having reflected system cfg. in state reposistory. Of course it's generally speaking unsafe, however all pmaker files are available only for this user. 
+
+*Remeber: pmaker is like a root user! Protect this account, and use only to manage users.*
+
+Let's take a look into state directory.
+
+```
+> whoami
+pmaker
+cd /opt/pmaker
+
+find state | head -12
+
+state
+state/sample
+state/sample/dev
+state/sample/dev/users.yaml
+state/sample/dev/alice
+state/sample/dev/alice/.ssh
+state/sample/dev/alice/.ssh/id_rsa
+state/sample/dev/alice/.ssh/id_rsa.pub
+state/sample/dev/alice/.ssh/id_rsa.enc
+state/sample/dev/alice/.ssh/id_rsa.ppk
+state/sample/dev/alice/.ssh/secret.key
+state/sample/dev/alice/.ssh/secret.txt
+```
+
+sample is directory having all users for given group; under this environments are reflected, with list of users in yaml format. Finally there is a directory having top secret user files.
+
+id_rsa.pub - openssh sa public key. This one is distributed to all servers
+id_rsa     - openssh rsa private key
+id_rsa.enc - openssh encrypted rsa private key
+id_rsa.ppk - putty encrypted rsa private key
+secret.key - 15 character long password for encrypted keys
+secret.txt - 12 character long password used for authentication.
+
+*Remeber: pmaker is like a root user! Protect this account, and use only to manage users.*
+
+# Keys and passwords delivery to users
+
+Pmaker does not deliver data to users on this stage.
+
+User management administrator should deliver passowrd and keys in a secure way. One of commonly used techniques is to send passwords using gsm sms channel, and encrypted keys using e-mail.
+
+###
+
+# AUTHOR
+ryszard.styczynski@oracle.com, march 2020
+
+# TODO
+[] protect top secret files using additional level of encryption
+[] automated email delivery
+[] automated sms delivery
+[] http access to repository
+[] 
