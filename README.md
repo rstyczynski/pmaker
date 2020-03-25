@@ -249,6 +249,8 @@ rstyczynski@gmail.com, march 2020
 
 # TODO
 - protect top secret files using additional level of encryption
-- automated email delivery
-- automated sms delivery
+- automated email/sms delivery
 - http access to repository
+- remove granted passoword access
+- remove granted key access
+- delete from host with revoked access
