@@ -1,0 +1,18 @@
+Welcome {{ username }}!
+
+Your access to {{ server_group }} has been granted.
+
+You may use private key {%+ if password %}, or password{% endif %} to authenticate.
+
+Your encrypted private key is:
+
+{{ key_enc }}
+
+With password delivered via sms. {%+ if password %}Password for authentication is sent by sms as well.{% endif %}
+
+Your jump server is: {{ jump_server }}. Using ssh benefit from jump server support.
+
+ssh -J {{ username }}@{{ jump_server }} {{ username }}@server
+
+Regards,
+{{ admin }}
