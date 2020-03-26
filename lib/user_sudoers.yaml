@@ -28,6 +28,7 @@
     block: |
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - oracle"
     state: present
     mode: 0440
     create: yes
@@ -41,6 +42,7 @@
     block: |
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - oracle"
     state: absent
     mode: 0440
     create: yes
@@ -54,6 +56,7 @@
     block: |
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su appl*
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su - appl*
+      marker: "# {mark} ANSIBLE MANAGED BLOCK - appl"
     state: present
     mode: 0440
     create: yes
@@ -67,6 +70,7 @@
     block: |
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su appl*
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su - appl*
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - appl"
     state: absent
     mode: 0440
     create: yes
