@@ -131,13 +131,13 @@ pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1 host_type=jump
 pmaker-test-4 ansible_user=pmaker host_type=application
 ```
 
-Plese note that apart of regular Ansible ones pmaker uses two more variables:
+Plese note that apart of regular Ansible varibles pmaker uses two more ones:
 1. public_ip is used to keep track of external public addresses of jump servers. It's mainly used for user notification after account creation. 
 2. host_type is used to execute various sections of configuration flows for diferent host types. For now it's not possible to set sudoers on non application hosts 
 
 # Installation
 
-Pacemaker is an open source project hosted at github. To install, one clones the repository using git, and runs setup.sh script.
+Pacemaker is an open source project hosted on github. To install, one clones the repository using git, and runs setup.sh script.
 
 ```
 sudo yum install -y  git
@@ -146,9 +146,9 @@ git clone https://github.com/rstyczynski/pmaker.git
 ./pmaker/setup/setup.sh
 ```
 
-Initial setup prepares localhost as the ansible controller. Please note that after succesful setup you will see pmaker user on the host with sodo rights. Pmaker takes /opt/pmaker directory for its private use.
+Initial script prepares localhost as the ansible controller. Please note that after succesful setup you will see pmaker user on the host with sodo rights. Pmaker takes /opt/pmaker directory for its private use.
 
-Having controller ready, you need to configure your whole system. Collect list of servers on all your environments, and put this informatino into Ansible inventory file. At beginning use sample file, keep dev, sit, uat env names to simplify configuration, and just replace hostnames. Once completed you may create sample team of alice, bob, carmen, and derek. Please remember to keep pmaker as connection user. 
+Having controller ready, you need to configure your whole system. Collect list of servers of all your environments, and put this information into Ansible inventory file. At beginning use the sample file, shipped with pmaker, keep dev, sit, uat env names to simplify configuration, and just replace hostnames. Once completed you may create sample team of alice, bob, carmen, and derek. Please remember to keep pmaker as connection user. 
 
 ```
 vi data/sample.inventory.cfg 
@@ -169,42 +169,40 @@ cd pmaker
 
 After successful completion, pmaker will be created with password less access on all the hosts. Moreover, sshd will be configured for password access to make it possible to use passwords if any user needs it. In case of ssh issues configure will give up. In such situatuion fix errors, and retry.
 
-# Deploying user accounts to servers
+# Definition of user accounts
 
-Having all the users defined in data/sample.users.yaml, system administrator runs parser which splits users into lists associated with each environment. Note that this time system admin specifies user group name and host definition file. Note that sysadmin operated as pmaker user; use sudo to switch identity.
-
-```
-> sudo su - pmaker
-> whoami
-pmaker
-
-> cd /opt/pmaker
-ansible-playbook users_split.yaml -e user_group=sample -i data/sample.inventory.cfg 
-```
-
-Having users split into environments, system admin runs ansible playbook for each environment.
+Look info sample.users.yaml file in data directory. The file is almost self describing. Specify your users in presented format taking into account comments presented below. 
 
 ```
-> cd /opt/pmaker
-ansible-playbook tasks_dev.yaml -e user_group=sample -i data/sample.inventory.cfg 
+---
+users:
+  - username: alice               unix login name
+    server_groups: [dev]          environments user has access to
+    
+    password: yes                 can user use password to authenticate?
+    key: yes                      can user authenticate using key?
+
+    became_oracle: [dev]          can user sudo to oracle?
+    became_root:   [dev]          can user sudo to root?
+    became_appl:   [dev]          can user sudo to users prefixed by appl e.g. applsoa, applodi?
+
+    full_name: Alice Liddell      full name
+    email: alice@wonder.land      e-mail is used to send welcome letter
+    mobile: +48 001 002 003       mobile number. provide with spaces to avoind interpretaing as a number, as + will be lost.
 ```
 
-Above is repeated for each environment: dev, sit, uat, preprod, and prod, what may be automated using bash.
+That's all. Quite simple user definition. 
+
+# Support for multiple projects
+
+Both user and host definition files are prefixed by project name aka user group.
 
 ```
-for env in dev sit uat preprod prod; do 
-   ansible-playbook tasks_$env.yaml -e user_group=sample -i data/sample.inventory.cfg 
-done
+sample.users.yaml
+sample.inventory.cfg
 ```
 
-Ansible playbook does following things:
-1. prepares passwords and openssh/putty keys incl. encrypted ones
-2. creates user accounts
-3. sets passwords
-4. register public keys in servers' authorized keys
-5. maintains sudoers configuration.
-
-Once completed user management admin may access keys to distribute them to users. 
+Use your prefferend name to keep users and hosts in a files with meaningful names. user group will be used as parameter to scritps.
 
 # Permament switch to project name
 
@@ -223,6 +221,35 @@ user_group: science
 ```
 
 Having this playbooks will default to science inventory and science user group.
+
+# Deploying user accounts to servers
+
+Having all the users defined in data/sample.users.yaml, system administrator runs parser which splits users into lists associated with each environment and actual ansible intercting with managed hosts. Both ansible blaybooks are wrapped by bash script taking one parameter - user group name or rather project name. 
+
+Note that sysadmin operated as pmaker user; use sudo to switch identity.
+
+```
+> sudo su - pmaker
+> whoami
+pmaker
+
+> cd /opt/pmaker
+./envs_update.sh sample
+```
+
+Ansible playbooks do the following things:
+1. prepares state directory with envronments names - it's the place where all names, keys, passwords, etc. are stored.
+2. splits user database into environment
+
+, and:
+
+1. prepares passwords and openssh/putty keys incl. encrypted ones
+2. creates user accounts
+3. sets passwords
+4. register public keys in servers' authorized keys
+5. maintains sudoers configuration.
+
+Once completed user admin may distribute keys and passwords them to users. 
 
 # System state repository
 
