@@ -41,6 +41,7 @@ else
 fi
 
 cp -r * $pmaker_home/ 2>/dev/null
+rm -rf $pmaker_home/pmaker
 
 grep 'umask 077' /home/pmaker/.bash_profile
 if [ \$? -ne 0 ]; then
