@@ -56,7 +56,7 @@
     block: |
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su appl*
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su - appl*
-      marker: "# {mark} ANSIBLE MANAGED BLOCK - appl"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - appl"
     state: present
     mode: 0440
     create: yes
