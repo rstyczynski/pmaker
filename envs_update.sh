@@ -2,6 +2,14 @@
 
 user_group=$1
 
+function j2y {
+   ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'
+}
+
+function y2j {
+   ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'
+}
+
 server_groups=$(cat data/$user_group.users.yaml | 
 y2j | 
 jq -r '.users[].server_groups' | 
@@ -9,9 +17,9 @@ grep '"' |
 sed 's/[", ]//g' | 
 sort -u)
 
-echo '========================='
-echo Processing users of: $server_groups
-echo '========================='
+echo '==========================================================================='
+echo Spliting usaers into group using: $server_groups
+echo '==========================================================================='
 for server_group in $server_groups; do
    echo '========================='
    echo Processing env: $server_group
@@ -23,10 +31,13 @@ for server_group in $server_groups; do
    echo Done.
    echo '========================='
 done
+echo '==========================================================================='
+echo Users ready.
+echo '==========================================================================='
 
-echo '========================='
-echo Processing environments: $server_groups
-echo '========================='
+echo '==========================================================================='
+echo Now updating environments: $server_groups
+echo '==========================================================================='
 for server_group in $server_groups; do
    echo '========================='
    echo Processing env: $server_group
@@ -39,6 +50,6 @@ for server_group in $server_groups; do
    echo '========================='
 done
 
-echo '========================='
+echo '==========================================================================='
 echo All done.
-echo '========================='
+echo '==========================================================================='
