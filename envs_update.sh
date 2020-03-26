@@ -36,7 +36,7 @@ echo '==========================================================================
 echo Now updating environments: $server_groups
 echo '==========================================================================='
 for server_group in $server_groups; do
-   server_list=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  '[.all.children.dev.hosts | keys[]] | unique | .[]')
+   server_list=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$server_group.hosts | keys[]] | unique | .[]")
 
    echo '========================='
    echo Processing env: $server_group
