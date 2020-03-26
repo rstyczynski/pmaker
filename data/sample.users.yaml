@@ -8,7 +8,7 @@ users:
 
     became_oracle: [dev]
     became_root:   [dev]
-    became_appl:  [dev]
+    became_appl:   [dev]
 
     full_name: Alice from The Wonderland
     email: alice@wonder.land
@@ -22,7 +22,7 @@ users:
 
     became_oracle: [sit]
     became_root:   [dev]
-    became_appl:  [dev]
+    became_appl:   [dev]
 
     full_name: Bob The Builder
     email: bob@builder.the
@@ -36,7 +36,7 @@ users:
 
     became_oracle: [dev, sit, uat]
     became_root:   [dev]
-    became_appl:  [dev, sit, uat]
+    became_appl:   [dev, sit, uat]
 
     full_name: Carmen - The Opera POne
     email: carmen@opera.world
@@ -50,7 +50,7 @@ users:
 
     became_oracle: [dev, sit, uat, prod]
     became_root:   [dev]
-    became_appl:  [dev, sit, uat, prod]
+    became_appl:   [dev, sit, uat, prod]
 
     full_name:  Derek From TV
     email: derek@series.tv

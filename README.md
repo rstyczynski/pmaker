@@ -112,26 +112,28 @@ Servers belonging to Sample project are described in Ansible inventory file. Wit
 localhost ansible_connection=local
 
 [dev_jump]
-pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1
+pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1 host_type=jump
 
 [dev]
-pmaker-test-2 ansible_user=pmaker
+pmaker-test-2 ansible_user=pmaker host_type=application
 
 [sit_jump]
-pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1
+pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1 host_type=jump
 
 [sit]
-pmaker-test-3 ansible_user=pmaker
-pmaker-test-4 ansible_user=pmaker
+pmaker-test-3 ansible_user=pmaker host_type=application
+pmaker-test-4 ansible_user=pmaker host_type=application
 
 [uat_jump]
-pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1
+pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1 host_type=jump
 
 [uat]
-pmaker-test-4 ansible_user=pmaker
+pmaker-test-4 ansible_user=pmaker host_type=application
 ```
 
-Plese note the public_ip is not regular Ansible field. It's added by pmaker to keep track of external public addresses of jump servers. It's mainly used for user notification after account creation.
+Plese note that apart of regular Ansible ones pmaker uses two more variables:
+1. public_ip is used to keep track of external public addresses of jump servers. It's mainly used for user notification after account creation. 
+2. host_type is used to execute various sections of configuration flows for diferent host types. For now it's not possible to set sudoers on non application hosts 
 
 # Installation
 

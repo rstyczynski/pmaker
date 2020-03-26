@@ -1,0 +1,36 @@
+---
+#
+# select users belonging to given environment
+#
+
+- hosts: localhost
+  connection: local
+
+  tasks:
+    - include_vars: config.yaml
+    - include_vars: "{{ pmaker_home }}/data/{{ user_group }}.users.yaml"
+
+    #
+    # write env users to server_group/users.yaml
+    #
+    - name: set fact
+      set_fact:
+        env_users: "{{ env_users|default([]) + [ item ]  }}"
+      when: server_group in item.server_groups
+      with_items: "{{users}}"
+
+    - name: Create state directory
+      file:
+        path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}"
+        state: directory
+      when: env_users is defined
+
+    - name: Write env_users to a file
+      copy:
+        content: "{{ env_users | to_nice_yaml }}"
+        dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
+      when: env_users is defined
+
+    - name: Insert proper header
+      shell: sed -i '1 i\---\nusers:' "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
+      when: env_users is defined
