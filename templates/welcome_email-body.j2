@@ -31,13 +31,13 @@ With password delivered via sms. Copy and paste presented key to a bash session 
 You may use encrypted keys, or decrypted for your convinience. To decrypt the key, decrypt ssh key first, and convert to ppk format.
 
 openssl rsa -in ~/.ssh/id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
-puttygen ~/.ssh/id_rsa_dev  -o ~/.ssh/id_rsa.ppk -O private
+puttygen ~/.ssh/id_rsa_dev  -o ~/.ssh/id_rsa_dev.ppk -O private
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. 
 
 When using ssh, remember to benefit from jump server support. Assuming that you want to access {{ first_host }}, execute:
 
-ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
+ssh -i ~/.ssh/id_rsa_dev -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@{{ first_host }}:~/
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/remote_file .
 
