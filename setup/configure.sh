@@ -5,6 +5,13 @@ if [ ! -f setup/inventory.cfg ]; then
 fi
 
 export NSIBLE_HOST_KEY_CHECKING=False
+
+# hosts=$(cat setup/inventory.cfg | egrep '[0-9]+.' | grep -v '^#' | cut -f1 -d' ')
+# for host in $hosts; do
+# 	echo $host...
+# 	ssh-keyscan -H $host >>~/.ssh/known_hosts
+# done
+
 ansible -m ping all -i setup/inventory.cfg
 if [ $? -ne 0 ]; then
   echo "Error. SSH communication not possible to all servers. Fix the erros and retry. Exiting."

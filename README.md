@@ -131,7 +131,7 @@ pmaker-test-1 ansible_user=pmaker public_ip=132.168.0.1
 pmaker-test-4 ansible_user=pmaker
 ```
 
-Plese note the public_ip is not regular Ansible field. It's added by pmaker to kepp tracke of external public addresses of jump servers. It's mainly used for user notification after account creation.
+Plese note the public_ip is not regular Ansible field. It's added by pmaker to keep track of external public addresses of jump servers. It's mainly used for user notification after account creation.
 
 # Installation
 
