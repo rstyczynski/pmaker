@@ -43,5 +43,5 @@
 
     - include: "{{ pmaker_home }}/lib/user_sudoers.yaml"
       with_items: "{{ users }}"
-      when: host_type == "application"
+      when: host_type is defined and host_type == "application"
 
