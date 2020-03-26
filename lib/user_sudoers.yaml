@@ -1,0 +1,74 @@
+---
+- name: Add user to root sudoers
+  become: yes
+  lineinfile:
+    path: "/etc/sudoers.d/{{ item.username }}"
+    line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
+    state: present
+    mode: 0440
+    create: yes
+    validate: "visudo -cf %s"
+  when: server_group in item.became_root
+
+- name: Remove user from root sudoers
+  become: yes
+  lineinfile:
+    path: "/etc/sudoers.d/{{ item.username }}"
+    line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
+    state: absent
+    mode: 0440
+    create: yes
+    validate: "visudo -cf %s"
+  when: server_group not in item.became_root
+
+- name: Add user to oracle sudoers
+  become: yes
+  blockinfile:
+    path: "/etc/sudoers.d/{{ item.username }}"
+    block: |
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
+    state: present
+    mode: 0440
+    create: yes
+    validate: "visudo -cf %s"
+  when: server_group in item.became_oracle
+
+- name: Remove user from oracle sudoers
+  become: yes
+  blockinfile:
+    path: "/etc/sudoers.d/{{ item.username }}"
+    block: |
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
+    state: absent
+    mode: 0440
+    create: yes
+    validate: "visudo -cf %s"
+  when: server_group not in item.became_oracle
+
+- name: Add user to appl sudoers
+  become: yes
+  blockinfile:
+    path: "/etc/sudoers.d/{{ item.username }}"
+    block: |
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su appl*
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - appl*
+    state: present
+    mode: 0440
+    create: yes
+    validate: "visudo -cf %s"
+  when: server_group in item.became_appl
+
+- name: Remove user from appl sudoers
+  become: yes
+  blockinfile:
+    path: "/etc/sudoers.d/{{ item.username }}"
+    block: |
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su appl*
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - appl*
+    state: absent
+    mode: 0440
+    create: yes
+    validate: "visudo -cf %s"
+  when: server_group not in item.became_appl
