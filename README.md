@@ -364,10 +364,15 @@ Password for your key: Ash3ungoo<ch4ba | Generated on 2020-03-25 22:20:55 to be 
 # Exemplary welcome e-mail
 
 ```
-getWelcomeEmail sample dev alice
+getWelcomeEmail sample dev alice header
 ```
 
 ```
+TO: alice@wonder.land
+SUBJECT: Your access information for sample/dev
+FROM: Linux account management.
+DATE: 2020-03-25 22:20:55
+---
 Welcome Alice from The Wonderland!
 
 Your access to dev has been granted as alice.
