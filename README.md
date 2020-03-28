@@ -441,7 +441,7 @@ chmod 600 ~/.ssh/id_rsa_dev.enc
 
 With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
-ou may use encrypted keys, or decrypted for your convinience. To decrypt the key, using SMS provided password, execute the following:
+You may use encrypted keys, or decrypted for your convinience. To decrypt the key, using SMS provided password, execute the following:
 
 openssl rsa -in ~/.ssh/id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
 
