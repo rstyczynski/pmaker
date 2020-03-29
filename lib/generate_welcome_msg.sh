@@ -35,7 +35,7 @@ function getUserData() {
 	export key_ssh_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.enc)
 	export key_ppk_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.ppk)
 
-	export jump_server=$(cat data/$user_group.inventory.cfg | grep -A1 "\[$server_group\_jump\]" | grep public_ip | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
+	export jump_server=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.$server_group.hosts[] | select(.host_type==\"jump\") | .public_ip")
 	export first_host=$(cat data/$user_group.inventory.cfg | grep -A1 "\[$server_group\]" | grep ansible | cut -f1 -d' ')
 
 	export date=$(date +"%F %T")
