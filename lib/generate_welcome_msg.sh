@@ -35,7 +35,17 @@ function getUserData() {
 	export key_ssh_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.enc)
 	export key_ppk_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.ppk)
 
-	export jump_server=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.$server_group.hosts[] | select(.host_type==\"jump\") | .public_ip")
+	#export jump_server=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.$server_group.hosts[] | select(.host_type==\"jump\") | .public_ip")
+	# Bug in ansible - not able to specify the same host in two groups
+	# as workaround added jumps server group:
+	# [jumps]
+	# tst_jump ansible_user=pmaker public_ip=130.61.91.110 host_type=jump
+	# dev_jump ansible_user=pmaker public_ip=130.61.91.110 host_type=jump
+
+	server_group_real=$server_group\_jump
+	export jump_server=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.jumps.hosts[\"$server_group_real\"].public_ip")
+	
+	
 	export first_host=$(cat data/$user_group.inventory.cfg | grep -A1 "\[$server_group\]" | grep ansible | cut -f1 -d' ')
 
 	export date=$(date +"%F %T")
