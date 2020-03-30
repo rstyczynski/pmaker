@@ -7,7 +7,8 @@ if [ $? -ne 0 ]; then
   cp data/$server_group.inventory.cfg public
   chmod o+r public/*
   echo Some of machnes not accesible for pmaker. 
-  echo Connect from different session as opc and prepare hosts for pmaker using setup/configureInventory.sh
+  echo Connect from different session as opc and prepare hosts for pmaker using:
+  echo setup/configureInventory.sh $server_group $@
 else
   echo Good to go.
 fi
