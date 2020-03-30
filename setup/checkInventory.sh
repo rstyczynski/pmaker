@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 server_group=$1; shift
 
 ansible -m ping all -i data/$server_group.inventory.cfg $@
