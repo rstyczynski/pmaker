@@ -11,33 +11,36 @@ cat >~/.ssh/id_rsa_dev.enc <<EOF
 {{ key_ssh_enc_stop }}
 EOF
 chmod 600 ~/.ssh/id_rsa_dev.enc
-
-With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
-
-You may use encrypted keys, or decrypted for your convinience. To decrypt the key, using SMS provided password, execute the following:
-
 openssl rsa -in ~/.ssh/id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
+chmod 600 ~/.ssh/id_rsa_dev
+
+With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. 
+Provide password from sms to finalize decryption. Remember to store decrypted key in safe directory with private access only.
+
+---
 
 Your private encrypted putty key is:
 
-cat >~/.ssh/id_rsa_dev.ppk <<EOF
+cat >~/.ssh/id_rsa_dev.encppk <<EOF
 {{ key_ppk_enc }}
 {{ key_ppk_enc_stop }}
 EOF
-chmod 600 ~/.ssh/id_rsa_dev.ppk
+chmod 600 ~/.ssh/id_rsa_dev.encppk
 
 With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
-You may use encrypted keys, or decrypted for your convinience. To decrypt the key, decrypt ssh key first, and convert to ppk format.
+You may use encrypted key, or decrypted for your convinience. To decrypt the key, convert encrypted ssh key to ppk format.
 
-openssl rsa -in ~/.ssh/id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
 puttygen ~/.ssh/id_rsa_dev  -o ~/.ssh/id_rsa_dev.ppk -O private
+chmod 600 ~/.ssh/id_rsa_dev.ppk
+
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. 
 
 When using ssh, remember to benefit from jump server support. Assuming that you want to access {{ first_host }}, execute:
 
-ssh -i ~/.ssh/id_rsa_dev -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
+ssh-add ~/.ssh/id_rsa_dev
+ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@{{ first_host }}:~/
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/remote_file .
 
