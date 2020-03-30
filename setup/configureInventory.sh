@@ -3,9 +3,9 @@ user_group=$1; shift
 
 if [ -z "$user_group" ]; then
   user_group=sample
-  cat data/$user_group.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" >data/$user_group.inventory.opc
+  cat data/$user_group.inventory.cfg | sed "s/=pmaker/=opc/g" >data/$user_group.inventory.opc
 else
-  cat data/$user_group.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" >data/$user_group.inventory.opc
+  cat data/$user_group.inventory.cfg | sed "s/=pmaker/=opc/g" >data/$user_group.inventory.opc
 fi
 
 export ANSIBLE_HOST_KEY_CHECKING=False
