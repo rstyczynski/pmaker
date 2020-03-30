@@ -5,7 +5,7 @@ if [ -z "$user_group" ]; then
   user_group=sample
   cat data/$user_group.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" >setup/inventory.cfg
 else
-  cat public/$user_group.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" >setup/inventory.cfg
+  cat /opt/pmaker/public/$user_group.inventory.cfg | sed "s/=pmaker/=$(whoami)/g" >setup/inventory.cfg
 fi
 
 export ANSIBLE_HOST_KEY_CHECKING=False
@@ -29,3 +29,4 @@ if [ $? -ne 0 ]; then
 fi
 
 rm -f setup/inventory.cfg
+
