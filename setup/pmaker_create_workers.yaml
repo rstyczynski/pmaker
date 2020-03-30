@@ -30,9 +30,6 @@
 #     attributes: -i
 #   when: authorized_keys_available.stat.exists
 
-- name: let pmaker connect via ssh
-
-
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   authorized_key:
