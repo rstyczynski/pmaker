@@ -37,10 +37,16 @@ chmod 600 ~/.ssh/id_rsa_dev.ppk
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. 
 
-When using ssh, remember to benefit from jump server support. Assuming that you want to access {{ first_host }}, execute:
+When using ssh, remember to benefit from jump server support, and ssh-agent simplifying handling your keys. 
+
+Assuming that you want to access {{ first_host }}, execute:
 
 ssh-add ~/.ssh/id_rsa_dev
 ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
+
+To copy files to and from remote servers, execute:
+
+ssh-add ~/.ssh/id_rsa_dev
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@{{ first_host }}:~/
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/remote_file .
 
