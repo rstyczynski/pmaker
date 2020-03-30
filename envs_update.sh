@@ -1,6 +1,6 @@
 #!/bin/bash
 
-user_group=$1
+user_group=$1; shift
 
 function j2y {
    ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'
@@ -21,7 +21,7 @@ for server_group in $server_groups; do
    echo Processing env: $server_group
    echo '========================='
 
-   ansible-playbook env_users.yaml -e user_group=$user_group -e server_group=$server_group
+   ansible-playbook env_users.yaml -e user_group=$user_group -e server_group=$server_group $@
    
    echo '========================='
    echo Done.
@@ -43,7 +43,8 @@ for server_group in $server_groups; do
    echo \-having servers: $server_list
    echo '========================='
 
-   ansible-playbook env_configure.yaml -e server_group=$server_group -e user_group=$user_group -i data/$user_group.inventory.cfg -l "localhost $server_list"
+   ansible-playbook env_configure.yaml -e server_group=$server_group -e user_group=$user_group \
+   -i data/$user_group.inventory.cfg -l "localhost $server_list" $@
 
    echo '========================='
    echo Done.
