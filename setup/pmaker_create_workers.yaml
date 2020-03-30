@@ -16,19 +16,22 @@
     path: /home/{{ item }}/.ssh/authorized_keys
   register: authorized_keys_available
 
-- name: Protect .ssh
-  become: yes
-  file:
-    path: /home/{{ item }}/.ssh
-    attributes: -i
-  when: ssh_available.stat.exists
+# - name: Protect .ssh
+#   become: yes
+#   file:
+#     path: /home/{{ item }}/.ssh
+#     attributes: -i
+#   when: ssh_available.stat.exists
 
-- name: Protect authorized_keys
-  become: yes
-  file:
-    path: /home/{{ item }}/.ssh/authorized_keys
-    attributes: -i
-  when: authorized_keys_available.stat.exists
+# - name: Protect authorized_keys
+#   become: yes
+#   file:
+#     path: /home/{{ item }}/.ssh/authorized_keys
+#     attributes: -i
+#   when: authorized_keys_available.stat.exists
+
+- name: let pmaker connect via ssh
+
 
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
