@@ -1,9 +1,9 @@
 Welcome {{ full_name }}!
 
 Your access to {{ server_group }} has been granted as {{ username }}.
-{%+ if password_access %}
+{%+ if password_access is sameas true %}
 You may use password to authenticate. Password for authentication is sent by sms to your mobile at {{ mobile_number }}.
-{% endif %}{%+ if key_access %}
+{% endif %}{%+ if key_access is sameas true %}
 You may use private key to authenticate. Your private encrypted openssh key is:
 
 cat >~/.ssh/id_rsa_dev.enc <<EOF
