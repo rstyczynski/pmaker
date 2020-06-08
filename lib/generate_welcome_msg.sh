@@ -46,7 +46,7 @@ function getUserData() {
 	export jump_server=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.jumps.hosts[\"$server_group_real\"].public_ip")
 	
 	
-	export first_host=$(cat data/$user_group.inventory.cfg | grep -A1 "\[$server_group\]" | grep ansible | cut -f1 -d' ')
+	export first_host=$(cat data/$user_group.inventory.cfg | grep -A1 "\[$server_group\]" | tail -1 | cut -f1 -d' ')
 
 	export date=$(date +"%F %T")
 
