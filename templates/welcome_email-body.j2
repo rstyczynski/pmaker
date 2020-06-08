@@ -6,13 +6,13 @@ You may use password to authenticate. Password for authentication is sent by sms
 {% endif %}{%+ if key_access == "true" %}
 You may use private key to authenticate. Your private encrypted openssh key is:
 
-cat >~/.ssh/id_rsa_dev.enc <<EOF
+cat >~/.ssh/id_rsa_{{ server_group }}.enc <<EOF
 {{ key_ssh_enc }}
 {{ key_ssh_enc_stop }}
 EOF
-chmod 600 ~/.ssh/id_rsa_dev.enc
-openssl rsa -in ~/.ssh/id_rsa_dev.enc -out ~/.ssh/id_rsa_dev
-chmod 600 ~/.ssh/id_rsa_dev
+chmod 600 ~/.ssh/id_rsa_{{ server_group }}.enc
+openssl rsa -in ~/.ssh/id_rsa_{{ server_group }}.enc -out ~/.ssh/id_rsa_{{ server_group }}
+chmod 600 ~/.ssh/id_rsa_{{ server_group }}
 
 With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. 
 Provide password from sms to finalize decryption. Remember to store decrypted key in safe directory with private access only.
@@ -21,18 +21,18 @@ Provide password from sms to finalize decryption. Remember to store decrypted ke
 
 Your private encrypted putty key is:
 
-cat >~/.ssh/id_rsa_dev.encppk <<EOF
+cat >~/.ssh/id_rsa_{{ server_group }}.encppk <<EOF
 {{ key_ppk_enc }}
 {{ key_ppk_enc_stop }}
 EOF
-chmod 600 ~/.ssh/id_rsa_dev.encppk
+chmod 600 ~/.ssh/id_rsa_{{ server_group }}.encppk
 
 With password delivered via sms. Copy and paste presented key to a bash session or to a text editor, and save to a file. Remember to store the key in safe directory with private access only.
 
 You may use encrypted key, or decrypted for your convinience. To decrypt the key, convert encrypted ssh key to ppk format.
 
-puttygen ~/.ssh/id_rsa_dev  -o ~/.ssh/id_rsa_dev.ppk -O private
-chmod 600 ~/.ssh/id_rsa_dev.ppk
+puttygen ~/.ssh/id_rsa_{{ server_group }}  -o ~/.ssh/id_rsa_{{ server_group }}.ppk -O private
+chmod 600 ~/.ssh/id_rsa_{{ server_group }}.ppk
 
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. 
@@ -41,12 +41,12 @@ When using ssh, remember to benefit from jump server support, and ssh-agent simp
 
 Assuming that you want to access {{ first_host }}, execute:
 
-ssh-add ~/.ssh/id_rsa_dev
+ssh-add ~/.ssh/id_rsa_{{ server_group }}
 ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
 
 To copy files to and from remote servers, execute:
 
-ssh-add ~/.ssh/id_rsa_dev
+ssh-add ~/.ssh/id_rsa_{{ server_group }}
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@{{ first_host }}:~/
 scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/remote_file .
 

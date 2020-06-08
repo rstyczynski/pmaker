@@ -238,6 +238,7 @@ pmaker
 ```
 
 Ansible playbooks do the following things:
+
 1. prepares state directory with envronments names - it's the place where all names, keys, passwords, etc. are stored.
 2. splits user database into environment
 
