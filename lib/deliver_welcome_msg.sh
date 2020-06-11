@@ -76,8 +76,8 @@ function clear_welcome_email() {
 
         for env in $envs; do
             echo -n ">>> $env $user: "
-            if [ -f state/$user_group/$env/$user/email.sent ]; then
-                mv state/$user_group/$env/$user/email.sent state/$user_group/$env/$user/email.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
+            if [ -f state/$user_group/$env/$user/welcome.sent ]; then
+                mv state/$user_group/$env/$user/welcome.sent state/$user_group/$env/$user/welcome.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
                 echo "sent status removed."
             fi
         done
