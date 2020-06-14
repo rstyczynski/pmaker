@@ -9,7 +9,7 @@ port = 587  # For starttls
 smtp_server = "smtp.gmail.com"
 sender_email = "rstyczynski@gmail.com"
 receiver_email = "rstyczynski@gmail.com"
-password = "gygwax-zexdi"
+password = "XXX"
 message = """\
 Subject: Hi there
 
