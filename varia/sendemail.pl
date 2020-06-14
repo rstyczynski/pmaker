@@ -7,8 +7,8 @@ from email.mime.text import MIMEText
 
 port = 587  # For starttls
 smtp_server = "smtp.gmail.com"
-sender_email = "rstyczynski@gmail.com"
-receiver_email = "rstyczynski@gmail.com"
+sender_email = "xxx"
+receiver_email = "xxx"
 password = "XXX"
 message = """\
 Subject: Hi there
