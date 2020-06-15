@@ -64,10 +64,10 @@
 
 - name: remove account limit to use ssh 
   become: yes
-  replace:
+  lineinfile:
     path: /etc/ssh/sshd_config
     regexp: '^\s*(AllowUsers.+)$'
-    replace: '# \1'
+    state: absent
     notify: restart sshd
 
 
