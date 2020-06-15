@@ -32,7 +32,6 @@ function welcome_email() {
                     -S smtp-auth-user=$ACCOUNT_USER \
                     -S smtp-auth-password=$ACCOUNT_PASSWORD \
                     -S smtp-auth=plain \
-                    -a /etc/passwd \
                     $TO_EMAIL_ADDRESS
 
                     if [ $? -eq 0 ]; then
@@ -40,6 +39,7 @@ function welcome_email() {
                         touch state/$user_group/$env/$user/welcome.sent
                     else
                         echo "Error code:$?."
+                        read -p "press any key"
                     fi
                 else
                     echo 
