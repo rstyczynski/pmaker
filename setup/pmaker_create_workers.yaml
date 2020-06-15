@@ -62,3 +62,9 @@
     create: yes
     validate: "visudo -cf %s"
 
+- name: remove account limit to use ssh 
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^\s*(AllowUsers.+)$'
+    replace: '# \1'
+
