@@ -68,8 +68,8 @@
     path: /etc/ssh/sshd_config
     regexp: '^\s*(AllowUsers.+)$'
     replace: '# \1'
-    notify:
-    - restart sshd
+  notify:
+  - restart sshd
 
   handlers:
     - name: restart sshd
