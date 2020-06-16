@@ -60,13 +60,16 @@ function generateWelcomeEmailBody() {
 	local user_group=$1
 	local server_group=$2
 	local username=$3
+	local mail_template=$4
+
+	: ${mail_template:=welcome_email-body}
 
 	mkdir -p tmp
-	cat templates/welcome_email-body.j2 |
+	cat templates/$mail_template.j2 |
 		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
-		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.ppk >tmp/welcome_email-body.j2
-	j2 tmp/welcome_email-body.j2
-	rm -f tmp/welcome_email-body.j2
+		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.ppk >tmp/$mail_template.j2
+	j2 tmp/$mail_template.j2
+	rm -f tmp/$mail_template.j2
 }
 
 function generateWelcomeEmailHeader() {
@@ -95,6 +98,9 @@ function generateUserMessages() {
 	local user_group=$1
 	local server_group=$2
 	local username=$3
+	local mail_template=$4
+
+	: ${mail_template:=welcome_email-body}
 
 	mkdir -p state/$user_group/$server_group/$username/outbox
 
@@ -103,7 +109,7 @@ function generateUserMessages() {
 
 	echo Generating messages...
 	echo -n "\- welcome mail..."
-	generateWelcomeEmailBody $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
+	generateWelcomeEmailBody $user_group $server_group $username $mail_template >state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
 	generateWelcomeEmailHeader >state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
 	echo OK
 

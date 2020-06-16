@@ -78,6 +78,12 @@ function welcome_sms() {
     for user in $(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username'); do
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$user\") | .mobile")
 
+        # TODO - add support for not ready message
+        # >>> dsuat USER: cat: state/ocs/dsuat/USER/outbox/key_sms.txt: No such file or directory
+        # tee: state/ocs/dsuat/USER/sms.sent: No such file or directory
+
+        # An error occurred (InvalidParameter) when calling the Publish operation: Invalid parameter: Empty message
+
         if [ ! -z "$mobile" ]; then
             for env in $envs; do
                 echo -n ">>> $env $user: "
