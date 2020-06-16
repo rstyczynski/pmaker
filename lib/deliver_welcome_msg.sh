@@ -33,6 +33,8 @@ function welcome_email() {
                         -S smtp-auth-user=$ACCOUNT_USER \
                         -S smtp-auth-password=$ACCOUNT_PASSWORD \
                         -S smtp-auth=plain \
+                        -a state/$user_group/$server_group/$username/.ssh/id_rsa.enc \
+                        -a state/$user_group/$server_group/$username/.ssh/id_rsa.ppk \
                         $TO_EMAIL_ADDRESS 2> /tmp/email.$$.tmp
 
                         if [ $? -eq 0 ]; then
