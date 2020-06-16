@@ -12,7 +12,7 @@ Use private key to authenticate. Your private keys in openssh and putty formats 
 
 To decrypt ssh key do the following:
 1. save file to %userprofile%\.ssh\id_rsa_{{ server_group }}.enc, where %userprofile% is your Windows home directory
-2. install Git from https://git-scm.com/download/win; git is shipped with openssl which we ned
+2. install Git from https://git-scm.com/download/win; git is shipped with openssl which we need
 3. start cmd.exe
 4. "C:\Program Files\Git\mingw64\bin\openssl.exe" rsa -in %userprofile%\.ssh\id_rsa_{{ server_group }}.enc -out %userprofile%\.ssh\id_rsa_{{ server_group }}
 5. once asked for password provide one from SMS for {{ server_group }} environment
