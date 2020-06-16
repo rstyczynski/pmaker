@@ -76,14 +76,16 @@ When using ssh, remember to benefit from jump server support, and ssh-agent simp
 
 Assuming that you want to access {{ first_host }}, execute:
 
+ssh-add -D
 ssh-add ~/.ssh/id_rsa_{{ server_group }}
-ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
+ssh -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
 
 To copy files to and from remote servers, execute:
 
 ssh-add ~/.ssh/id_rsa_{{ server_group }}
-scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@{{ first_host }}:~/
-scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/remote_file .
+touch test_file
+scp -o 'ProxyJump {{ username }}@{{ jump_server }}' test_file {{ username }}@{{ first_host }}:~/
+scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/test_file .
 
 You can further simplify ssh connection using .ssh/config
 
@@ -100,7 +102,7 @@ echo ProxyJump {{ server_group }}_jump
 ) >>~/.ssh/config
 
 3. connect to target server: ssh {{ first_host }}
-4. having config, you can copy in s simplified way: scp local_file {{ username }}@{{ first_host }}:~/
+4. having config, you can copy in simplified way: scp test_file {{ username }}@{{ first_host }}:~/
 
 
 Regards,
@@ -109,3 +111,4 @@ Regards,
 ---
 Generated on {{ date }} to be sent to {{ email }}.
 If you are not the proper recipient, please delete this message.
+

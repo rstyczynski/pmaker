@@ -41,14 +41,16 @@ When using ssh, remember to benefit from jump server support, and ssh-agent simp
 
 Assuming that you want to access {{ first_host }}, execute:
 
+ssh-add -D
 ssh-add ~/.ssh/id_rsa_{{ server_group }}
-ssh -i -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
+ssh -J {{ username }}@{{ jump_server }} {{ username }}@{{ first_host }}
 
 To copy files to and from remote servers, execute:
 
 ssh-add ~/.ssh/id_rsa_{{ server_group }}
-scp -o 'ProxyJump {{ username }}@{{ jump_server }}' local_file {{ username }}@{{ first_host }}:~/
-scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/remote_file .
+touch test_file
+scp -o 'ProxyJump {{ username }}@{{ jump_server }}' test_file {{ username }}@{{ first_host }}:~/
+scp -o 'ProxyJump {{ username }}@{{ jump_server }}' {{ username }}@{{ first_host }}:~/test_file .
 
 Note that even having Windows you can benefit from ssh after installing Cygwin.
 
