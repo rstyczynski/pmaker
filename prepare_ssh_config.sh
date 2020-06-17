@@ -25,7 +25,6 @@ host ${server_group}_jump
     HostName $jump_server
     ForwardAgent yes
     User $proxy_user
-    IdentityFile ~/.ssh/${server_group}.key
 EOF
 
 if [ $server_group_key == yes ]; then
