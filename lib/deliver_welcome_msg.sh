@@ -25,7 +25,7 @@ function welcome_email() {
             echo -n ">>> $server_group $username: "
             ready=$(getWelcomeEmail $user_group $server_group $username)
 
-            if [ -z $ready ]; then
+            if [ -z "$ready" ]; then
                 echo "Skipping. e-mail not yet prepared."
             else
                 if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then            
@@ -101,7 +101,7 @@ function welcome_sms() {
 
         ready=$(getKeySMS $user_group $server_group $username)
 
-        if [ -z $ready ]; then
+        if [ -z "$ready" ]; then
             echo "Skipping. sms not yet prepared."
         else
             mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
