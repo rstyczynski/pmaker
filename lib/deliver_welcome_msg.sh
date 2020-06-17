@@ -35,8 +35,8 @@ function welcome_email() {
                         EMAIL_SUBJECT=$(getWelcomeEmail $user_group $server_group $username header | head -5 | grep 'SUBJECT:' | cut -d' ' -f2-999)
 
                         if [ ! -z "$TO_EMAIL_ADDRESS" ]; then
-                            timeout 30 getWelcomeEmail $user_group $server_group $username | 
-                            mailx -v -s "$EMAIL_SUBJECT" \
+                            getWelcomeEmail $user_group $server_group $username | 
+                            timeout 30 mailx -v -s "$EMAIL_SUBJECT" \
                             -S nss-config-dir=/etc/pki/nssdb/ \
                             -S smtp-use-starttls \
                             -S ssl-verify=ignore \
