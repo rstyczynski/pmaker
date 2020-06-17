@@ -33,6 +33,11 @@ Access to {{ server_group }} servers is possible via bastion host: {{ jump_serve
 3. connect to jump server: ssh -A {{ username }}@{{ jump_server }}
 4. connect to target server: ssh {{ username }}@{{ first_host }}
 
+Note: in case of error using ssh-add, perform the following steps:
+1. start cmd.exe elevated to administrator rights
+2. start ssh-agent service: sc start ssh-agent
+3. if for some reason openssh is not in your Windows (old version?), follow this guide: https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview
+
 You can further simplify ssh connection using .ssh/config
 
 1. start cmd.xe
