@@ -9,6 +9,7 @@ if [ $? -ne 0 ]; then
   echo Some of machnes not accesible for pmaker. 
   echo Connect from different session as opc and prepare hosts for pmaker using:
   echo setup/configureInventory.sh $server_group $@
+  exit 1
 else
   echo Good to go.
 fi
