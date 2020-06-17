@@ -33,7 +33,7 @@ cat >>~/.ssh/config <<EOF
 EOF
 fi
 
-hosts=$(cat data/ocs.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep -v 'host_type=jump' | cut -f1 -d' ')
+hosts=$(cat data/ocs.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | cut -f1 -d' ')
 
 for host in $hosts; do
     cat >>~/.ssh/config <<EOF
