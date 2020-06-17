@@ -6,7 +6,7 @@
 function welcome_email() {
     user_group=$1
     envs=$2
-    user=$3
+    users=$3
     deliver=$4
 
     if [ ! -d state ]; then
@@ -14,9 +14,9 @@ function welcome_email() {
         return 1
     fi
 
-    : ${user:=all}
+    : ${users:=all}
 
-    if [ $user == all ]; then
+    if [ $users == all ]; then
         users=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
@@ -83,7 +83,7 @@ function welcome_email() {
 function welcome_sms() {
     user_group=$1
     envs=$2
-    user=$3
+    users=$3
     deliver=$4
 
     if [ ! -d state ]; then
@@ -91,9 +91,9 @@ function welcome_sms() {
         return 1
     fi
 
-    : ${user:=all}
+    : ${users:=all}
 
-    if [ $user == all ]; then
+    if [ $users == all ]; then
         users=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
