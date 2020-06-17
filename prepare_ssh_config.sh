@@ -14,7 +14,7 @@ if [ -z "$user_group" ] || [ -z "$server_group" ]; then
 fi
 
 : ${proxy_user:=opc}
-: ${server_group_key:=yes}
+: ${server_group_key:=no}
 
 server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
 jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
@@ -27,9 +27,9 @@ host ${server_group}_jump
     User $proxy_user
 EOF
 
-if [ $server_group_key == yes ]; then
+if [ $server_group_key != no ]; then
 cat >>~/.ssh/config <<EOF
-    IdentityFile ~/.ssh/${server_group}.key
+    IdentityFile ~/.ssh/${server_group_key}.key
 EOF
 fi
 
