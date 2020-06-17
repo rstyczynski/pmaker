@@ -5,8 +5,8 @@
 #
 function welcome_email() {
     user_group=$1
-    envs=$2
-    users=$3
+    server_groups=$2
+    usernames=$3
     deliver=$4
 
     if [ ! -d state ]; then
@@ -14,35 +14,35 @@ function welcome_email() {
         return 1
     fi
 
-    : ${users:=all}
+    : ${usernames:=all}
 
-    if [ $users == all ]; then
-        users=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    if [ $usernames == all ]; then
+        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
-    for user in $users; do
-        for env in $envs; do
-            echo -n ">>> $env $user: "
-            ready=$(getWelcomeEmail $user_group $env $user)
+    for username in $usernames; do
+        for server_group in $server_groups; do
+            echo -n ">>> $server_group $username: "
+            ready=$(getWelcomeEmail $user_group $server_group $username)
 
             if [ -z $ready ]; then
                 echo "Skipping. e-mail not yet prepared."
             else
-                if [ ! -f state/$user_group/$env/$user/welcome.sent ]; then            
+                if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then            
                     if [ "$deliver" == 'deliver' ]; then
                         echo -n " mail delivery...."
-                        TO_EMAIL_ADDRESS=$(getWelcomeEmail $user_group $env $user header | head -5 | grep 'TO:' | cut -d' ' -f2-999)
-                        EMAIL_SUBJECT=$(getWelcomeEmail $user_group $env $user header | head -5 | grep 'SUBJECT:' | cut -d' ' -f2-999)
+                        TO_EMAIL_ADDRESS=$(getWelcomeEmail $user_group $server_group $username header | head -5 | grep 'TO:' | cut -d' ' -f2-999)
+                        EMAIL_SUBJECT=$(getWelcomeEmail $user_group $server_group $username header | head -5 | grep 'SUBJECT:' | cut -d' ' -f2-999)
 
                         if [ ! -z "$TO_EMAIL_ADDRESS" ]; then
-                            timoeut 30 getWelcomeEmail $user_group $env $user | 
+                            timeout 30 getWelcomeEmail $user_group $server_group $username | 
                             mailx -v -s "$EMAIL_SUBJECT" \
                             -S nss-config-dir=/etc/pki/nssdb/ \
                             -S smtp-use-starttls \
                             -S ssl-verify=ignore \
                             -S smtp=smtp://$SMTP_ADDRESS:$SMTP_PORT \
                             -S from=$FROM_EMAIL_ADDRESS \
-                            -S smtp-auth-user=$ACCOUNT_USER \
+                            -S smtp-auth-username=$ACCOUNT_USER \
                             -S smtp-auth-password=$ACCOUNT_PASSWORD \
                             -S smtp-auth=plain \
                             -a state/$user_group/$server_group/$username/.ssh/id_rsa.enc \
@@ -51,7 +51,7 @@ function welcome_email() {
 
                             if [ $? -eq 0 ]; then
                                 echo "Done."
-                                cat /tmp/email.$$.tmp > state/$user_group/$env/$user/welcome.sent
+                                cat /tmp/email.$$.tmp > state/$user_group/$server_group/$username/welcome.sent
                             else
                                 echo "Error sending email. Code: $?. Connect log: "
                                 cat /tmp/email.$$.tmp
@@ -64,11 +64,11 @@ function welcome_email() {
                     else
                         echo 
                         echo "============ mail verification ================="
-                        getWelcomeEmail $user_group $env $user header
+                        getWelcomeEmail $user_group $server_group $username header
                         read -p "press any key"
                     fi
                 else
-                    echo "Email already sent at $(ls -l state/$user_group/$env/$user/welcome.sent | cut -d' ' -f6-8)"
+                    echo "Email already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
                 fi
             fi
         done
@@ -82,8 +82,8 @@ function welcome_email() {
 
 function welcome_sms() {
     user_group=$1
-    envs=$2
-    users=$3
+    server_groups=$2
+    usernames=$3
     deliver=$4
 
     if [ ! -d state ]; then
@@ -91,37 +91,36 @@ function welcome_sms() {
         return 1
     fi
 
-    : ${users:=all}
+    : ${usernames:=all}
 
-    if [ $users == all ]; then
-        users=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    if [ $usernames == all ]; then
+        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    for username in $usernames; do
 
-    for user in $users; do
-
-        ready=$(getKeySMS $user_group $env $user)
+        ready=$(getKeySMS $user_group $server_group $username)
 
         if [ -z $ready ]; then
             echo "Skipping. sms not yet prepared."
         else
-            mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$user\") | .mobile")
+            mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
             if [ ! -z "$mobile" ]; then
-                for env in $envs; do
-                    echo -n ">>> $env $user: "
-                    if [ ! -f state/$user_group/$env/$user/sms.sent ]; then
+                for server_group in $server_groups; do
+                    echo -n ">>> $server_group $username: "
+                    if [ ! -f state/$user_group/$server_group/$username/sms.sent ]; then
                         if [ "$deliver" == 'deliver' ]; then
                             echo -n " sms delivery...."
-                            sms_message=$(getKeySMS $user_group $env $user)
-                            aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$env/$user/sms.sent
+                            sms_message=$(getKeySMS $user_group $server_group $username)
+                            aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
                         else
                             echo 
                             echo "============ sms verification ================="
-                            getKeySMS $user_group $env $user header
+                            getKeySMS $user_group $server_group $username header
                             read -p "press any key"
                         fi
                     else
-                        echo "SMS already sent at $(ls -l state/$user_group/$env/$user/welcome.sent | cut -d' ' -f6-8)"
+                        echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
                     fi
                 done
             else
@@ -136,20 +135,20 @@ function welcome_sms() {
 #
 function clear_welcome_email() {
     user_group=$1
-    envs=$2
+    server_groups=$2
 
     if [ ! -d state ]; then
         echo "Error. Clear email delivery must be started from pmaker home."
         return 1
     fi
 
-    for user in $(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username'); do
-        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$user\") | .mobile")
+    for username in $(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username'); do
+        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
 
-        for env in $envs; do
-            echo -n ">>> $env $user: "
-            if [ -f state/$user_group/$env/$user/welcome.sent ]; then
-                mv state/$user_group/$env/$user/welcome.sent state/$user_group/$env/$user/welcome.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
+        for server_group in $server_groups; do
+            echo -n ">>> $server_group $username: "
+            if [ -f state/$user_group/$server_group/$username/welcome.sent ]; then
+                mv state/$user_group/$server_group/$username/welcome.sent state/$user_group/$server_group/$username/welcome.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
                 echo "sent status removed."
             fi
         done
@@ -162,20 +161,20 @@ function clear_welcome_email() {
 #
 function clear_welcome_sms() {
     user_group=$1
-    envs=$2
+    server_groups=$2
 
     if [ ! -d state ]; then
         echo "Error. Clear SMS delivery must be started from pmaker home."
         return 1
     fi
 
-    for user in $(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username'); do
-        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$user\") | .mobile")
+    for username in $(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username'); do
+        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
 
-        for env in $envs; do
-            echo -n ">>> $env $user: "
-            if [ -f state/$user_group/$env/$user/sms.sent ]; then
-                mv state/$user_group/$env/$user/sms.sent state/$user_group/$env/$user/sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
+        for server_group in $server_groups; do
+            echo -n ">>> $server_group $username: "
+            if [ -f state/$user_group/$server_group/$username/sms.sent ]; then
+                mv state/$user_group/$server_group/$username/sms.sent state/$user_group/$server_group/$username/sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
                 echo "sent status removed."
             fi
         done
