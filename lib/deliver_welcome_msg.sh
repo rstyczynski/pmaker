@@ -136,13 +136,21 @@ function welcome_sms() {
 function clear_welcome_email() {
     user_group=$1
     server_groups=$2
+    usernames=$3
 
     if [ ! -d state ]; then
-        echo "Error. Clear email delivery must be started from pmaker home."
+        echo "Error. SMS delivery must be started from pmaker home."
         return 1
     fi
 
-    for username in $(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username'); do
+    : ${usernames:=all}
+
+    if [ $usernames == all ]; then
+        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    fi
+
+
+    for username in $usernames; do
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
 
         for server_group in $server_groups; do
@@ -162,13 +170,20 @@ function clear_welcome_email() {
 function clear_welcome_sms() {
     user_group=$1
     server_groups=$2
+    usernames=$3
 
     if [ ! -d state ]; then
-        echo "Error. Clear SMS delivery must be started from pmaker home."
+        echo "Error. SMS delivery must be started from pmaker home."
         return 1
     fi
 
-    for username in $(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username'); do
+    : ${usernames:=all}
+
+    if [ $usernames == all ]; then
+        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    fi
+
+    for username in $usernames; do
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
 
         for server_group in $server_groups; do
