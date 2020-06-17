@@ -42,7 +42,7 @@ function welcome_email() {
                             -S ssl-verify=ignore \
                             -S smtp=smtp://$SMTP_ADDRESS:$SMTP_PORT \
                             -S from=$FROM_EMAIL_ADDRESS \
-                            -S smtp-auth-username=$ACCOUNT_USER \
+                            -S smtp-auth-user=$ACCOUNT_USER \
                             -S smtp-auth-password=$ACCOUNT_PASSWORD \
                             -S smtp-auth=plain \
                             -a state/$user_group/$server_group/$username/.ssh/id_rsa.enc \
