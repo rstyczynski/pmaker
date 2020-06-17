@@ -64,6 +64,9 @@ function generateWelcomeEmailBody() {
 
 	: ${mail_template:=welcome_email-body}
 
+	cp state/$user_group/$server_group/$username/.ssh/id_rsa.enc state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.enc
+	cp state/$user_group/$server_group/$username/.ssh/id_rsa.ppk state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk
+
 	mkdir -p tmp
 	cat templates/$mail_template.j2 |
 		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
