@@ -68,7 +68,7 @@ chmod 600 ~/.ssh/id_rsa_{{ server_group }}.enc
 openssl rsa -in ~/.ssh/id_rsa_{{ server_group }}.enc -out ~/.ssh/id_rsa_{{ server_group }}
 chmod 600 ~/.ssh/id_rsa_{{ server_group }}
 
-, with password delivered via sms. Copy and paste above script key to a bash session. Once asked, provide password from sms to finalize decryption. Remember to store decrypted key in safe directory with private access only.
+, with password delivered via sms. Copy and paste above script to a terminal session. Once asked, provide password from sms to finalize decryption. Remember to store decrypted key in safe directory with private access only.
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. 
 
