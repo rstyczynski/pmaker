@@ -1,6 +1,18 @@
 #!/bin/bash
 
 user_group=$1; shift
+server_groups=$1; shift
+
+function usage() {
+   echo Usage: envs_update.sh user_group [server_groups]
+   echo server_groups deafults to all
+}
+
+if [ -z "$user_group" ]; then
+   usage
+   error 1
+fi
+
 
 function j2y {
    ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'
@@ -10,8 +22,10 @@ function y2j {
    ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'
 }
 
-server_groups=$(cat data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
-#Source: https://stackoverflow.com/questions/29822622/get-all-unique-json-key-names-with-jq
+if [ -z "$server_groups" ]; then
+   server_groups=$(cat data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+   #Source: https://stackoverflow.com/questions/29822622/get-all-unique-json-key-names-with-jq
+fi 
 
 echo '==========================================================================='
 echo Spliting usaers into group using: $server_groups
