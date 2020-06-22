@@ -123,7 +123,7 @@ function welcome_sms() {
                         read -p "press any key"
                     fi
                 else
-                    echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
+                    echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/sms.sent | cut -d' ' -f6-8)"
                 fi
             done
         else
