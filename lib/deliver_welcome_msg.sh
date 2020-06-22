@@ -261,3 +261,36 @@ function clear_welcome_sms() {
     done
 
 }
+
+#
+# clear SMS delivery status. all messages will be redelivered
+#
+function clear_welcome_passowrd_sms() {
+    user_group=$1
+    server_groups=$2
+    usernames=$3
+
+    if [ ! -d state ]; then
+        echo "Error. SMS delivery must be started from pmaker home."
+        return 1
+    fi
+
+    : ${usernames:=all}
+
+    if [ $usernames == all ]; then
+        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    fi
+
+    for username in $usernames; do
+        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+
+        for server_group in $server_groups; do
+            echo -n ">>> $server_group $username: "
+            if [ -f state/$user_group/$server_group/$username/password_sms.sent ]; then
+                mv state/$user_group/$server_group/$username/password_sms.sent state/$user_group/$server_group/$username/password_sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
+                echo "sent status removed."
+            fi
+        done
+    done
+
+}
