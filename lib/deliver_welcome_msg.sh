@@ -80,21 +80,26 @@ function welcome_email() {
 }
 
 #
-# send SMS
+# send key SMS
 #
 
 function welcome_sms() {
     user_group=$1
     server_groups=$2
     usernames=$3
-    deliver=$4
+    deliver=$3
+
+    : ${usernames:=all}
+
+    if [ -z "user_group" ]; then
+        echo "Error. Usage: welcome_sms user_group server_groups usernames [deliver]"
+        return 1
+    fi
 
     if [ ! -d state ]; then
         echo "Error. SMS delivery must be started from pmaker home."
         return 1
     fi
-
-    : ${usernames:=all}
 
     if [ $usernames == all ]; then
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
@@ -124,6 +129,64 @@ function welcome_sms() {
                     fi
                 else
                     echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/sms.sent | cut -d' ' -f6-8)"
+                fi
+            done
+        else
+            echo User has no mobile number.
+        fi
+    done
+}
+
+#
+# send key SMS
+#
+
+function welcome_password_sms() {
+    user_group=$1
+    server_groups=$2
+    usernames=$3
+    deliver=$4
+
+    : ${usernames:=all}
+
+    if [ -z "user_group" ]; then
+        echo "Error. Usage: welcome_password_sms user_group server_groups usernames [deliver]"
+        return 1
+    fi
+
+    if [ ! -d state ]; then
+        echo "Error. SMS delivery must be started from pmaker home."
+        return 1
+    fi
+
+    if [ $usernames == all ]; then
+        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    fi
+
+    for username in $usernames; do
+
+        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+        if [ ! -z "$mobile" ]; then
+            for server_group in $server_groups; do
+                echo -n ">>> $server_group $username: "
+                if [ ! -f state/$user_group/$server_group/$username/password_sms.sent ]; then
+                    if [ "$deliver" == 'deliver' ]; then
+                        echo -n " sms delivery...."
+                        sms_message=$(getPasswordSMS $user_group $server_group $username)
+
+                        if [ -z "$sms_message" ]; then
+                            echo "Skipping. sms not yet prepared."
+                        else
+                            aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/password_sms.sent
+                        fi
+                    else
+                        echo 
+                        echo "============ sms verification ================="
+                        getPasswordSMS $user_group $server_group $username header
+                        read -p "press any key"
+                    fi
+                else
+                    echo "Password SMS already sent at $(ls -l state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
                 fi
             done
         else
