@@ -11,6 +11,7 @@ Use private key to authenticate. Your private keys in openssh and putty formats 
 ===============
 
 To decrypt ssh key do the following:
+
 1. save file to %userprofile%\.ssh\id_rsa_{{ server_group }}.enc, where %userprofile% is your Windows home directory
 2. install Git from https://git-scm.com/download/win; git is shipped with openssl which we need
 3. start cmd.exe
@@ -18,6 +19,7 @@ To decrypt ssh key do the following:
 5. once asked for password provide one from SMS for {{ server_group }} environment
 
 To decrypt putty key do the following:
+
 1. save file to %userprofile%\.ssh\id_rsa_{{ server_group }}.ppk, where %userprofile% is your Windows home directory
 2. install Putty from https://www.putty.org
 3. start puttygen.exe
@@ -28,14 +30,20 @@ To decrypt putty key do the following:
 
 {% endif %}
 Access to {{ server_group }} servers is possible via bastion host: {{ jump_server }}. Assuming that you want to access {{ first_host }}, execute:
+
 1. start cmd.exe
 2. add key to ssh agent: ssh-add %userprofile%\.ssh\id_rsa_{{ server_group }}
 3. connect to jump server: ssh -A {{ username }}@{{ jump_server }}
 4. connect to target server: ssh {{ username }}@{{ first_host }}
 
 Note: in case of error using ssh-add, perform the following steps:
+
 1. start cmd.exe elevated to administrator rights
-2. start ssh-agent service: sc start ssh-agent
+2. start ssh-agent service: 
+
+sc config ssh-agent start=auto
+sc start ssh-agent
+
 3. if for some reason openssh is not in your Windows (old version?), follow this guide: https://docs.microsoft.com/en-us/windows-server/administration/openssh/openssh_overview
 
 You can further simplify ssh connection using .ssh/config
@@ -54,7 +62,7 @@ echo ProxyCommand  C:\Windows\System32\OpenSSH\ssh.exe -q -W %h:%p {{ server_gro
 
 3. connect to target server: ssh {{ first_host }}
 
-If you are Putty user, follow publicly available guides how to use (a) pageant.exe, which is equivalent of ssh-agent, and (b) plink.exe which is equivalent of ProxyCommand.
+If you are Putty user, follow publicly available guides how to use (a) pageant.exe, which is equivalent of ssh-agent, and (b) plink.exe which is equivalent of ProxyCommand. Never copy keys to jump server or anywhere out of your protected home directory. Always use ssh-agent with enabled agent forwarding. Remember to forward keys only to known hosts.
 
 =============
 === LINUX ===

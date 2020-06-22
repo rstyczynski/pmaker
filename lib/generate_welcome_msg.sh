@@ -162,6 +162,10 @@ function getWelcomeEmail() {
 	local username=$3
 	local header=$4
 
+	if [ ! -f cat state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt ]; then
+		return 1
+	fi
+
 	if [ "$header" == "header" ]; then
 		cat state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
 		echo '---'
@@ -174,6 +178,10 @@ function getPasswordSMS() {
 	local server_group=$2
 	local username=$3
 
+	if [ ! -f cat state/$user_group/$server_group/$username/outbox/pass_sms.txt ]; then
+		return 1
+	fi
+
 	cat state/$user_group/$server_group/$username/outbox/pass_sms.txt
 }
 
@@ -181,6 +189,10 @@ function getKeySMS() {
 	local user_group=$1
 	local server_group=$2
 	local username=$3
+
+	if [ ! -f cat state/$user_group/$server_group/$username/outbox/key_sms.txt ]; then
+		return 1
+	fi
 
 	cat state/$user_group/$server_group/$username/outbox/key_sms.txt
 }

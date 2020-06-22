@@ -23,14 +23,17 @@ function welcome_email() {
     for username in $usernames; do
         for server_group in $server_groups; do
             echo -n ">>> $server_group $username: "
-            ready=$(getWelcomeEmail $user_group $server_group $username)
 
-            if [ -z "$ready" ]; then
-                echo "Skipping. e-mail not yet prepared."
-            else
-                if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then            
-                    if [ "$deliver" == 'deliver' ]; then
-                        echo -n " mail delivery...."
+            if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then            
+                if [ "$deliver" == 'deliver' ]; then
+                    echo -n " mail delivery...."
+
+                    ready=$(getWelcomeEmail $user_group $server_group $username)
+
+                    if [ -z "$ready" ]; then
+                        echo "Skipping. e-mail not yet prepared."
+                    else
+
                         TO_EMAIL_ADDRESS=$(getWelcomeEmail $user_group $server_group $username header | head -5 | grep 'TO:' | cut -d' ' -f2-999)
                         EMAIL_SUBJECT=$(getWelcomeEmail $user_group $server_group $username header | head -5 | grep 'SUBJECT:' | cut -d' ' -f2-999)
 
@@ -61,15 +64,15 @@ function welcome_email() {
                         else
                             echo Welcome mail not ready.
                         fi
-                    else
-                        echo 
-                        echo "============ mail verification ================="
-                        getWelcomeEmail $user_group $server_group $username header
-                        read -p "press any key"
                     fi
                 else
-                    echo "Email already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
+                    echo 
+                    echo "============ mail verification ================="
+                    getWelcomeEmail $user_group $server_group $username header
+                    read -p "press any key"
                 fi
+            else
+                echo "Email already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
             fi
         done
     done
@@ -99,33 +102,32 @@ function welcome_sms() {
 
     for username in $usernames; do
 
-        ready=$(getKeySMS $user_group $server_group $username)
+        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+        if [ ! -z "$mobile" ]; then
+            for server_group in $server_groups; do
+                echo -n ">>> $server_group $username: "
+                if [ ! -f state/$user_group/$server_group/$username/sms.sent ]; then
+                    if [ "$deliver" == 'deliver' ]; then
+                        echo -n " sms delivery...."
+                        sms_message=$(getKeySMS $user_group $server_group $username)
 
-        if [ -z "$ready" ]; then
-            echo "Skipping. sms not yet prepared."
-        else
-            mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
-            if [ ! -z "$mobile" ]; then
-                for server_group in $server_groups; do
-                    echo -n ">>> $server_group $username: "
-                    if [ ! -f state/$user_group/$server_group/$username/sms.sent ]; then
-                        if [ "$deliver" == 'deliver' ]; then
-                            echo -n " sms delivery...."
-                            sms_message=$(getKeySMS $user_group $server_group $username)
-                            aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
+                        if [ -z "$sms_message" ]; then
+                            echo "Skipping. sms not yet prepared."
                         else
-                            echo 
-                            echo "============ sms verification ================="
-                            getKeySMS $user_group $server_group $username header
-                            read -p "press any key"
+                            aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
                         fi
                     else
-                        echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
+                        echo 
+                        echo "============ sms verification ================="
+                        getKeySMS $user_group $server_group $username header
+                        read -p "press any key"
                     fi
-                done
-            else
-                echo User has no mobile number.
-            fi
+                else
+                    echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
+                fi
+            done
+        else
+            echo User has no mobile number.
         fi
     done
 }
