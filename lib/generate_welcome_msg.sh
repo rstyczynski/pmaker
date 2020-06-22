@@ -162,7 +162,7 @@ function getWelcomeEmail() {
 	local username=$3
 	local header=$4
 
-	if [ ! -f cat state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt ]; then
+	if [ ! -f state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt ]; then
 		return 1
 	fi
 
