@@ -178,7 +178,7 @@ function getPasswordSMS() {
 	local server_group=$2
 	local username=$3
 
-	if [ ! -f cat state/$user_group/$server_group/$username/outbox/pass_sms.txt ]; then
+	if [ ! -f state/$user_group/$server_group/$username/outbox/pass_sms.txt ]; then
 		return 1
 	fi
 
