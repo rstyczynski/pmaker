@@ -87,7 +87,7 @@ function welcome_sms() {
     user_group=$1
     server_groups=$2
     usernames=$3
-    deliver=$3
+    deliver=$4
 
     : ${usernames:=all}
 
