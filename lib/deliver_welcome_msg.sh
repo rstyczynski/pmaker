@@ -265,7 +265,7 @@ function clear_welcome_sms() {
 #
 # clear SMS delivery status. all messages will be redelivered
 #
-function clear_welcome_passowrd_sms() {
+function clear_welcome_password_sms() {
     user_group=$1
     server_groups=$2
     usernames=$3
