@@ -31,16 +31,26 @@
   local_action: copy content={{ pwgen.stdout }} dest="{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key"
   when: key_password_created.stat.exists == False
 
+- name: Check if enc rsa key password file exists 
+  stat: 
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc"
+  register: enc_key_created
+
 - name: encrypt the key
   become: no
   local_action: command openssl rsa -aes128 -in "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -out "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc" -passout "pass:{{ pwgen.stdout }}"
-  when: key_password_created.stat.exists == False
+  when: enc_key_created.stat.exists == False
   register: openssl
+
+- name: Check if enc putty key password file exists 
+  stat: 
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.ppk"
+  register: enc_ppk_created
 
 - name: convert the key to putty format
   become: no
   local_action: command puttygen "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -o "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.ppk" -O private --new-passphrase "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key" 
-  when: key_password_created.stat.exists == False
+  when: enc_ppk_created.stat.exists == False
   register: puttygen
 
 - name: tweak permissions
