@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# install tools
+# sudo pip install xlsx2csv
+# npm install csvtojson
+
 #
 # functions
 #
@@ -14,7 +18,9 @@ function y2j() {
 
 function users2pmaker {
 excel_file=$1
-xlsx2csv $excel_file  | csvtojson | jq -c |  
+xlsx2csv $excel_file  | 
+./node_modules/csvtojson/bin/csvtojson | 
+jq -c |  
 sed 's/,"field[0-9]*":"[a-zA-Z_-]*"//g' |  
 sed 's/{"field[0-9]*":"[a-zA-Z_-]*",/{/g'  |  
 sed 's/"field[0-9][0-9]*":"[a-zA-Z_-]*",//g' |  
@@ -29,6 +35,7 @@ sed  '1a\
 users:|' | # adds users: as name of data structure
 tr '|' '\n'
 }
+
 
 users2pmaker $1
 
