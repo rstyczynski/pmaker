@@ -1,0 +1,32 @@
+---
+- name: no. of open files for soa stack
+  pam_limits:
+    domain: "{{ item }}"
+    limit_type: soft
+    limit_item: nofile
+    value: 4096
+    comment: https://docs.oracle.com/middleware/1213/soasuite/SOEDG/edg_hosts.htm#SOEDG2186
+
+- name: no. of open files for soa stack
+  pam_limits:
+    domain: "{{ item }}"
+    limit_type: hard
+    limit_item: nofile
+    value: 65536
+    comment: https://docs.oracle.com/middleware/1213/soasuite/SOEDG/edg_hosts.htm#SOEDG2186
+
+- name: no. of processes for soa stack
+  pam_limits:
+    domain: "{{ item }}"
+    limit_type: soft
+    limit_item: nproc
+    value: 2047
+    comment: https://docs.oracle.com/middleware/1213/soasuite/SOEDG/edg_hosts.htm#SOEDG2186
+
+- name: no. of processes for soa stack
+  pam_limits:
+    domain: "{{ item }}"
+    limit_type: hard
+    limit_item: nproc
+    value: 16384
+    comment: https://docs.oracle.com/middleware/1213/soasuite/SOEDG/edg_hosts.htm#SOEDG2186

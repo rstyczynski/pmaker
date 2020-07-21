@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: read app users
+    include_vars: 
+      file: ../cfg/app_users.yaml
+  - include: cfg_ulimit.yaml
+    with_items: "{{ app_users }}"
