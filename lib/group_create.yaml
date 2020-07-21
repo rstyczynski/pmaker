@@ -17,3 +17,4 @@
       gid: "{{ item.value }}"
       state: present
     with_dict: "{{ groups_dict }}"
+    when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
