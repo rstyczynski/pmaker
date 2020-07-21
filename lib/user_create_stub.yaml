@@ -1,7 +1,6 @@
 ---
-- name: Create  user
+- name: Create user stub i.e. just account, no oter attributes
   become: yes
   user:
     name: "{{ item.username }}"
-    groups: "{{ item.user_groups }}"
     
