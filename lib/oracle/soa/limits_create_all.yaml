@@ -5,5 +5,5 @@
   - name: read app users
     include_vars: 
       file: ../../../cfg/app_users.yaml
-  - include: cfg_ulimit.yaml
+  - include: limits_create.yaml
     with_items: "{{ app_users }}"
