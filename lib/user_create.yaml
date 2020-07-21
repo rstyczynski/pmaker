@@ -3,4 +3,5 @@
   become: yes
   user:
     name: "{{ item.username }}"
+    groups: "{{ item.user_groups }}"
     
