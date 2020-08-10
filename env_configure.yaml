@@ -29,28 +29,16 @@
   tasks:
     - include_vars: config.yaml
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
+    - include_vars: ../cfg/groups.yaml
 
     - include: "{{ pmaker_home }}/lib/user_create_stub.yaml"
       with_items: "{{ users }}"
       when: host_type is defined and (host_type == "jump")
 
-    - name: groups
-      include_vars: 
-        file: ../cfg/groups.yaml
-    - name: declare group
-      debug:
-        msg: "group name: {{ item.key }} with gid: {{ item.value }}"
-      with_dict: "{{ groups_dict }}"
-
-    - name: Create group with gid (to have the same gid on all nodes to be able to use nfs)
-      become: yes
-      group:
-        name: "{{ item.key }}"
-        gid: "{{ item.value }}"
-        state: present
+    - include: "{{ pmaker_home }}/lib/group_create.yaml"
       with_dict: "{{ groups_dict }}"
       when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
-
+      
     - include: "{{ pmaker_home }}/lib/user_create.yaml"
       with_items: "{{ users }}"
       when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
