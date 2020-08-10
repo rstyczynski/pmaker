@@ -1,4 +1,7 @@
 ---
 - name: Create  user
   become: yes
-  user: name "{{ item.username }}" groups "{{ item.user_groups }}" append=yes
+  user: 
+    name: "{{ item.username }}" 
+    groups: "{{ item.user_groups }}"
+    append: yes
