@@ -3,4 +3,3 @@
   become: yes
   user:
     name: "{{ item.username }}"
-    
