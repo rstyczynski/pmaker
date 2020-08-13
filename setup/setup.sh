@@ -70,7 +70,7 @@ fi
 
 "
 
-rm -f ~/pmaker
+rm -rf ~/pmaker
 ln -s $pmaker_home ~/pmaker
 
 exit 0
