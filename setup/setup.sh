@@ -6,14 +6,14 @@ pip install Jinja2 j2cli
 
 pmaker_home=/opt/pmaker
 
-cd ~
+cd
 if [ ! -d pmaker ]; then
    git clone https://github.com/rstyczynski/pmaker.git
 else
   cd pmaker
   git pull
 fi
-
+cd
 
 ansible-playbook -i pmaker/setup/controller.inventory.cfg pmaker/setup/pmaker_create.yaml
 if [ $? -ne 0 ]; then
