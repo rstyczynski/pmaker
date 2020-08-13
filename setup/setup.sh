@@ -15,7 +15,7 @@ else
 fi
 
 
-ansible-playbook -i pmaker/setup/controller.inventory.cfg setup/pmaker_create.yaml
+ansible-playbook -i pmaker/setup/controller.inventory.cfg pmaker/setup/pmaker_create.yaml
 if [ $? -ne 0 ]; then
   echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
   exit 2
