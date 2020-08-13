@@ -29,8 +29,9 @@
   tasks:
   - include: pmaker_create_workers.yaml
     with_items: 
-      - pmaker  
-
+      - pmaker 
+    when: (global_pmaker is defined) and (global_pmaker == true)
+    
 
   handlers:
     - name: restart sshd

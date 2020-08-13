@@ -22,6 +22,7 @@
     src: "/home/{{ item }}/.ssh/id_rsa.pub"
     dest: /opt/pmaker/.ssh
     remote_src: yes
+    
 - name: make key private
   become: yes
   file:

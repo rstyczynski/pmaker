@@ -29,4 +29,3 @@ if [ $? -ne 0 ]; then
 fi
 
 rm -f data/$user_group.inventory.opc
-
