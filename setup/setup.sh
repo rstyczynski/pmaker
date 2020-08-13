@@ -24,8 +24,6 @@ fi
 sudo mkdir -p $pmaker_home
 sudo chown -R pmaker $pmaker_home
 
-ln -s $pmaker_home ~/pmaker
-
 sudo su pmaker bash -c"
 umask 077
 
@@ -72,5 +70,7 @@ fi
 
 "
 
-cd -
+rm -f ~/pmaker
+ln -s $pmaker_home ~/pmaker
+
 exit 0
