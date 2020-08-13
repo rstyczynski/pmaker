@@ -22,6 +22,8 @@ sudo chown -R pmaker $pmaker_home
 sudo su - pmaker bash -c"
 umask 077
 
+set -x
+
 # get from git as pmaker to avoid issue with file ownership / umask
 if [ ! -d $pmaker_home/src ]; then
    cd $pmaker_home
