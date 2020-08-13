@@ -29,7 +29,7 @@
   tasks:
   - include: pmaker_create_workers.yaml
     with_items: 
-      - {{ global_pmaker }} 
+      - "{{ global_pmaker }}"
     when: global_pmaker is defined
 
 
