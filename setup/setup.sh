@@ -41,8 +41,10 @@ else
   cd ..
 fi
 
-cp  ~/src/* $pmaker_home/ 2>/dev/null
-#rm -rf $pmaker_home/pmaker
+#
+# copy files to pmaker_home to have always fresh version, but not to change git workign directory
+#
+cp -R ~/src/* $pmaker_home/ 2>/dev/null
 
 grep 'umask 077' /home/pmaker/.bash_profile
 if [ \$? -ne 0 ]; then
