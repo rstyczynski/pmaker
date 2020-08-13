@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo yum install -y git pwgen putty openssl python-pip
+sudo yum install -y ansible pwgen putty openssl python-pip
 sudo pip install --upgrade pip
 pip install Jinja2 j2cli
 
@@ -15,7 +15,7 @@ else
 fi
 
 
-ansible-playbook -i setup/controller.inventory.cfg setup/pmaker_create.yaml
+ansible-playbook -i pmaker/setup/controller.inventory.cfg setup/pmaker_create.yaml
 if [ $? -ne 0 ]; then
   echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
   exit 2
