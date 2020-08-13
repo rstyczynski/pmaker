@@ -6,14 +6,9 @@ pip install Jinja2 j2cli
 
 pmaker_home=/opt/pmaker
 
-cd
 if [ ! -d pmaker ]; then
    git clone https://github.com/rstyczynski/pmaker.git
-else
-  cd pmaker
-  git pull
 fi
-cd
 
 ansible-playbook -i pmaker/setup/controller.inventory.cfg pmaker/setup/pmaker_create.yaml
 if [ $? -ne 0 ]; then
@@ -24,17 +19,16 @@ fi
 sudo mkdir -p $pmaker_home
 sudo chown -R pmaker $pmaker_home
 
-sudo su pmaker bash -c"
+sudo su - pmaker bash -c"
 umask 077
 
 # get from git as pmaker to avoid issue with file ownership / umask
-cd /home/pmaker
-
-if [ ! -d src ]; then
+if [ ! -d $pmaker_home/src ]; then
+   cd $pmaker_home
    git clone https://github.com/rstyczynski/pmaker.git
-   mv pmaker src
+   mv pmaker $pmaker_home/src
 else
-  cd src
+  cd $pmaker_home/src
   git pull
   cd ..
 fi
@@ -42,7 +36,7 @@ fi
 #
 # copy files to pmaker_home to have always fresh version, but not to change git workign directory
 #
-cp -R ~/src/* $pmaker_home/ 2>/dev/null
+cp -R $pmaker_home/src/* $pmaker_home/ 2>/dev/null
 
 grep 'umask 077' /home/pmaker/.bash_profile
 if [ \$? -ne 0 ]; then
@@ -67,7 +61,6 @@ if [ \$? -ne 0 ]; then
    echo >>/home/pmaker/.bash_profile
    echo cd /opt/pmaker >>/home/pmaker/.bash_profile
 fi
-
 "
 
 rm -rf ~/pmaker

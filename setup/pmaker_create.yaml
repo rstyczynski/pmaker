@@ -31,7 +31,7 @@
     with_items: 
       - pmaker 
     when: (global_pmaker is defined) and (global_pmaker == true)
-    
+
 
   handlers:
     - name: restart sshd
