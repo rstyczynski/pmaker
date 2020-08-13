@@ -22,7 +22,7 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-ansible-playbook -i data/$user_group.inventory.opc setup/pmaker_create.yaml $@
+ansible-playbook -i data/$user_group.inventory.opc setup/pmaker_create.yaml -e global_pmaker=pmaker $@
 if [ $? -ne 0 ]; then
   echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
   exit 2

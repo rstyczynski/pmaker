@@ -29,8 +29,8 @@
   tasks:
   - include: pmaker_create_workers.yaml
     with_items: 
-      - pmaker 
-    when: (global_pmaker is defined) and (global_pmaker == true)
+      - {{ global_pmaker }} 
+    when: global_pmaker is defined
 
 
   handlers:
