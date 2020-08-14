@@ -21,9 +21,6 @@
     with_items: 
       - "{{ root_pmaker }}"  
 
-  - debug:
-    var: server_group
-
   # env pmaker is a worker deplyed at managed servers' side
   - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
     when: (item.key is defined) and (item.key == true)
