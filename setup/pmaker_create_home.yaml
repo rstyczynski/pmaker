@@ -28,6 +28,6 @@
   file:
     path: /opt/{{ item.name }}/.ssh/id_rsa.pub
     state: file
-    owner: "{{ item }}"
-    group: "{{ item }}"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
     mode: u+r,g-w+r,o+r
