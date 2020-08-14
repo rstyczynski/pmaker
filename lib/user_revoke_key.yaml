@@ -1,21 +1,4 @@
 ---
-- name: Create pmaker user
-  become: yes
-  user:
-    name: "{{ item.username }}"
-
-- name: check if /home/{{ item.username }}/.ssh file exists
-  become: yes
-  stat: 
-    path: /home/{{ item.username }}/.ssh
-  register: ssh_available
-
-- name: check if /home/{{ item.username }}/.ssh/authorized_keys file exists
-  become: yes
-  stat: 
-    path: /home/{{ item.username }}/.ssh/authorized_keys
-  register: authorized_keys_available
-
 # - name: Protect .ssh
 #   become: yes
 #   file:
@@ -30,23 +13,26 @@
 #     attributes: -i
 #   when: authorized_keys_available.stat.exists
 
-
-- name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
+- name: Ensure ~/.ssh/authorized_keys contains user's public key
   become: yes
   authorized_key:
     user: "{{ item.username }}"
-    state: present
+    state: absent
     exclusive: no
     manage_dir: yes
-    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub') }}"
+    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
   register: authorized_keys_result
 
-#
+- name: debug
+  debug:
+    var: {{ authorized_keys_result }}
+
+  #
 # log key operations on .ssh registry
 #
 - name: Log key registration at host
   lineinfile:
-     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
      create: yes
@@ -55,7 +41,7 @@
   
 - name: Log failed key registration at host
   lineinfile:
-     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
      create: yes
@@ -64,7 +50,7 @@
 
 - name: Log skipped key registration at host
   lineinfile:
-     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
      create: yes
@@ -82,23 +68,4 @@
 #   file:
 #     path: /home/{{ item.username }}/.ssh
 #     attributes: +i
-    
-- name: Add pmaker to sudo
-  become: yes
-  lineinfile:
-    path: "/etc/sudoers.d/{{ item.username }}"
-    line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
-    state: present
-    mode: 0440
-    create: yes
-    validate: "visudo -cf %s"
-
-# TODO move to host cfg.
-- name: remove account limit to use ssh 
-  become: yes
-  replace:
-    path: /etc/ssh/sshd_config
-    regexp: '^\s*(AllowUsers.+)$'
-    replace: '# \1'
-  notify: restart sshd
 

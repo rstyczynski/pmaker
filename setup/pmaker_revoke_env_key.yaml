@@ -1,21 +1,4 @@
 ---
-- name: Create pmaker user
-  become: yes
-  user:
-    name: "{{ item.username }}"
-
-- name: check if /home/{{ item.username }}/.ssh file exists
-  become: yes
-  stat: 
-    path: /home/{{ item.username }}/.ssh
-  register: ssh_available
-
-- name: check if /home/{{ item.username }}/.ssh/authorized_keys file exists
-  become: yes
-  stat: 
-    path: /home/{{ item.username }}/.ssh/authorized_keys
-  register: authorized_keys_available
-
 # - name: Protect .ssh
 #   become: yes
 #   file:
@@ -83,22 +66,3 @@
 #     path: /home/{{ item.username }}/.ssh
 #     attributes: +i
     
-- name: Add pmaker to sudo
-  become: yes
-  lineinfile:
-    path: "/etc/sudoers.d/{{ item.username }}"
-    line: "{{ item.username }} ALL=(ALL) NOPASSWD: ALL"
-    state: present
-    mode: 0440
-    create: yes
-    validate: "visudo -cf %s"
-
-# TODO move to host cfg.
-- name: remove account limit to use ssh 
-  become: yes
-  replace:
-    path: /etc/ssh/sshd_config
-    regexp: '^\s*(AllowUsers.+)$'
-    replace: '# \1'
-  notify: restart sshd
-
