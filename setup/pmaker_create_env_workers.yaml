@@ -39,6 +39,35 @@
     exclusive: no
     manage_dir: yes
     key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub') }}"
+    register: authorized_keys_result
+
+- name: debug
+  debug:
+    var: authorized_keys_result
+
+- name: Log key registration at host
+  lineinfile:
+     line: "Pub key registered at {{ inventory_hostname }} with result: {{ authorized_keys_result }}"
+     insertafter: EOF
+     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registered"
+  delegate_to: 127.0.0.1
+  when: authorized_keys_result is succeeded
+
+- name: Log key registration at host
+  lineinfile:
+     line: "{{ ansible_date_time }} | Pub key registered at {{ inventory_hostname }} | {{ authorized_keys_result }}"
+     insertafter: EOF
+     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/failed"
+  delegate_to: 127.0.0.1
+  when: authorized_keys_result is failed
+
+- name: Log key registration at host
+  lineinfile:
+     line: "{{ ansible_date_time }} | Pub key skipped at {{ inventory_hostname }} | {{ authorized_keys_result }}"
+     insertafter: EOF
+     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/skipped"
+  delegate_to: 127.0.0.1
+  when: authorized_keys_result is skipped
 
 # - name: Protect authorized_keys
 #   become: yes
