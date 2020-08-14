@@ -19,10 +19,10 @@
 - hosts: controller
   vars:
     root_pamker:
-      - name: pmaker
+      - username: pmaker
         key: true
     env_pamker:
-      - name: pmaker
+      - username: pmaker
         key: true
 
   tasks:

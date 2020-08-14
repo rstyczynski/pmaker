@@ -2,31 +2,31 @@
 - name: Create pmaker user
   become: yes
   user:
-    name: "{{ item.name }}"
+    name: "{{ item.username }}"
 
-- name: check if /home/{{ item.name }}/.ssh file exists
+- name: check if /home/{{ item.username }}/.ssh file exists
   become: yes
   stat: 
-    path: /home/{{ item.name }}/.ssh
+    path: /home/{{ item.username }}/.ssh
   register: ssh_available
 
-- name: check if /home/{{ item.name }}/.ssh/authorized_keys file exists
+- name: check if /home/{{ item.username }}/.ssh/authorized_keys file exists
   become: yes
   stat: 
-    path: /home/{{ item.name }}/.ssh/authorized_keys
+    path: /home/{{ item.username }}/.ssh/authorized_keys
   register: authorized_keys_available
 
 # - name: Protect .ssh
 #   become: yes
 #   file:
-#     path: /home/{{ item.name }}/.ssh
+#     path: /home/{{ item.username }}/.ssh
 #     attributes: -i
 #   when: ssh_available.stat.exists
 
 # - name: Protect authorized_keys
 #   become: yes
 #   file:
-#     path: /home/{{ item.name }}/.ssh/authorized_keys
+#     path: /home/{{ item.username }}/.ssh/authorized_keys
 #     attributes: -i
 #   when: authorized_keys_available.stat.exists
 
@@ -34,28 +34,28 @@
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   authorized_key:
-    user: "{{ item.name }}"
+    user: "{{ item.username }}"
     state: present
     exclusive: no
     manage_dir: yes
-    key: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.name }}/.ssh/id_rsa.pub"
+    key: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub"
 
 # - name: Protect authorized_keys
 #   become: yes
 #   file:
-#     path: /home/{{ item.name }}/.ssh/authorized_keys
+#     path: /home/{{ item.username }}/.ssh/authorized_keys
 #     attributes: +i
 
 # - name: Protect .ssh
 #   become: yes
 #   file:
-#     path: /home/{{ item.name }}/.ssh
+#     path: /home/{{ item.username }}/.ssh
 #     attributes: +i
     
 - name: Add pmaker to sudo
   become: yes
   lineinfile:
-    path: "/etc/sudoers.d/{{ item.name }}"
+    path: "/etc/sudoers.d/{{ item.username }}"
     line: "{{ item }} ALL=(ALL) NOPASSWD: ALL"
     state: present
     mode: 0440
