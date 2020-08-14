@@ -72,7 +72,10 @@ for server_group in $server_groups; do
     ssh-add ~/.ssh/$server_group.key
    fi
 
-   ansible-playbook -i data/$user_group.inventory.opc setup/pmaker_create.yaml \
+   ansible-playbook  \
+   setup/pmaker_create.yaml \
+   -i data/$user_group.inventory.opc
+   -l $server_group \
    -e pmaker_type=env \
    -e server_group=$server_group -e user_group=$user_group \
    $@

@@ -18,10 +18,10 @@
 #
 - hosts: controller
   vars:
-    root_pamker:
+    root_pmaker:
       - username: pmaker
         key: true
-    env_pamker:
+    env_pmaker:
       - username: pmaker
         key: true
 
@@ -33,12 +33,12 @@
   # you use this account to define and push changes
   - include: pmaker_create_home.yaml
     with_items: 
-      - "{{ root_pamker }}"  
+      - "{{ root_pmaker }}"  
 
   # env pmaker is a worker deplymed at managed servers' side
   - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
     when: (item.key is defined) and (item.key == true)
-    with_items: "{{ env_pamker }}"
+    with_items: "{{ env_pmaker }}"
 
 #
 # create pmaker users on all hosts; verify that key is in place
@@ -57,7 +57,7 @@
       - "{{ env_pmaker }}"
     when: (pmaker_type is defined) and (pmaker_type == env)
 
-
+  # TODO move to server preparation
   handlers:
     - name: restart sshd
       service: name=sshd state=restarted
