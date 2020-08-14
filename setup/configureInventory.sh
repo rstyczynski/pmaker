@@ -47,7 +47,7 @@ echo " Checking comminication with servers belonging to: $user_group"
 echo '==========================================================================='
 
 # remove jumps
-data/$user_group.inventory.opc | sed '/jumps/,/^$/d' > data/$user_group.inventory.opc.no_jumps
+cat data/$user_group.inventory.opc | sed '/jumps/,/^$/d' > data/$user_group.inventory.opc.no_jumps
 
 ansible -m ping all -i data/$user_group.inventory.opc.no_jumps $@
 if [ $? -ne 0 ]; then

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-sudo yum install -y ansible pwgen putty openssl python-pip
+sudo yum install -y ansible pwgen putty openssl ruby python-pip
 sudo pip install --upgrade pip
 pip install Jinja2 j2cli
 
