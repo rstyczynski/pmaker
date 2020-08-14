@@ -47,27 +47,30 @@
 
 - name: Log key registration at host
   lineinfile:
-     line: "{{ ansible_date_time }} | Pub key registered at {{ inventory_hostname }} | {{ authorized_keys_result }}"
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
-     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registered"
+     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+     create: yes
   delegate_to: 127.0.0.1
   when: authorized_keys_result is succeeded
 
-- name: Log key registration at host
+- name: Log failed key registration at host
   lineinfile:
-     line: "{{ ansible_date_time }} | Pub key registered at {{ inventory_hostname }} | {{ authorized_keys_result }}"
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
-     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/failed"
+     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+     create: yes
   delegate_to: 127.0.0.1
   when: authorized_keys_result is failed
 
-- name: Log key registration at host
+- name: Log skipped key registration at host
   lineinfile:
-     line: "{{ ansible_date_time }} | Pub key skipped at {{ inventory_hostname }} | {{ authorized_keys_result }}"
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | SKIPPED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
-     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/skipped"
+     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+     create: yes
   delegate_to: 127.0.0.1
-  when: authorized_keys_result is skipped
+  when: authorized_keys_result.changed is false
 
 # - name: Protect authorized_keys
 #   become: yes
