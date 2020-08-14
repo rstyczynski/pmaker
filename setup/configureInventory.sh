@@ -77,7 +77,8 @@ for server_group in $server_groups; do
    -i data/$user_group.inventory.opc
    -l $server_group \
    -e pmaker_type=env \
-   -e server_group=$server_group -e user_group=$user_group \
+   -e server_group=$server_group \
+   -e user_group=$user_group \
    $@
    if [ $? -ne 0 ]; then
      echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
