@@ -45,7 +45,11 @@ export ANSIBLE_HOST_KEY_CHECKING=False
 echo '==========================================================================='
 echo " Checking comminication with servers belonging to: $user_group"
 echo '==========================================================================='
-ansible -m ping all -i data/$user_group.inventory.opc $@
+
+# remove jumps
+data/$user_group.inventory.opc | sed '/jumps/,/^$/d' > data/$user_group.inventory.opc.no_jumps
+
+ansible -m ping all -i data/$user_group.inventory.opc.no_jumps $@
 if [ $? -ne 0 ]; then
   echo "Error. SSH communication not possible to all servers. Fix the erros and retry. Exiting."
   exit 1
