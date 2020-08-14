@@ -19,7 +19,7 @@
 - name: copy pmaker key to pmaker_home directory
   become: yes
   copy:
-    src: "/home/{{ item }}/.ssh/id_rsa.pub"
+    src: "/home/{{ item.name }}/.ssh/id_rsa.pub"
     dest: /opt/{{ item.name }}/.ssh
     remote_src: yes
 
@@ -31,4 +31,3 @@
     owner: "{{ item }}"
     group: "{{ item }}"
     mode: u+r,g-w+r,o+r
-
