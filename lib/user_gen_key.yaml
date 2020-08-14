@@ -1,4 +1,7 @@
 ---
+- name: debug
+  debug:
+    var: server_group
 - name: create user directory
   file:
     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/"

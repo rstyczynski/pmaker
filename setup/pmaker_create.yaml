@@ -1,19 +1,5 @@
 ---
 #
-# remove pmaker users
-# 
-# !!! USE ONLY DURING INTIAL SETUP !!! 
-# THIS PROCEDURE REMOVES HOME DIRECTORY
-#
-# - hosts: all
-#   become: yes
-
-#   tasks:
-#     - include: ../lib/user_remove.yaml
-#       with_items: 
-#         - pmaker
-
-#
 # create pmaker user, pmaker home directory, copy keys to pmaker home
 #
 - hosts: controller
@@ -26,7 +12,7 @@
         key: true
 
   tasks:
-  - include_vars: ../config.yaml
+  - include_vars: "{{ pmaker_home }}/config.yaml"
 
   # master pmaker is owner of the pmaker controller.
   # you use this account to connect to coltroller
@@ -35,7 +21,10 @@
     with_items: 
       - "{{ root_pmaker }}"  
 
-  # env pmaker is a worker deplymed at managed servers' side
+  - debug:
+    var: server_group
+
+  # env pmaker is a worker deplyed at managed servers' side
   - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
     when: (item.key is defined) and (item.key == true)
     with_items: "{{ env_pmaker }}"
