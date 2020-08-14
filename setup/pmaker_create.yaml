@@ -12,7 +12,7 @@
         key: true
 
   tasks:
-  - include_vars: "{{ pmaker_home }}/config.yaml"
+  - include_vars: ../config.yaml
 
   # master pmaker is owner of the pmaker controller.
   # you use this account to connect to coltroller

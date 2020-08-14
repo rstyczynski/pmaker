@@ -74,7 +74,7 @@ for server_group in $server_groups; do
    set -x
    ansible-playbook  \
    setup/pmaker_create.yaml \
-   -i data/$user_group.inventory.opc
+   -i data/$user_group.inventory.opc \
    -l $server_group \
    -e pmaker_type=env \
    -e server_group=$server_group \
