@@ -3,14 +3,6 @@
 # create pmaker user, pmaker home directory, copy keys to pmaker home
 #
 - hosts: controller
-  vars:
-    root_pmaker:
-      - username: pmaker
-        key: true
-    env_pmaker:
-      - username: pmaker
-        key: true
-
   tasks:
   - include_vars: ../config.yaml
 

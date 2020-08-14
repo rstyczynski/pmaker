@@ -1,3 +1,9 @@
 ---
 pmaker_home: /opt/pmaker
 user_group: sample
+root_pmaker:
+  - username: pmaker
+    key: true
+env_pmaker:
+  - username: pmaker
+    key: true
