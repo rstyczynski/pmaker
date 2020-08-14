@@ -23,6 +23,8 @@
 #
 - hosts: all
   tasks:
+  - include_vars: ../config.yaml
+  
   - include: pmaker_create_workers.yaml
     with_items: 
       - "{{ env_pmaker }}"
