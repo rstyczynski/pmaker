@@ -24,18 +24,18 @@
 - hosts: all
   tasks:
   - include_vars: ../config.yaml
-  
+
   - include: pmaker_create_workers.yaml
     with_items: 
       - "{{ env_pmaker }}"
-    when: (pmaker_type is defined) and (pmaker_type == global)
+    when: (pmaker_type is defined) and (pmaker_type == "global")
 
 - hosts: all
   tasks:
   - include: pmaker_create_env_workers.yaml
     with_items: 
       - "{{ env_pmaker }}"
-    when: (pmaker_type is defined) and (pmaker_type == env)
+    when: (pmaker_type is defined) and (pmaker_type == "env")
 
   # TODO move to server preparation
   handlers:
