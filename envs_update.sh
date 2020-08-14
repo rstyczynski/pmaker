@@ -5,7 +5,7 @@ server_groups=$1; shift
 
 function usage() {
    echo Usage: envs_update.sh user_group [server_groups]
-   echo server_groups deafults to all
+   echo server_groups defaults to all
 }
 
 if [ -z "$user_group" ]; then

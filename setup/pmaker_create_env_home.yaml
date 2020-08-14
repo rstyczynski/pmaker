@@ -2,31 +2,33 @@
 - name: Create master pmaker with a 2048-bit SSH key for user pmaker in ~/pmaker/.ssh/id_rsa
   become: yes
   user:
-    name: "{{ item.name }}"
+    name: "{{ item }}"
     generate_ssh_key: yes
     ssh_key_bits: 2048
     ssh_key_file: .ssh/id_rsa
 
-- name: create pmaker directory
-  become: yes
+- name: Create pmaker state directory
   file:
-    path: /opt/{{ item.name }}/.ssh
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/pmaker/.ssh"
     state: directory
-    owner: "{{ item.name }}"
+    owner: "{{ item }}"
     mode: u+r,g-w+x,o+x
     recurse: yes
 
+
+
+///
 - name: copy pmaker key to pmaker_home directory
   become: yes
   copy:
     src: "/home/{{ item }}/.ssh/id_rsa.pub"
-    dest: /opt/{{ item.name }}/.ssh
+    dest: /opt/pmaker/.ssh
     remote_src: yes
-
+    
 - name: make key private
   become: yes
   file:
-    path: /opt/{{ item.name }}/.ssh/id_rsa.pub
+    path: /opt/pmaker/.ssh/id_rsa.pub
     state: file
     owner: "{{ item }}"
     group: "{{ item }}"

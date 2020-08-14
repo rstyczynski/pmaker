@@ -17,10 +17,25 @@
 # create pmaker user, pmaker home directory, copy keys to pmaker home
 #
 - hosts: controller
+  vars:
+    root_pamker:
+      - name: pmaker
+        key: true
+    env_pamker:
+      - name: pmaker
+        key: true
+
   tasks:
+  # master pmaker is owner of the pmaker controller.
+  # you use this account to connect to coltroller
+  # you use this account to define and push changes
   - include: pmaker_create_home.yaml
     with_items: 
-      - pmaker  
+      - "{{ root_pamker }}"  
+  # env pmaker is a worker deplymed at managed servers' side
+  - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
+    when: (item.key is defined) and (item.key == true)
+    with_items: "{{ env_pamker }}"
 
 #
 # create pmaker users on all hosts; verify that key is in place
@@ -29,8 +44,15 @@
   tasks:
   - include: pmaker_create_workers.yaml
     with_items: 
-      - "{{ global_pmaker }}"
-    when: global_pmaker is defined
+      - "{{ env_pmaker }}"
+    when: (pmaker_type is defined) and (pmaker_type == global)
+
+- hosts: all
+  tasks:
+  - include: pmaker_create_env_workers.yaml
+    with_items: 
+      - "{{ env_pmaker }}"
+    when: (pmaker_type is defined) and (pmaker_type == env)
 
 
   handlers:
