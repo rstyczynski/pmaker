@@ -22,7 +22,7 @@
       state: absent
       exclusive: no
       manage_dir: yes
-      key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
+      key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.revoke') }}"
     register: authorized_keys_result
 
   - name: debug

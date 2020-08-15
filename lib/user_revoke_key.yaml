@@ -22,7 +22,8 @@
       state: absent
       exclusive: no
       manage_dir: yes
-      key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
+      # , errors='ignore'
+      key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke') }}"
     register: authorized_keys_result
 
   #
