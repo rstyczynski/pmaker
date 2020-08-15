@@ -14,9 +14,9 @@
 #   when: authorized_keys_available.stat.exists
 
 
-- name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
-  become: yes
-  block:
+- block:
+  - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
+    become: yes
     authorized_key:
       user: "{{ item.username }}"
       state: absend
