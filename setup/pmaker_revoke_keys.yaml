@@ -4,10 +4,13 @@
 # revoke pmaker keys on all hosts; verify that key is in place
 #
 - hosts: all
+
   tasks:
+  - include_vars: ../config.yaml
+
   - include: pmaker_revoke_key.yaml
     with_items: 
-      - "{{ env_pmaker }}"
+      - "{{ root_pmaker }}"
 
   - include: ../lib/user_revoke_key.yaml
     with_items: 

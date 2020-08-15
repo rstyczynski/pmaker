@@ -27,7 +27,7 @@
 
   - include: pmaker_create_workers.yaml
     with_items: 
-      - "{{ env_pmaker }}"
+      - "{{ root_pmaker }}"
     when: (pmaker_type is defined) and (pmaker_type == "global")
 
 - hosts: all
