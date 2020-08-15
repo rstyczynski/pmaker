@@ -25,42 +25,42 @@
       key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.revoke') }}"
     register: authorized_keys_result
 
-#
-# log key operations on .ssh registry
-#
-- name: debug
-  debug:
-    var: "{{ authorized_keys_result }}"
+  #
+  # log key operations on .ssh registry
+  #
+  - name: debug
+    debug:
+      var: "{{ authorized_keys_result }}"
 
-- block:  
-  - name: Log key registration at host
+  - block:  
+    - name: Log key registration at host
+      lineinfile:
+        line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+        insertafter: EOF
+        dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+        create: yes
+    - name: rename file
+      command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
+    delegate_to: 127.0.0.1
+    when: authorized_keys_result.changed == true
+
+  - name: Log failed key registration at host
     lineinfile:
-      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
       create: yes
-  - name: rename file
-    command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
-  delegate_to: 127.0.0.1
-  when: authorized_keys_result.changed == true
+    delegate_to: 127.0.0.1
+    when: authorized_keys_result is failed
 
-- name: Log failed key registration at host
-  lineinfile:
-    line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
-    insertafter: EOF
-    dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
-    create: yes
-  delegate_to: 127.0.0.1
-  when: authorized_keys_result is failed
-
-- name: Log skipped key registration at host
-  lineinfile:
-    line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
-    insertafter: EOF
-    dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
-    create: yes
-  delegate_to: 127.0.0.1
-  when: authorized_keys_result.changed == false
+  - name: Log skipped key registration at host
+    lineinfile:
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      insertafter: EOF
+      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+      create: yes
+    delegate_to: 127.0.0.1
+    when: authorized_keys_result.changed == false
 
   rescue:
     - debug:
