@@ -15,14 +15,17 @@
 
 - name: Ensure ~/.ssh/authorized_keys contains user's public key
   become: yes
-  authorized_key:
-    user: "{{ item.username }}"
-    state: absent
-    exclusive: no
-    manage_dir: yes
-    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
-  register: authorized_keys_result
-
+  block:
+    authorized_key:
+      user: "{{ item.username }}"
+      state: absent
+      exclusive: no
+      manage_dir: yes
+      key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
+    register: authorized_keys_result
+  rescue:
+    - debug:
+        msg: "OK. Nothing to do"
 #
 # log key operations on .ssh registry
 #
@@ -38,10 +41,8 @@
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
       create: yes
-
   - name: rename file
     command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
-
   delegate_to: 127.0.0.1
   when: authorized_keys_result.changed == true
 

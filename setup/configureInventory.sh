@@ -68,10 +68,10 @@ for server_group in $server_groups; do
    echo \-having servers: $server_list
    echo '========================='
 
-   if [ -f $server_group.key ]; then
+   if [ -f ~/.ssh/$server_group.key ]; then
     ssh-add ~/.ssh/$server_group.key
    fi
-   set -x
+   
    ansible-playbook  \
    setup/pmaker_create.yaml \
    -i data/$user_group.inventory.opc \
