@@ -34,6 +34,10 @@
   delegate_to: 127.0.0.1
 
 
+- name: check if key should be revoked
+  stat: 
+    path: '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+  register: revoke_file
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   authorized_key:
@@ -43,8 +47,10 @@
     manage_dir: yes
     key: "{{ lookup('file', '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke') }}"
   register: authorized_keys_result
+  when: revoke_file.stat.exists == true
 
-- name: Perform revoke procedure
+
+- name: Perform post revoke procedure
   block:
   - name: debug
     debug:
@@ -77,11 +83,9 @@
       create: yes
     when: authorized_keys_result.changed == false
 
+  when: revoke_file.stat.exists == true
   delegate_to: 127.0.0.1
 
-  rescue:
-    - debug:
-        msg: "OK. Nothing to do"
 
 # - name: Protect authorized_keys
 #   become: yes
