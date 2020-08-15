@@ -25,25 +25,20 @@
       key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
     register: authorized_keys_result
 
-  #
-  # log key operations on .ssh registry
-  #
-  - block:  
-    - name: debug
-      debug:
-        var: "{{ authorized_keys_result }}"
+  - name: debug
+    debug:
+      var: "{{ authorized_keys_result }}"
 
-    - name: Log key registration at host
-      lineinfile:
-        line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
-        insertafter: EOF
-        dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
-        create: yes
-        
-    - name: rename file
-      command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
-    delegate_to: 127.0.0.1
+  - name: Log key registration at host
+    lineinfile:
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      insertafter: EOF
+      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+      create: yes
     when: authorized_keys_result.changed == true
+
+  - name: rename file
+    command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
 
   - name: Log failed key registration at host
     lineinfile:
@@ -51,7 +46,6 @@
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
       create: yes
-    delegate_to: 127.0.0.1
     when: authorized_keys_result is failed
 
   - name: Log skipped key registration at host
@@ -60,8 +54,9 @@
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
       create: yes
-    delegate_to: 127.0.0.1
     when: authorized_keys_result.changed == false
+
+  delegate_to: 127.0.0.1
 
   rescue:
     - debug:
