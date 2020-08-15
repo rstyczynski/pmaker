@@ -12,11 +12,13 @@
   - include: pmaker_create_home.yaml
     with_items: 
       - "{{ root_pmaker }}"  
+    when: (pmaker_type is defined) and (pmaker_type == "global")
 
   # env pmaker is a worker deplyed at managed servers' side
   - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
     with_items: 
       - "{{ env_pmaker }}"
+    when: (pmaker_type is defined) and (pmaker_type == "env")
 
 #
 # create pmaker users on all hosts; verify that key is in place
