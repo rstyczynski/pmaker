@@ -13,15 +13,16 @@
 #     attributes: -i
 #   when: authorized_keys_available.stat.exists
 
-- name: Ensure ~/.ssh/authorized_keys contains user's public key
+- name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   block:
+  - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
     authorized_key:
       user: "{{ item.username }}"
-      state: absent
+      state: absend
       exclusive: no
       manage_dir: yes
-      key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
+      key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.revoke') }}"
     register: authorized_keys_result
   rescue:
     - debug:
