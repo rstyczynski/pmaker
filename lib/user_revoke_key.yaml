@@ -31,8 +31,7 @@
 #
 - name: debug
   debug:
-    var: {{ authorized_keys_result }}
-
+    var: "{{ authorized_keys_result }}"
 
 - block:  
   - name: Log key registration at host
