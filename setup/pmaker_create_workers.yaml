@@ -37,7 +37,6 @@
     state: present
     exclusive: no
     manage_dir: yes
-    #key: "{{ lookup('file', '/opt/pmaker/public/id_rsa.pub') }}"
     key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.pub') }}"
 
 
