@@ -41,8 +41,8 @@
       create: yes
     when: authorized_keys_result.changed == true
 
-  - name: rename file
-    command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
+  # - name: rename file
+  #   command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
   
   - name: Log failed key registration at host
     lineinfile:
