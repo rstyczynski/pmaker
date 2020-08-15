@@ -37,13 +37,6 @@
       - "{{ env_pmaker }}"
     when: (pmaker_type is defined) and (pmaker_type == "env")
 
-- hosts: all
-  tasks:
-  - include: pmaker_revoke_env_key.yaml
-    with_items: 
-      - "{{ env_pmaker }}"
-    when: (pmaker_type is defined) and (pmaker_type == "env")
-
   # TODO move to server preparation
   handlers:
     - name: restart sshd

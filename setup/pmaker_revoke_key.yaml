@@ -18,23 +18,29 @@
   become: yes
   authorized_key:
     user: "{{ item.username }}"
-    state: present
+    state: absend
     exclusive: no
     manage_dir: yes
-    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub') }}"
+    key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.revoke') }}"
   register: authorized_keys_result
 
 #
 # log key operations on .ssh registry
 #
-- name: Log key registration at host
-  lineinfile:
-     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
-     insertafter: EOF
-     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
-     create: yes
+- block:  
+  - name: Log key registration at host
+    lineinfile:
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      insertafter: EOF
+      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+      create: yes
+
+  - name: rename file
+    command: mv "/opt/{{ item.username }}/.ssh/id_rsa.revoke" "/opt/{{ item.username }}/.ssh/id_rsa.revoked"
+
   delegate_to: 127.0.0.1
   when: authorized_keys_result.changed == true
+
   
 - name: Log failed key registration at host
   lineinfile:
