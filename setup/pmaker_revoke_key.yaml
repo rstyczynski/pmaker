@@ -28,17 +28,18 @@
   #
   # log key operations on .ssh registry
   #
-  - name: debug
-    debug:
-      var: "{{ authorized_keys_result }}"
-
   - block:  
+    - name: debug
+      debug:
+        var: "{{ authorized_keys_result }}"
+
     - name: Log key registration at host
       lineinfile:
         line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
         insertafter: EOF
         dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
         create: yes
+        
     - name: rename file
       command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
     delegate_to: 127.0.0.1
