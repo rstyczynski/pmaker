@@ -71,11 +71,11 @@ for server_group in $server_groups; do
    if [ -f ~/.ssh/$server_group.key ]; then
     ssh-add ~/.ssh/$server_group.key
    fi
-   
+
    ansible-playbook  \
    setup/pmaker_create.yaml \
    -i data/$user_group.inventory.opc \
-   -l $server_group \
+   -l "controller $server_group" \
    -e pmaker_type=global \
    -e server_group=$server_group \
    -e user_group=$user_group \
@@ -90,6 +90,5 @@ for server_group in $server_groups; do
    echo '========================='
 done
 
-
-
+rm -f data/$user_group.inventory.opc.no_jumps
 rm -f data/$user_group.inventory.opc
