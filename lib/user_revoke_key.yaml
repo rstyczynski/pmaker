@@ -19,7 +19,7 @@
   - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
     authorized_key:
       user: "{{ item.username }}"
-      state: absend
+      state: absent
       exclusive: no
       manage_dir: yes
       key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke', errors='ignore') }}"
