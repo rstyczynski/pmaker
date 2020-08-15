@@ -15,8 +15,8 @@
 
   # env pmaker is a worker deplyed at managed servers' side
   - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
-    when: (item.key is defined) and (item.key == true)
-    with_items: "{{ env_pmaker }}"
+    with_items: 
+      - "{{ env_pmaker }}"
 
 #
 # create pmaker users on all hosts; verify that key is in place
