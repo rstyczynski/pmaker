@@ -18,29 +18,31 @@
 # mark key to be revoked for given user at given host
 #
 - name: check if key is already revoked
-  become: yes
   block:
+  
   - name: check if key is already revoked
     stat: 
-      path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/{{ inventory_hostname }}/.ssh/id_rsa.revoked'
+      path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/servers/{{ inventory_hostname }}/.ssh/id_rsa.revoked'
     register: revoked_file
+  
   - name: Ensures {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/{{ inventory_hostname }}/.ssh dir exists
-    file: path={{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/{{ inventory_hostname }}/.ssh state=directory
+    file: path={{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/servers/{{ inventory_hostname }}/.ssh state=directory
+  
   - name: Register key to be revoked
-    command: cp {{ pmaker_home }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/{{ inventory_hostname }}/.ssh/id_rsa.revoke'
+    command: cp {{ pmaker_home }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/servers/{{ inventory_hostname }}/.ssh/id_rsa.revoke'
     when: revoked_file.stat.exists == false
   delegate_to: 127.0.0.1
 
 - name: Perform revoke procedure
-  become: yes
   block:
   - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
+    become: yes
     authorized_key:
       user: "{{ item.username }}"
       state: absent
       exclusive: no
       manage_dir: yes
-      key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/{{ inventory_hostname }}/.ssh/id_rsa.revoke') }}"
+      key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/servers/{{ inventory_hostname }}/.ssh/id_rsa.revoke') }}"
     register: authorized_keys_result
 
   - name: debug
