@@ -1,23 +1,26 @@
 #!/bin/bash
 
-sudo yum install -y ansible pwgen putty openssl ruby python-pip
-sudo pip install --upgrade pip
-pip install Jinja2 j2cli
+if [ $(whoami) == opc ]; then
+   sudo yum install -y ansible pwgen putty openssl ruby python-pip
+   sudo pip install --upgrade pip
+   pip install Jinja2 j2cli
 
-pmaker_home=/opt/pmaker
+   pmaker_home=/opt/pmaker
 
-if [ ! -d pmaker ]; then
-   git clone https://github.com/rstyczynski/pmaker.git
+   if [ ! -d pmaker ]; then
+      git clone https://github.com/rstyczynski/pmaker.git
+   fi
+
+   ansible-playbook -i pmaker/setup/controller.inventory.cfg \
+   pmaker/setup/pmaker_create.yaml
+   if [ $? -ne 0 ]; then
+   echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
+   exit 2
+   fi
+
+   sudo mkdir -p $pmaker_home
+   sudo chown -R pmaker $pmaker_home
 fi
-
-ansible-playbook -i pmaker/setup/controller.inventory.cfg pmaker/setup/pmaker_create.yaml
-if [ $? -ne 0 ]; then
-  echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
-  exit 2
-fi
-
-sudo mkdir -p $pmaker_home
-sudo chown -R pmaker $pmaker_home
 
 sudo su - pmaker bash -c"
 umask 077
