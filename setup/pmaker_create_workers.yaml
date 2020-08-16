@@ -82,7 +82,6 @@
       create: yes
     when: authorized_keys_result.changed == false
 
-  when: revoke_file.stat.exists == true
   delegate_to: 127.0.0.1
 
 

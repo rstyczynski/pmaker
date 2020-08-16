@@ -50,7 +50,7 @@
 
 - name: debug
   debug:
-    var: "{{ revoke_file }}"
+    msg: "{{ revoke_file }}"
 
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
@@ -63,14 +63,13 @@
   register: authorized_keys_result
   when: revoke_file.stat.exists == true
 
-
 - name: Perform post revoke procedure
   block:
   - name: debug
     debug:
-      var: "{{ authorized_keys_result }}"
+      msg: "{{ authorized_keys_result }}"
 
-  - name: Log key registration at host
+  - name: Log key revoke at host
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
@@ -81,7 +80,7 @@
   - name: rename revoked key 
     command: mv '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke' '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked'
 
-  - name: Log failed key registration at host
+  - name: Log failed key revoke at host
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
@@ -89,7 +88,7 @@
       create: yes
     when: authorized_keys_result is failed
 
-  - name: Log skipped key registration at host
+  - name: Log skipped key revoke at host
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
