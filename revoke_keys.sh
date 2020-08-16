@@ -78,26 +78,29 @@ for server_group in $server_groups; do
 
         # check if all keys were revoked
         known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)
-        revoked_keys=$(find $ssh_root/servers -name id_rsa.revoked | wc -l)
-        if [ $revoked_keys -eq $known_servers ]; then
-            echo OK
-            # all done - change main rsa_id to unique name, kept to historical purposes
-            mv $ssh_root/id_rsa.revoke $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
-            mv $ssh_root/id_rsa $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').key
 
-            # change id_rsa to unique names
-            for key in $(find $ssh_root/servers -name id_rsa.revoked); do
-                mv $key $(dirname $key)/$(sha1sum $key | cut -f1 -d' ').revoked
-            done
+        if [ ! -z ($known_servers) ]  && [ $known_servers -gt 0 ]; then
+            revoked_keys=$(find $ssh_root/servers -name id_rsa.revoked | wc -l)
+            if [ $revoked_keys -eq $known_servers ]; then
+                echo OK
+                # all done - change main rsa_id to unique name, kept to historical purposes
+                mv $ssh_root/id_rsa.revoke $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
+                mv $ssh_root/id_rsa $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').key
 
-        else
-            echo Some errors detected.
-            find $ssh_root/servers -name id_rsa.revoke
+                # change id_rsa to unique names
+                for key in $(find $ssh_root/servers -name id_rsa.revoked); do
+                    mv $key $(dirname $key)/$(sha1sum $key | cut -f1 -d' ').revoked
+                done
 
-            ls $ssh_root/servers | grep -v localhost | sort >/tmp/all
-            find $ssh_root/servers -name id_rsa.revoked | cut -d'/' -f3 | sort >/tmp/revoked
-            sdiff /tmp/all /tmp/revoked
+            else
+                echo Some errors detected.
+                find $ssh_root/servers -name id_rsa.revoke
 
+                ls $ssh_root/servers | grep -v localhost | sort >/tmp/all
+                find $ssh_root/servers -name id_rsa.revoked | cut -d'/' -f3 | sort >/tmp/revoked
+                sdiff /tmp/all /tmp/revoked
+
+            fi
         fi
     
     done
