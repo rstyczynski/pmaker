@@ -93,7 +93,7 @@
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
       create: yes
-    when: authorized_keys_result.state == absent
+    when: authorized_keys_result.state == 'absent'
 
   - name: rename revoked key 
     command: mv {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked

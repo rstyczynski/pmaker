@@ -5,7 +5,7 @@
     state: directory
     owner: pmaker
     group: pmaker
-    mode: u+r,g-r-w-x,o-r-w-w
+    mode: 0700
 
 - name: generate SSH key "{{ item.username }}"
   openssh_keypair:
