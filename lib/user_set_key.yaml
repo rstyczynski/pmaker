@@ -11,19 +11,6 @@
     path: /home/{{ item.username }}/.ssh/authorized_keys
   register: authorized_keys_available
 
-- name: tweak authorized_keys permissions
-  file:
-    dest: "/home/{{ item.username }}/.ssh/authorized_keys"
-    owner: "{{ item.username }}"
-    group: "{{ item.username }}"
-    mode: 600
-
-- name: tweak .ssh permissions
-  file:
-    dest: "/home/{{ item.username }}/.ssh"
-    owner: "{{ item.username }}"
-    group: "{{ item.username }}"
-    mode: 700
 
 # - name: Protect .ssh
 #   become: yes
@@ -49,6 +36,20 @@
     key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub') }}"
   register: authorized_keys_result
 
+- name: tweak authorized_keys permissions
+  file:
+    dest: "/home/{{ item.username }}/.ssh/authorized_keys"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 600
+
+- name: tweak .ssh permissions
+  file:
+    dest: "/home/{{ item.username }}/.ssh"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 700
+    
 #
 # log key operations on .ssh registry
 #
