@@ -58,7 +58,7 @@ for server_group in $server_groups; do
    echo '========================='
 
    ansible-playbook env_configure.yaml -e server_group=$server_group -e user_group=$user_group \
-   -i data/$user_group.inventory.cfg -l "localhost $server_list" $@
+   -i data/$user_group.inventory.cfg -l "$server_list" $@
 
    echo '========================='
    echo Done.

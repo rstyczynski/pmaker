@@ -56,7 +56,7 @@
 - name: tweak permissions
   file:
     dest: "{{ file_item }}"
-    mode: u+r,g-r-w-x,o-r-w-w
+    mode: 600
   with_fileglob:
     - "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/*"
   loop_control:
