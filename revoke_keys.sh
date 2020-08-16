@@ -113,14 +113,20 @@ for server_group in $server_groups; do
                 revoked_keys=$(find $ssh_root/servers -name id_rsa.revoked | wc -l)
                 if [ $revoked_keys -eq $known_servers ]; then
                     echo OK
+
+                    # change id_rsa.pub to unique names
+                    for key in $(find $ssh_root/servers -name id_rsa.revoked); do
+                        mv $key $(dirname $key)/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
+                    done
+
                     # all done - change main rsa_id to unique name, kept to historical purposes
                     mv $ssh_root/id_rsa.revoke $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
+                    mv $ssh_root/id_rsa.enc $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').enc
+                    mv $ssh_root/id_rsa.ppk $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').ppk
+                    mv $ssh_root/secret.key $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').secret
+                                    
                     mv $ssh_root/id_rsa $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').key
 
-                    # change id_rsa to unique names
-                    for key in $(find $ssh_root/servers -name id_rsa.revoked); do
-                        mv $key $(dirname $key)/$(sha1sum $key | cut -f1 -d' ').revoked
-                    done
 
                 else
                     echo Some errors detected.
@@ -131,10 +137,16 @@ for server_group in $server_groups; do
                     sdiff /tmp/all /tmp/revoked
 
                 fi
+            else
+                echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+                echo "ERROR processing user: $username"
+                echo "No servers found."
+                echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
             fi
         else
             echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
             echo "ERROR processing user: $username"
+            echo "General error."
             echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
         fi
     
