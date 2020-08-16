@@ -37,6 +37,7 @@
   register: authorized_keys_result
 
 - name: tweak authorized_keys permissions
+  become: yes
   file:
     dest: "/home/{{ item.username }}/.ssh/authorized_keys"
     owner: "{{ item.username }}"
@@ -44,12 +45,13 @@
     mode: 600
 
 - name: tweak .ssh permissions
+  become: yes
   file:
     dest: "/home/{{ item.username }}/.ssh"
     owner: "{{ item.username }}"
     group: "{{ item.username }}"
     mode: 700
-    
+
 #
 # log key operations on .ssh registry
 #
