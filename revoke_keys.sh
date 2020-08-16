@@ -79,7 +79,7 @@ for server_group in $server_groups; do
         # check if all keys were revoked
         known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)
 
-        if [ ! -z ($known_servers) ]  && [ $known_servers -gt 0 ]; then
+        if [ ! -z "$known_servers" ]  && [ $known_servers -gt 0 ]; then
             revoked_keys=$(find $ssh_root/servers -name id_rsa.revoked | wc -l)
             if [ $revoked_keys -eq $known_servers ]; then
                 echo OK
