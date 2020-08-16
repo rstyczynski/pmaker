@@ -21,28 +21,33 @@
 - name: check if key is already revoked
   block:
   
-  - name: check if key is already revoked
-    stat: 
-      path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked'
-    register: revoked_file_check
+  - name: Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers dir exists
+    file: 
+      path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}"
+      state: directory
 
   - name: check if key should be revoked
     stat: 
       path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke'
     register: revoke_file_check
 
-  - name: check if key revoke is already known at server
+  - name: check if key is already revoked
     stat: 
-      path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
-    register: revoke_at_server_file_check
+      path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked'
+    register: revoked_file_check
 
-  - name: Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers dir exists
-    file: 
-      path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}"
-      state: directory
-    when: (revoke_file_check.stat.exists == true) and (revoked_file_check.stat.exists == false)
-    
+  # - name: check if key revoke is already known at server
+  #   stat: 
+  #     path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+  #   register: revoke_at_server_file_check
+
   # TODO How about when revoke file oes not exist, but exists at server?
+
+  - debug:
+      var: revoke_file_check
+      
+  - debug:
+      var: revoked_file_check
 
   - name: Register key to be revoked
     command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
