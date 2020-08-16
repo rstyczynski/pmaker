@@ -7,9 +7,9 @@
   tasks:
   - include_vars: ../config.yaml
 
-  - include: pmaker_revoke_key.yaml
-    with_items: 
-      - "{{ root_pmaker }}"
+  # - include: pmaker_revoke_key.yaml
+  #   with_items: 
+  #     - "{{ root_pmaker }}"
 
   - include: ../lib/user_revoke_key.yaml
     with_items: 
