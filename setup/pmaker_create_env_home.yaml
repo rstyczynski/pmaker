@@ -5,6 +5,6 @@
     state: directory
     owner: "{{ item }}"
     group: "{{ item }}"
-    mode: 0700
+    mode:  0700
     recurse: yes
 
