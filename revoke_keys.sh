@@ -57,7 +57,7 @@ for server_group in $server_groups; do
     if [ -z "$user_to_process" ]; then
     # use list of users known to the system i.e. already registered. 
     # this list may be different from users.yaml i.e. older
-    users="pmaker $(ls state/$user_group/$server_group | grep -v users.yaml)"
+    users="pmaker_global pmaker_env $(ls state/$user_group/$server_group | grep -v users.yaml)"
     else
         users=$user_to_process
     fi
@@ -76,13 +76,35 @@ for server_group in $server_groups; do
         fi
 
         # execute revoke procedure
-        ansible-playbook  \
-        setup/pmaker_revoke_keys.yaml \
-        -e pmaker_type=env \
-        -e server_group=$server_group \
-        -e user_group=$user_group \
-        -l $server_group \
-        -i data/$user_group.inventory.cfg
+        case $username in
+            pmaker_global)
+                ansible-playbook  \
+                setup/pmaker_revoke_keys.yaml \
+                -e pmaker_type=global \
+                -e server_group=$server_group \
+                -e user_group=$user_group \
+                -l $server_group \
+                -i data/$user_group.inventory.cfg
+                ;;
+            pmaker_env)
+                ansible-playbook  \
+                setup/pmaker_revoke_keys.yaml \
+                -e pmaker_type=env \
+                -e server_group=$server_group \
+                -e user_group=$user_group \
+                -l $server_group \
+                -i data/$user_group.inventory.cfg
+                ;;
+            *)
+                ansible-playbook  \
+                lib/user_revoke_keys.yaml \
+                -e username=$username \
+                -e server_group=$server_group \
+                -e user_group=$user_group \
+                -l $server_group \
+                -i data/$user_group.inventory.cfg
+                ;;  
+        esac
         if [ $? -eq 0 ]; then
             # check if all keys were revoked
             known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)

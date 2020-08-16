@@ -1,0 +1,15 @@
+---
+#
+# revoke user keys from all hosts
+#   
+- hosts: all
+
+  tasks:
+  - include_vars: ../config.yaml
+
+  - debug:
+      var: username
+      
+  - include: user_revoke_key.yaml
+    with_items: 
+      - "{{ username }}"
