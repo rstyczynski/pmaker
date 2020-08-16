@@ -35,11 +35,10 @@
   authorized_key:
     user: "{{ item.username }}"
     state: present
-    exclusive: no
+    exclusive: yes
     manage_dir: yes
     key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.pub') }}"
   register: authorized_keys_result
-
 
 #
 # log operation 
@@ -58,8 +57,10 @@
       create: yes
     when: authorized_keys_result.changed == true
 
-  - name: Ensure {{ pmaker_home }}/.ssh/servers dir exists
-    file: path={{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }} state=directory
+  - name: Ensure {{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }} dir exists
+    file:
+      path: "{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}"
+      state: directory
     register: server_dir_check
 
   - name: Register granted key
