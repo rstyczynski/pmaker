@@ -7,10 +7,13 @@
   tasks:
   - include_vars: ../config.yaml
 
-  # - include: pmaker_revoke_key.yaml
-  #   with_items: 
-  #     - "{{ root_pmaker }}"
-  #   when: (pmaker_type is defined) and (pmaker_type == "global")
+  - debug:
+      var: pmaker_type
+      
+  - include: pmaker_revoke_key.yaml
+    with_items: 
+      - "{{ root_pmaker }}"
+    when: (pmaker_type is defined) and (pmaker_type == "global")
 
   - include: ../lib/user_revoke_key.yaml
     with_items: 
