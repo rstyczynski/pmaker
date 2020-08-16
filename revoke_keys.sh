@@ -4,6 +4,8 @@ user_group=$1
 shift
 server_groups=$1
 shift
+user_to_process=$1
+shift
 
 function usage() {
     echo Usage: revoke_keys.sh user_group [server_groups]
@@ -50,12 +52,17 @@ for server_group in $server_groups; do
 
     # users=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r ".users[].username")
     
+
+    if [ -z "$user_to_process" ]; then
     # use list of users known to the system i.e. already registered. 
     # this list may be different from users.yaml i.e. older
-    users=$(ls state/$user_group/$server_group | grep -v users.yaml)
+    users="pmaker $(ls state/$user_group/$server_group | grep -v users.yaml)"
+    else
+        users=$user_to_process
+    fi
 
     # revoke key from pmaker, and known users
-    for username in pmaker $users; do
+    for username in $users; do
 
         echo '========================='
         echo Processing user: $username
