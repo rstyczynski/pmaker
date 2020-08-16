@@ -76,7 +76,7 @@ for server_group in $server_groups; do
    setup/pmaker_create.yaml \
    -i data/$user_group.inventory.opc \
    -l "controller $server_group" \
-   -e pmaker_type=env \
+   -e pmaker_type=global \
    -e server_group=$server_group \
    -e user_group=$user_group \
    $@
