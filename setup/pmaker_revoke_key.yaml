@@ -46,6 +46,7 @@
   stat: 
     path: '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
   register: revoke_file
+  delegate_to: 127.0.0.1
 
 - name: debug
   debug:
