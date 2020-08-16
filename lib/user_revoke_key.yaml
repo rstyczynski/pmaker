@@ -2,14 +2,14 @@
 # - name: Protect .ssh
 #   become: yes
 #   file:
-#     path: /home/{{ item.username }}/.ssh
+#     path: /home/{{ item }}/.ssh
 #     attributes: -i
 #   when: ssh_available.stat.exists
 
 # - name: Protect authorized_keys
 #   become: yes
 #   file:
-#     path: /home/{{ item.username }}/.ssh/authorized_keys
+#     path: /home/{{ item }}/.ssh/authorized_keys
 #     attributes: -i
 #   when: authorized_keys_available.stat.exists
 
@@ -18,41 +18,41 @@
 # mark key to be revoked for given user at given host
 #
 
-- name: "Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers dir exists"
+- name: "Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers dir exists"
   file: 
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}"
     state: directory
   delegate_to: 127.0.0.1
 
 - name: Check if key should be revoked
   stat: 
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke"
   register: revoke_file_check
   delegate_to: 127.0.0.1
 
 - name: Check if key is already revoked
   stat: 
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
   register: revoked_file_check
   delegate_to: 127.0.0.1
 
 # - name: check if key revoke is already known at server
 #   stat: 
-#     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke"
+#     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke"
 #   register: revoke_at_server_file_check
 
 # TODO How about when revoke file oes not exist, but exists at server?
 
-- name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke"
+- name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke"
   debug:
     var: revoke_file_check
     
-- name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
+- name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
   debug:
     var: revoked_file_check
 
 - name: Register key to be revoked
-  command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+  command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
   when: (revoke_file_check.stat.exists == true) and (revoked_file_check.stat.exists == false)
   #(revoke_at_server_file_check.stat.exists == false) 
   delegate_to: 127.0.0.1
@@ -62,7 +62,7 @@
 #
 - name: check if key should be revoked
   stat: 
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke"
   register: revoke_file
   delegate_to: 127.0.0.1
 
@@ -73,11 +73,11 @@
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   authorized_key:
-    user: "{{ item.username }}"
+    user: "{{ item }}"
     state: absent
     exclusive: no
     manage_dir: yes
-    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke') }}"
+    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke') }}"
   register: authorized_keys_result
   when: revoke_file.stat.exists == true
 
@@ -91,18 +91,18 @@
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
-      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
       create: yes
     when: authorized_keys_result.changed == true
 
   - name: rename revoked key 
-    command: mv "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
+    command: mv "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
 
   - name: Log failed key revoke at host
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
-      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
       create: yes
     when: authorized_keys_result is failed
 
@@ -110,7 +110,7 @@
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
-      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
       create: yes
     when: authorized_keys_result.changed == false
 
@@ -121,12 +121,12 @@
 # - name: Protect authorized_keys
 #   become: yes
 #   file:
-#     path: /home/{{ item.username }}/.ssh/authorized_keys
+#     path: /home/{{ item }}/.ssh/authorized_keys
 #     attributes: +i
 
 # - name: Protect .ssh
 #   become: yes
 #   file:
-#     path: /home/{{ item.username }}/.ssh
+#     path: /home/{{ item }}/.ssh
 #     attributes: +i
 
