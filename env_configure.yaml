@@ -27,7 +27,7 @@
 - hosts: all
 
   tasks:
-    - include_vars: "{{ pmaker_home }}/config.yaml"
+    - include_vars: "config.yaml"
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
     - include: "{{ pmaker_home }}/lib/user_create_stub.yaml"
