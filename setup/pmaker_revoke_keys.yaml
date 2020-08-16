@@ -1,7 +1,4 @@
 ---
-
-- hosts: all
-
 #
 # revoke pmaker keys from all hosts
 #   
@@ -14,6 +11,6 @@
     with_items: 
       - "{{ root_pmaker }}"
 
-  # - include: ../lib/user_revoke_key.yaml
-  #   with_items: 
-  #     - "{{ env_pmaker }}"
+  - include: ../lib/user_revoke_key.yaml
+    with_items: 
+      - "{{ env_pmaker }}"

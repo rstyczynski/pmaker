@@ -13,38 +13,74 @@
 #     attributes: -i
 #   when: authorized_keys_available.stat.exists
 
+
+#
+# mark key to be revoked for given user at given host
+#
+
+- name: check if key is already revoked
+  block:
+  
+  - name: check if key is already revoked
+    stat: 
+      path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked'
+    register: revoked_file_check
+
+  - name: check if key should be revoked
+    stat: 
+      path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+    register: revoke_file_check
+
+  - name: Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers dir exists
+    file: path={{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }} state=directory
+  
+  - name: Register key to be revoked
+    command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+    when: (revoked_file_check.stat.exists == false) and (revoke_file_check.stat.exists == false) 
+  delegate_to: 127.0.0.1
+
+#
+# check if revoke should be started
+#
+- name: check if key should be revoked
+  stat: 
+    path: '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+  register: revoke_file
+  delegate_to: 127.0.0.1
+
+- name: debug
+  debug:
+    msg: "{{ revoke_file }}"
+
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
-  block:
-  - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
-    authorized_key:
-      user: "{{ item.username }}"
-      state: absent
-      exclusive: no
-      manage_dir: yes
-      # , errors='ignore'
-      key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke') }}"
-    register: authorized_keys_result
+  authorized_key:
+    user: "{{ item.username }}"
+    state: absent
+    exclusive: no
+    manage_dir: yes
+    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke') }}"
+  register: authorized_keys_result
+  when: revoke_file.stat.exists == true
 
-  #
-  # log key operations on .ssh registry
-  #
+- name: Perform post revoke procedure
+  block:
   - name: debug
     debug:
-      var: "{{ authorized_keys_result }}"
+      msg: "{{ authorized_keys_result }}"
 
-  - name: Log key registration at host
+  - name: Log key revoke at host
     lineinfile:
-      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
       create: yes
     when: authorized_keys_result.changed == true
 
-  # - name: rename file
-  #   command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoked'
-  
-  - name: Log failed key registration at host
+  - name: rename revoked key 
+    command: mv '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked'
+
+  - name: Log failed key revoke at host
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
@@ -52,7 +88,7 @@
       create: yes
     when: authorized_keys_result is failed
 
-  - name: Log skipped key registration at host
+  - name: Log skipped key revoke at host
     lineinfile:
       line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
@@ -60,11 +96,9 @@
       create: yes
     when: authorized_keys_result.changed == false
 
+  when: revoke_file.stat.exists == true
   delegate_to: 127.0.0.1
 
-  rescue:
-    - debug:
-        msg: "OK. Nothing to do"
 
 # - name: Protect authorized_keys
 #   become: yes
