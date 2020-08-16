@@ -51,7 +51,7 @@
      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
      create: yes
   delegate_to: 127.0.0.1
-  when: authorized_keys_result.changed == true
+  when: authorized_keys_result.state == present
   
 - name: Log failed key registration at host
   lineinfile:
@@ -62,14 +62,14 @@
   delegate_to: 127.0.0.1
   when: authorized_keys_result is failed
 
-- name: Log skipped key registration at host
-  lineinfile:
-     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
-     insertafter: EOF
-     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
-     create: yes
-  delegate_to: 127.0.0.1
-  when: authorized_keys_result.changed == false
+# - name: Log skipped key registration at host
+#   lineinfile:
+#      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+#      insertafter: EOF
+#      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
+#      create: yes
+#   delegate_to: 127.0.0.1
+#   when: authorized_keys_result.changed == false
 
 # - name: Protect authorized_keys
 #   become: yes

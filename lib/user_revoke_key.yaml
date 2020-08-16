@@ -93,7 +93,7 @@
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
       create: yes
-    when: authorized_keys_result.changed == true
+    when: authorized_keys_result.state == absent
 
   - name: rename revoked key 
     command: mv {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked
@@ -106,13 +106,13 @@
       create: yes
     when: authorized_keys_result is failed
 
-  - name: Log skipped key revoke at host
-    lineinfile:
-      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
-      insertafter: EOF
-      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
-      create: yes
-    when: authorized_keys_result.changed == false
+  # - name: Log skipped key revoke at host
+  #   lineinfile:
+  #     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+  #     insertafter: EOF
+  #     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
+  #     create: yes
+  #   when: authorized_keys_result.changed == false
 
   when: revoke_file.stat.exists == true
   delegate_to: 127.0.0.1

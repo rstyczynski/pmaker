@@ -4,6 +4,7 @@
     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/pmaker/.ssh"
     state: directory
     owner: "{{ item }}"
-    mode: u+r,g-w+x,o+x
+    group: "{{ item }}"
+    mode: '0700'
     recurse: yes
 
