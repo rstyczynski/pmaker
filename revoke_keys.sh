@@ -83,7 +83,7 @@ for server_group in $server_groups; do
         -e user_group=$user_group \
         -l $server_group \
         -i data/$user_group.inventory.cfg
-        if [ $? -ew 0 ]; then
+        if [ $? -eq 0 ]; then
             # check if all keys were revoked
             known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)
 
