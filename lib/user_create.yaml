@@ -1,4 +1,7 @@
 ---
+- debug:
+    var: item
+    
 - name: Create  user
   become: yes
   user: 
