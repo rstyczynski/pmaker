@@ -51,7 +51,7 @@
      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
      create: yes
   delegate_to: 127.0.0.1
-  when: authorized_keys_result.state == present
+  when: authorized_keys_result.state == "present"
   
 - name: Log failed key registration at host
   lineinfile:
