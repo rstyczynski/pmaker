@@ -47,6 +47,10 @@
     path: '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
   register: revoke_file
 
+- name: debug
+  debug:
+    var: "{{ revoke_file }}"
+
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   authorized_key:
