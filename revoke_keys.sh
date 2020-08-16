@@ -8,8 +8,9 @@ user_to_process=$1
 shift
 
 function usage() {
-    echo Usage: revoke_keys.sh user_group [server_groups]
+    echo Usage: revoke_keys.sh user_group [server_groups] [user]
     echo server_groups defaults to all
+    echo user to ptocess defaults to pmaker, and all
 }
 
 if [ -z "$user_group" ]; then
@@ -82,32 +83,37 @@ for server_group in $server_groups; do
         -e user_group=$user_group \
         -l $server_group \
         -i data/$user_group.inventory.cfg
+        if [ $? -ew 0 ]; then
+            # check if all keys were revoked
+            known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)
 
-        # check if all keys were revoked
-        known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)
+            if [ ! -z "$known_servers" ]  && [ $known_servers -gt 0 ]; then
+                revoked_keys=$(find $ssh_root/servers -name id_rsa.revoked | wc -l)
+                if [ $revoked_keys -eq $known_servers ]; then
+                    echo OK
+                    # all done - change main rsa_id to unique name, kept to historical purposes
+                    mv $ssh_root/id_rsa.revoke $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
+                    mv $ssh_root/id_rsa $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').key
 
-        if [ ! -z "$known_servers" ]  && [ $known_servers -gt 0 ]; then
-            revoked_keys=$(find $ssh_root/servers -name id_rsa.revoked | wc -l)
-            if [ $revoked_keys -eq $known_servers ]; then
-                echo OK
-                # all done - change main rsa_id to unique name, kept to historical purposes
-                mv $ssh_root/id_rsa.revoke $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
-                mv $ssh_root/id_rsa $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').key
+                    # change id_rsa to unique names
+                    for key in $(find $ssh_root/servers -name id_rsa.revoked); do
+                        mv $key $(dirname $key)/$(sha1sum $key | cut -f1 -d' ').revoked
+                    done
 
-                # change id_rsa to unique names
-                for key in $(find $ssh_root/servers -name id_rsa.revoked); do
-                    mv $key $(dirname $key)/$(sha1sum $key | cut -f1 -d' ').revoked
-                done
+                else
+                    echo Some errors detected.
+                    find $ssh_root/servers -name id_rsa.revoke
 
-            else
-                echo Some errors detected.
-                find $ssh_root/servers -name id_rsa.revoke
+                    ls $ssh_root/servers | grep -v localhost | sort >/tmp/all
+                    find $ssh_root/servers -name id_rsa.revoked | cut -d'/' -f3 | sort >/tmp/revoked
+                    sdiff /tmp/all /tmp/revoked
 
-                ls $ssh_root/servers | grep -v localhost | sort >/tmp/all
-                find $ssh_root/servers -name id_rsa.revoked | cut -d'/' -f3 | sort >/tmp/revoked
-                sdiff /tmp/all /tmp/revoked
-
+                fi
             fi
+        else
+            echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+            echo "ERROR processing user: $username"
+            echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
         fi
     
     done
