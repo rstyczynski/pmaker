@@ -17,27 +17,36 @@
 #
 # mark key to be revoked for given user at given host
 #
+
 - name: check if key is already revoked
   block:
   
   - name: check if key is already revoked
     stat: 
       path: '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked'
-    register: revoked_file
-  
-  - name: Ensures {{ pmaker_home }}/.ssh/servers dir exists
+    register: revoked_file_check
+
+  - name: check if key should be revoked
+    stat: 
+      path: '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+    register: revoke_file_check
+
+  - name: Ensure {{ pmaker_home }}/.ssh/servers dir exists
     file: path={{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }} state=directory
   
   - name: Register key to be revoked
     command: cp {{ pmaker_home }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
-    when: revoked_file.stat.exists == false
+    when: (revoked_file_check.stat.exists == false) and (revoke_file_check.stat.exists == false) 
   delegate_to: 127.0.0.1
 
-
+#
+# check if revoke should be started
+#
 - name: check if key should be revoked
   stat: 
     path: '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
   register: revoke_file
+
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
   authorized_key:

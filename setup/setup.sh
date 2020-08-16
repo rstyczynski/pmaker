@@ -11,7 +11,9 @@ if [ $(whoami) == opc ]; then
       git clone https://github.com/rstyczynski/pmaker.git
    fi
 
-   ansible-playbook -i pmaker/setup/controller.inventory.cfg \
+   ansible-playbook \
+   -e pmaker_type=global \
+   -i pmaker/setup/controller.inventory.cfg \
    pmaker/setup/pmaker_create.yaml
    if [ $? -ne 0 ]; then
    echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."

@@ -38,6 +38,52 @@
     exclusive: no
     manage_dir: yes
     key: "{{ lookup('file', '/opt/{{ item.username }}/.ssh/id_rsa.pub') }}"
+  register: authorized_keys_result
+
+
+#
+# log operation 
+#
+- name: Perform post revoke procedure
+  block:
+  - name: debug
+    debug:
+      var: "{{ authorized_keys_result }}"
+
+  - name: Log key registration at host
+    lineinfile:
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | GRANTED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      insertafter: EOF
+      dest: "{{ pmaker_home }}/.ssh/registry"
+      create: yes
+    when: authorized_keys_result.changed == true
+
+  - name: Ensure {{ pmaker_home }}/.ssh/servers dir exists
+    file: path={{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }} state=directory
+    register: server_dir_check
+
+  - name: Register granted key
+    command: cp {{ pmaker_home }}/.ssh/id_rsa.pub '{{ pmaker_home }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.pub'
+    when: (authorized_keys_result.changed == true) and (server_dir_check.stat.exists == true)
+
+  - name: Log failed key registration at host
+    lineinfile:
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | GRANT FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      insertafter: EOF
+      dest: "{{ pmaker_home }}/.ssh/registry"
+      create: yes
+    when: authorized_keys_result is failed
+
+  - name: Log skipped key registration at host
+    lineinfile:
+      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | GRANT CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      insertafter: EOF
+      dest: "{{ pmaker_home }}/.ssh/registry"
+      create: yes
+    when: authorized_keys_result.changed == false
+
+  when: revoke_file.stat.exists == true
+  delegate_to: 127.0.0.1
 
 
 # - name: Protect authorized_keys
