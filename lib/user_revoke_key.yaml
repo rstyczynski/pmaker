@@ -52,7 +52,7 @@
     var: revoked_file_check
 
 - name: Register key to be revoked
-  command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
+  command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke
   when: (revoke_file_check.stat.exists == true) and (revoked_file_check.stat.exists == false)
   #(revoke_at_server_file_check.stat.exists == false) 
   delegate_to: 127.0.0.1
@@ -96,7 +96,7 @@
     when: authorized_keys_result.changed == true
 
   - name: rename revoked key 
-    command: mv "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke' '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
+    command: mv {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked
 
   - name: Log failed key revoke at host
     lineinfile:
