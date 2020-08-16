@@ -39,6 +39,8 @@
   - name: Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers dir exists
     file: path={{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }} state=directory
   
+  # TODO How about when revoke file oes not exist, but exists at server?
+
   - name: Register key to be revoked
     command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke'
     when: (revoke_file_check.stat.exists == true) and (revoked_file_check.stat.exists == false) and (revoke_at_server_file_check.stat.exists == false) 
