@@ -69,15 +69,11 @@ for server_group in $server_groups; do
         echo Processing user: $username
         echo '========================='
 
-        if [ $user_group == pmaker ]; then
-            ssh_root=$pmaker_home/.ssh
-        else
-            ssh_root=$pmaker_home/state/$user_group/$server_group/$username/.ssh
-        fi
-
         # execute revoke procedure
         case $username in
             pmaker_global)
+                ssh_root=$pmaker_home/.ssh
+
                 ansible-playbook  \
                 setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=global \
@@ -87,6 +83,8 @@ for server_group in $server_groups; do
                 -i data/$user_group.inventory.cfg
                 ;;
             pmaker_env)
+                ssh_root=$pmaker_home/state/$user_group/$server_group/$username/.ssh
+
                 ansible-playbook  \
                 setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=env \
@@ -96,6 +94,8 @@ for server_group in $server_groups; do
                 -i data/$user_group.inventory.cfg
                 ;;
             *)
+                ssh_root=$pmaker_home/state/$user_group/$server_group/$username/.ssh
+                
                 ansible-playbook  \
                 lib/user_revoke_keys.yaml \
                 -e username=$username \

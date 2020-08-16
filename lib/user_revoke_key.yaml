@@ -18,19 +18,19 @@
 # mark key to be revoked for given user at given host
 #
 
-- name: Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers dir exists
+- name: "Ensure {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers dir exists"
   file: 
     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}"
     state: directory
   delegate_to: 127.0.0.1
 
-- name: check if key should be revoked
+- name: Check if key should be revoked
   stat: 
     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.revoke"
   register: revoke_file_check
   delegate_to: 127.0.0.1
 
-- name: check if key is already revoked
+- name: Check if key is already revoked
   stat: 
     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
   register: revoked_file_check
