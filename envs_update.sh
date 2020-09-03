@@ -45,24 +45,37 @@ echo '==========================================================================
 echo Users ready.
 echo '==========================================================================='
 
+# it's controlld using ssh config
+# echo 
+# echo '==========================================================================='
+# echo Activating ssh agent to handle ssh keys
+# echo '==========================================================================='
+# eval `ssh-agent`
 
+echo
 echo '==========================================================================='
 echo Now updating environments: $server_groups
 echo '==========================================================================='
 for server_group in $server_groups; do
-   server_list=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$server_group.hosts | keys[]] | unique | .[]")
+   # controller do manage local user list and key repository
+   server_list="controller $(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$server_group.hosts | keys[]] | unique | .[]")"
 
    echo '========================='
    echo Processing env: $server_group
    echo \-having servers: $server_list
    echo '========================='
 
+   # it's controlld using ssh config
+   # if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
+   #    echo "Adding environment pmaker key to ssh agent..."
+   #    ssh-add state/$user_group/$server_group/pmaker/.ssh/id_rsa
+   # fi
+
    ansible-playbook env_configure.yaml \
    -e server_group=$server_group \
    -e user_group=$user_group \
    -i data/$user_group.inventory.cfg \
-   -l "controller $server_list" \          # conntroller to manage local key repo
-   $@
+   -l "$server_list" $@
 
    echo '========================='
    echo Done.
