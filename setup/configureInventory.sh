@@ -55,7 +55,8 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-eval `ssh-agent -s`
+# moved to ssh config
+# eval `ssh-agent -s`
 
 echo '==========================================================================='
 echo " Configuring servers: $server_groups"
@@ -68,9 +69,10 @@ for server_group in $server_groups; do
    echo \-having servers: $server_list
    echo '========================='
 
-   if [ -f ~/.ssh/$server_group.key ]; then
-    ssh-add ~/.ssh/$server_group.key
-   fi
+   # moved to ssh config
+   # if [ -f ~/.ssh/$server_group.key ]; then
+   #  ssh-add ~/.ssh/$server_group.key
+   # fi
 
    ansible-playbook  \
    setup/pmaker_create.yaml \
