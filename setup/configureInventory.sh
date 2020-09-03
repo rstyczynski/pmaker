@@ -81,7 +81,7 @@ for server_group in $server_groups; do
    -e user_group=$user_group \
    $@
    if [ $? -ne 0 ]; then
-     echo "Error. Installation error. Procedure broken. Fix the erros and retry. Exiting."
+     echo "Error. Installation error. Procedure broken. Fix errors and retry. Exiting."
      exit 2
    fi
 
