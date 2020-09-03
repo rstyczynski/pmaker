@@ -17,7 +17,17 @@ fi
 : ${server_group_key:=no}
 
 server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
-jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
+# take from [env] section
+#jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
+# take from [jumps] sectino
+jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "$server_group\_jump" | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d= -f2)
+
+if [ -z "$jump_server" ]; then
+    echo "Error. jump server does not found in inventory file."
+    return 1
+fi
+
+# TODO add confiog secuton update using "cron" technique
 
 cat >>~/.ssh/config <<EOF
 
