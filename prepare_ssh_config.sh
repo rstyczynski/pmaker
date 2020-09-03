@@ -30,8 +30,8 @@ fi
 # TODO add confiog secuton update using "cron" technique
 
 cat >>~/.ssh/config <<EOF
-
-host ${server_group}_jump
+# START - $server_group access
+Host ${server_group}_jump
     HostName $jump_server
     ForwardAgent yes
     User $proxy_user
@@ -47,7 +47,12 @@ hosts=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p"
 
 for host in $hosts; do
     cat >>~/.ssh/config <<EOF
-host $host
+Host $host
+    IdentityFile ~/.ssh/${server_group_key}.key
     ProxyJump ${server_group}_jump
 EOF
 done
+echo "# START - $server_group access" >>~/.ssh/config 
+
+chmod 600 ~/.ssh/config
+
