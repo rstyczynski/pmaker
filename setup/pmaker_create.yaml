@@ -42,4 +42,4 @@
   # TODO move to server preparation
   handlers:
     - name: restart sshd
-      service: name=sshd state=restarted
+      command: sudo service sshd restart
