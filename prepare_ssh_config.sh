@@ -39,7 +39,7 @@ EOF
 
 if [ $server_group_key != no ]; then
 cat >>~/.ssh/config <<EOF
-    IdentityFile ~/.ssh/${server_group_key}.key
+    IdentityFile $server_group_key
 EOF
 fi
 
@@ -48,7 +48,7 @@ hosts=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p"
 for host in $hosts; do
     cat >>~/.ssh/config <<EOF
 Host $host
-    IdentityFile ~/.ssh/${server_group_key}.key
+    IdentityFile $server_group_key
     ProxyJump ${server_group}_jump
 EOF
 done
