@@ -12,6 +12,63 @@
     state: present
     force: no
 
+#  Add key to authorized keys
+- name: Ensure ~/.ssh/authorized_keys contains master pmakers's public key
+  become: yes
+  authorized_key:
+    user: "{{ item.username }}"
+    state: present
+    exclusive: no
+    manage_dir: yes
+    key: "{{ lookup('file', '{{ pmaker_home }}/.ssh/id_rsa.pub') }}"
+  register: authorized_keys_result
+
+- name: tweak authorized_keys permissions
+  become: yes
+  file:
+    dest: "/home/{{ item.username }}/.ssh/authorized_keys"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 0600
+
+- name: tweak .ssh permissions
+  become: yes
+  file:
+    dest: "/home/{{ item.username }}/.ssh"
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+    mode: 0700
+
+# Configure local sshd, and restart sshd 
+# TOOD move to computer cfg.
+- name: remove account limit to use ssh 
+  become: yes
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '^\s*(AllowUsers.+)$'
+    replace: '# \1'
+  notify: restart sshd
+
+
+#
+# log key operations on .ssh registry
+#
+- name: Log key registration at host
+  lineinfile:
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+     insertafter: EOF
+     dest: "{{ pmaker_home }}/.ssh/registry"
+     create: yes
+  when: authorized_keys_result.state == 'present'
+  
+- name: Log failed key registration at host
+  lineinfile:
+     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+     insertafter: EOF
+     dest: "{{ pmaker_home }}/.ssh/registry"
+     create: yes
+  when: authorized_keys_result is failed
+
 # - name: create pmaker directory
 #   become: yes
 #   file:
