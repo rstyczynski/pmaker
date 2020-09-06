@@ -27,7 +27,8 @@ function y2j() {
 function users2pmaker() {
     excel_file=$1
     xlsx2csv $excel_file |
-        csvtojson |
+        grep -v '^,,,,,,,,' |
+        ~/pmaker/node_modules/csvtojson/bin/csvtojson |
         jq -c |
         sed 's/,"field[0-9]*":"[a-zA-Z_-]*"//g' |
         sed 's/{"field[0-9]*":"[a-zA-Z_-]*",/{/g' |
