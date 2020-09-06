@@ -1,10 +1,10 @@
 #!/bin/bash
 
+pmaker_home=/opt/pmaker
+
 if [ $(whoami) == opc ]; then
    sudo yum install -y ansible pwgen putty openssl ruby python-pip npm
    sudo pip install --upgrade pip
-
-   pmaker_home=/opt/pmaker
 
    if [ ! -d pmaker ]; then
       git clone https://github.com/rstyczynski/pmaker.git
