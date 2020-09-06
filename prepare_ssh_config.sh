@@ -27,10 +27,14 @@ if [ -z "$jump_server" ]; then
     return 1
 fi
 
-# TODO add confiog secuton update using "cron" technique
+tmp=$pmaker_home/tmp; mkdir -p $tmp
 
-cat >>~/.ssh/config <<EOF
-# START - $server_group access
+# take copy of ssh config w/o section
+cat ~/.ssh/config | sed '/# START - $user_group $server_group access/,/# STOP - $user_group $server_group access/d' >$tmp/ssh_config
+
+
+cat >>$tmp/ssh_config <<EOF
+# START - $user_group $server_group access
 Host ${server_group}_jump
     HostName $jump_server
     ForwardAgent yes
@@ -38,7 +42,7 @@ Host ${server_group}_jump
 EOF
 
 if [ $server_group_key != no ]; then
-cat >>~/.ssh/config <<EOF
+cat >>$tmp/ssh_config <<EOF
     IdentityFile $server_group_key
 EOF
 fi
@@ -46,13 +50,14 @@ fi
 hosts=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | cut -f1 -d' ')
 
 for host in $hosts; do
-    cat >>~/.ssh/config <<EOF
+    cat >>$tmp/ssh_config<<EOF
 Host $host
     IdentityFile $server_group_key
     ProxyJump ${server_group}_jump
 EOF
 done
-echo "# START - $server_group access" >>~/.ssh/config 
+echo "# STOP - $user_group $server_group access" >>$tmp/ssh_config
 
+mv ~/.ssh/config ~/.ssh/config.old
+mv $tmp/ssh_config ~/.ssh/config
 chmod 600 ~/.ssh/config
-

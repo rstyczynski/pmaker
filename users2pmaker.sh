@@ -27,12 +27,12 @@ function y2j() {
 function users2pmaker() {
     excel_file=$1
 
-    tmp=~/pmaker/tmp; mkdir -p $tmp
+    tmp=$pmaker_home/tmp; mkdir -p $tmp
     users_file=$(basename $excel_file)
 
     xlsx2csv $excel_file |
         grep -v '^,,,,,,,,' |
-        ~/pmaker/node_modules/csvtojson/bin/csvtojson | 
+        $pmaker_home/node_modules/csvtojson/bin/csvtojson | 
         jq -M '.' |
         sed 's/,"field[0-9]*":"[a-zA-Z_-]*"//g' |
         sed 's/{"field[0-9]*":"[a-zA-Z_-]*",/{/g' |
@@ -47,7 +47,7 @@ function users2pmaker() {
         sed '1a\
 users:|' | # adds users: as name of data structure
         tr '|' '\n'
-        
+
 }
 
 users2pmaker $1
