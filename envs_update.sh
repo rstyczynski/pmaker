@@ -23,7 +23,7 @@ function y2j {
 }
 
 if [ -z "$server_groups" ]; then
-   server_groups=$(cat data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+   server_groups=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
    #Source: https://stackoverflow.com/questions/29822622/get-all-unique-json-key-names-with-jq
 fi 
 
@@ -35,7 +35,7 @@ for server_group in $server_groups; do
    echo Processing env: $server_group
    echo '========================='
 
-   ansible-playbook env_users.yaml -e user_group=$user_group -e server_group=$server_group $@
+   ansible-playbook $pmaker_home/env_users.yaml -e user_group=$user_group -e server_group=$server_group $@
    
    echo '========================='
    echo Done.
@@ -58,23 +58,23 @@ echo Now updating environments: $server_groups
 echo '==========================================================================='
 for server_group in $server_groups; do
    # controller do manage local user list and key repository
-   server_list="controller $(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$server_group.hosts | keys[]] | unique | .[]")"
+   server_list="controller $(ansible-inventory -i $pmaker_home/data/$user_group.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$server_group.hosts | keys[]] | unique | .[]")"
 
    echo '========================='
    echo Processing env: $server_group
    echo \-having servers: $server_list
    echo '========================='
 
-   # it's controlld using ssh config
-   # if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
-   #    echo "Adding environment pmaker key to ssh agent..."
-   #    ssh-add state/$user_group/$server_group/pmaker/.ssh/id_rsa
-   # fi
+   # it's cntrolled using ssh config
+   if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
+      echo "Settgn up ssh config for $server_group"
+      $pmaker_home/prepare_ssh_config.sh retail ssp1 pmaker state/retail/ssp1/pmaker/.ssh/id_rsa
+   fi
 
-   ansible-playbook env_configure.yaml \
+   ansible-playbook $pmaker_home/env_configure.yaml \
    -e server_group=$server_group \
    -e user_group=$user_group \
-   -i data/$user_group.inventory.cfg \
+   -i $pmaker_home/data/$user_group.inventory.cfg \
    -l "$server_list" $@
 
    echo '========================='
