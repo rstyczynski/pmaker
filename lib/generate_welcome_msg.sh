@@ -168,7 +168,7 @@ function generateAllMessages() {
 	local user_group=$1
 	local server_group=$2
 
-	if [ "$server_group" == all ]; then
+	if [ "$server_group" == "all" ]; then
 
 		server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
 		for server_group in $server_groups; do
@@ -190,8 +190,6 @@ function generateAllMessages() {
 
 	echo All done. Use getWelcomeEmail, getPasswordSMS, getKeySMS to get messages.
 }
-
-
 
 
 function getWelcomeEmail() {

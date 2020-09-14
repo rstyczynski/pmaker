@@ -20,6 +20,10 @@ function welcome_email() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    if [ $server_groups == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    fi
+
     for username in $usernames; do
         for server_group in $server_groups; do
             echo -n ">>> $server_group $username: "
@@ -105,6 +109,10 @@ function welcome_sms() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    if [ $server_groups == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    fi
+
     for username in $usernames; do
 
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
@@ -163,6 +171,10 @@ function welcome_password_sms() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    if [ $server_groups == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    fi
+
     for username in $usernames; do
 
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
@@ -214,6 +226,9 @@ function clear_welcome_email() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    if [ $server_groups == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    fi
 
     for username in $usernames; do
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
@@ -246,6 +261,10 @@ function clear_welcome_sms() {
 
     if [ $usernames == all ]; then
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    fi
+
+    if [ $server_groups == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
     for username in $usernames; do
@@ -281,6 +300,10 @@ function clear_welcome_password_sms() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    if [ $server_groups == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    fi
+    
     for username in $usernames; do
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
 
