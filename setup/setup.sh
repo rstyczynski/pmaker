@@ -4,7 +4,7 @@ pmaker_home=/opt/pmaker
 
 if [ $(whoami) == opc ]; then
    sudo yum install -y ansible pwgen putty openssl ruby python-pip npm
-   sudo pip install --upgrade pip
+   #sudo pip install --upgrade pip
 
    if [ ! -d pmaker ]; then
       git clone https://github.com/rstyczynski/pmaker.git
@@ -28,6 +28,7 @@ umask 077
 
 pip install Jinja2 j2cli xlsx2csv
 npm install csvtojson
+npm install csv2json --save
 
 # get from git as pmaker to avoid issue with file ownership / umask
 if [ ! -d $pmaker_home/src ]; then

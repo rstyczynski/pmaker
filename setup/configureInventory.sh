@@ -36,14 +36,9 @@ fi
 
 export ANSIBLE_HOST_KEY_CHECKING=False
 
-# hosts=$(cat data/$user_group.inventory.cfg  | egrep '[0-9]+.' | grep -v '^#' | cut -f1 -d' ')
-# for host in $hosts; do
-# 	echo $host...
-# 	ssh-keyscan -H $host >>~/.ssh/known_hosts
-# done
 
 echo '==========================================================================='
-echo " Checking comminication with servers belonging to: $user_group"
+echo " Checking communication with servers belonging to: $user_group"
 echo '==========================================================================='
 
 # remove jumps
