@@ -143,18 +143,56 @@ function getAllUsers() {
 	cat $users_def | y2j | jq -r '.users[].username'
 }
 
-function generateAllMessages() {
+function generateEnvMessages() {
 	local user_group=$1
 	local server_group=$2
+
+	echo "======================================================"
+	echo "= Generating messages for $user_group at $server_group"
+	echo "======================================================"
 
 	users=$(getAllUsers $user_group $server_group)
 
 	for username in $users; do
 		echo Processing user $username...
 		generateUserMessages $user_group $server_group $username
+		if [ $? -ne 0 ]; then
+			return 1
+		fi
 	done
+
 	echo All done. Use getWelcomeEmail, getPasswordSMS, getKeySMS to get messages.
 }
+
+function generateAllMessages() {
+	local user_group=$1
+	local server_group=$2
+
+	if [ "$server_group" == all ]; then
+
+		server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+		for server_group in $server_groups; do
+			generateEnvMessages $user_group $server_group
+			if [ $? -ne 0 ]; then
+				echo "Error at $server_group"
+				read -p 'Press enter.'
+				return 1
+			fi
+		done
+	else
+		generateEnvMessages $user_group $server_group
+		if [ $? -ne 0 ]; then
+			echo "Error at $server_group"
+			read -p 'Press enter.'
+			return 1
+		fi
+	fi
+
+	echo All done. Use getWelcomeEmail, getPasswordSMS, getKeySMS to get messages.
+}
+
+
+
 
 function getWelcomeEmail() {
 	local user_group=$1
