@@ -22,7 +22,9 @@
 
 - name: Generate key password
   become: no
-  local_action: command pwgen --symbols --numerals --capitalize --ambiguous 15
+
+  # local_action: command pwgen --symbols --numerals --capitalize --ambiguous 15
+  local_action: command pwgen --numerals --capitalize --ambiguous 15
   when: key_password_created.stat.exists == False
   register: pwgen
 
