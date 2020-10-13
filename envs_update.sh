@@ -68,7 +68,7 @@ for server_group in $server_groups; do
    # it's cntrolled using ssh config
    if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
       echo "Settgn up ssh config for $server_group"
-      $pmaker_home/prepare_ssh_config.sh retail ssp1 pmaker state/retail/ssp1/pmaker/.ssh/id_rsa
+      $pmaker_home/prepare_ssh_config.sh $user_group $server_group pmaker state/$user_group/$server_group/pmaker/.ssh/id_rsa
    fi
 
    ansible-playbook $pmaker_home/env_configure.yaml \
