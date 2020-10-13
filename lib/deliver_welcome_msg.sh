@@ -20,7 +20,6 @@ function welcome_email() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
-
     for username in $usernames; do
 
         if [ $server_groups == all ]; then
@@ -30,7 +29,7 @@ function welcome_email() {
         for server_group in $server_groups; do
             echo -n ">>> $server_group $username: "
 
-            if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then            
+            if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then
                 if [ "$deliver" == 'deliver' ]; then
                     echo -n " mail delivery...."
 
@@ -44,23 +43,23 @@ function welcome_email() {
                         EMAIL_SUBJECT=$(getWelcomeEmail $user_group $server_group $username header | head -5 | grep 'SUBJECT:' | cut -d' ' -f2-999)
 
                         if [ ! -z "$TO_EMAIL_ADDRESS" ]; then
-                            getWelcomeEmail $user_group $server_group $username | 
-                            timeout 30 mailx -v -s "$EMAIL_SUBJECT" \
-                            -S nss-config-dir=/etc/pki/nssdb/ \
-                            -S smtp-use-starttls \
-                            -S ssl-verify=ignore \
-                            -S smtp=smtp://$SMTP_ADDRESS:$SMTP_PORT \
-                            -S from=$FROM_EMAIL_ADDRESS \
-                            -S smtp-auth-user=$ACCOUNT_USER \
-                            -S smtp-auth-password=$ACCOUNT_PASSWORD \
-                            -S smtp-auth=plain \
-                            -a state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.enc \
-                            -a state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk \
-                            $TO_EMAIL_ADDRESS 2> /tmp/email.$$.tmp
+                            getWelcomeEmail $user_group $server_group $username |
+                                timeout 30 mailx -v -s "$EMAIL_SUBJECT" \
+                                    -S nss-config-dir=/etc/pki/nssdb/ \
+                                    -S smtp-use-starttls \
+                                    -S ssl-verify=ignore \
+                                    -S smtp=smtp://$SMTP_ADDRESS:$SMTP_PORT \
+                                    -S from=$FROM_EMAIL_ADDRESS \
+                                    -S smtp-auth-user=$ACCOUNT_USER \
+                                    -S smtp-auth-password=$ACCOUNT_PASSWORD \
+                                    -S smtp-auth=plain \
+                                    -a state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.enc \
+                                    -a state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk \
+                                    $TO_EMAIL_ADDRESS 2>/tmp/email.$$.tmp
 
                             if [ $? -eq 0 ]; then
                                 echo "Done."
-                                cat /tmp/email.$$.tmp > state/$user_group/$server_group/$username/welcome.sent
+                                cat /tmp/email.$$.tmp >state/$user_group/$server_group/$username/welcome.sent
                             else
                                 echo "Error sending email. Code: $?. Connect log: "
                                 cat /tmp/email.$$.tmp
@@ -72,7 +71,7 @@ function welcome_email() {
                         fi
                     fi
                 else
-                    echo 
+                    echo
                     echo "============ mail verification ================="
                     getWelcomeEmail $user_group $server_group $username header
                     read -p "press any key"
@@ -94,6 +93,7 @@ function welcome_sms() {
     server_groups=$2
     usernames=$3
     deliver=$4
+    channel=$5
 
     : ${usernames:=all}
 
@@ -111,13 +111,12 @@ function welcome_sms() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
-
     for username in $usernames; do
 
         if [ $server_groups == all ]; then
             server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
         fi
-        
+
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
         if [ ! -z "$mobile" ]; then
             for server_group in $server_groups; do
@@ -130,13 +129,29 @@ function welcome_sms() {
                         if [ -z "$sms_message" ]; then
                             echo "Skipping. sms not yet prepared."
                         else
-                            aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
+                            case "$channel" in
+                            aws)
+                              aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
+                              ;;
+                            csv)
+                              echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent
+                              ;;
+                            *)
+                              echo "Not supported: $channel"
+                              ;;
+                            esac
                         fi
                     else
-                        echo 
+                        echo
                         echo "============ sms verification ================="
-                        getKeySMS $user_group $server_group $username header
-                        read -p "press any key"
+                        sms_message=$(getKeySMS $user_group $server_group $username header)
+
+                        if [ -z "$sms_message" ]; then
+                            echo "Skipping. sms not yet prepared."
+                        else
+                            echo $sms_message
+                            read -p "press any key"
+                        fi
                     fi
                 else
                     echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/sms.sent | cut -d' ' -f6-8)"
@@ -158,6 +173,7 @@ function welcome_password_sms() {
     usernames=$3
     deliver=$4
 
+
     : ${usernames:=all}
 
     if [ -z "user_group" ]; then
@@ -174,7 +190,6 @@ function welcome_password_sms() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
-
     for username in $usernames; do
 
         if [ $server_groups == all ]; then
@@ -185,26 +200,28 @@ function welcome_password_sms() {
         if [ ! -z "$mobile" ]; then
             for server_group in $server_groups; do
                 echo -n ">>> $server_group $username: "
-                if [ ! -f state/$user_group/$server_group/$username/password_sms.sent ]; then
-                    if [ "$deliver" == 'deliver' ]; then
+
+                if [ "$deliver" == 'deliver' ]; then
+                    if [ ! -f state/$user_group/$server_group/$username/password_sms.sent ]; then
                         echo -n " sms delivery...."
                         sms_message=$(getPasswordSMS $user_group $server_group $username)
-
                         if [ -z "$sms_message" ]; then
                             echo "Skipping. sms not yet prepared."
                         else
                             aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/password_sms.sent
                         fi
                     else
-                        echo 
-                        echo "============ sms verification ================="
-                        getPasswordSMS $user_group $server_group $username header
-                        read -p "press any key"
+                        echo "Password SMS already sent at $(ls -l state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
                     fi
                 else
-                    echo "Password SMS already sent at $(ls -l state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
+                    echo
+                    echo "============ sms verification ================="
+                    getPasswordSMS $user_group $server_group $username header
+                    read -p "press any key"
                 fi
+
             done
+
         else
             echo User has no mobile number.
         fi
@@ -229,7 +246,6 @@ function clear_welcome_email() {
     if [ $usernames == all ]; then
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
-
 
     for username in $usernames; do
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
@@ -304,7 +320,6 @@ function clear_welcome_password_sms() {
     if [ $usernames == all ]; then
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
-
 
     for username in $usernames; do
         mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
