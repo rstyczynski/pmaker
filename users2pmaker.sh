@@ -18,6 +18,7 @@ function install_tools() {
 #
 function j2y() {
     #ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'
+    echo '---'
     python -c 'import sys, yaml, json; j=json.loads(sys.stdin.read()); print yaml.safe_dump(j)'
 }
 
