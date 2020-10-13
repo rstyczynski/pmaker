@@ -111,6 +111,8 @@ function welcome_sms() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    rm -rf state/$user_group/$server_group/smskey_batch.csv
+
     for username in $usernames; do
 
         if [ $server_groups == all ]; then
@@ -131,21 +133,20 @@ function welcome_sms() {
                         else
                             case "$channel" in
                             aws)
-                              aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
-                              ;;
+                                aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
+                                ;;
                             csv)
-                              echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent
-                              ;;
+                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smskey_batch.csv
+                                ;;
                             *)
-                              echo "Not supported: $channel"
-                              ;;
+                                echo "Not supported: $channel"
+                                ;;
                             esac
                         fi
                     else
                         echo
                         echo "============ sms verification ================="
                         sms_message=$(getKeySMS $user_group $server_group $username header)
-
                         if [ -z "$sms_message" ]; then
                             echo "Skipping. sms not yet prepared."
                         else
@@ -161,6 +162,11 @@ function welcome_sms() {
             echo User has no mobile number.
         fi
     done
+
+    if [ -f state/$user_group/$server_group/smskey_batch.csv ]; then
+        echo "SMS batch to send:"
+        cat state/$user_group/$server_group/smskey_batch.csv
+    fi
 }
 
 #
@@ -172,7 +178,6 @@ function welcome_password_sms() {
     server_groups=$2
     usernames=$3
     deliver=$4
-
 
     : ${usernames:=all}
 
@@ -190,6 +195,8 @@ function welcome_password_sms() {
         usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
+    rm -rf state/$user_group/$server_group/smspass_batch.csv
+
     for username in $usernames; do
 
         if [ $server_groups == all ]; then
@@ -201,31 +208,52 @@ function welcome_password_sms() {
             for server_group in $server_groups; do
                 echo -n ">>> $server_group $username: "
 
-                if [ "$deliver" == 'deliver' ]; then
-                    if [ ! -f state/$user_group/$server_group/$username/password_sms.sent ]; then
+                if [ ! -f state/$user_group/$server_group/$username/password_sms.sent ]; then
+                    if [ "$deliver" == 'deliver' ]; then
                         echo -n " sms delivery...."
                         sms_message=$(getPasswordSMS $user_group $server_group $username)
+
                         if [ -z "$sms_message" ]; then
                             echo "Skipping. sms not yet prepared."
                         else
-                            aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/password_sms.sent
+                            case "$channel" in
+                            aws)
+                                aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/password_sms.sent
+                                ;;
+                            csv)
+                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smspass_batch.csv
+                                ;;
+                            *)
+                                echo "Not supported: $channel"
+                                ;;
+                            esac
                         fi
+
                     else
-                        echo "Password SMS already sent at $(ls -l state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
+                        echo
+                        echo "============ sms verification ================="
+                        sms_message=$(getPasswordSMS $user_group $server_group $username header)
+                        if [ -z "$sms_message" ]; then
+                            echo "Skipping. sms not yet prepared."
+                        else
+                            echo $sms_message
+                            read -p "press any key"
+                        fi
                     fi
                 else
-                    echo
-                    echo "============ sms verification ================="
-                    getPasswordSMS $user_group $server_group $username header
-                    read -p "press any key"
+                    echo "Password SMS already sent at $(ls -l state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
                 fi
-
             done
 
         else
             echo User has no mobile number.
         fi
     done
+
+    if [ -f state/$user_group/$server_group/smspass_batch.csv ]; then
+        echo "SMS batch to send:"
+        cat state/$user_group/$server_group/smspass_batch.csv
+    fi
 }
 
 #
