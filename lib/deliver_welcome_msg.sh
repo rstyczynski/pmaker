@@ -116,7 +116,7 @@ function welcome_sms() {
 
     for username in $usernames; do
 
-        if [ $server_groups == all ]; then
+        if [ "$server_groups" == all ]; then
             server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
         fi
 
@@ -209,7 +209,7 @@ function welcome_password_sms() {
 
     for username in $usernames; do
 
-        if [ $server_groups == all ]; then
+        if [ "$server_groups" == all ]; then
             server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
         fi
 
