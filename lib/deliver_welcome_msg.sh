@@ -137,7 +137,7 @@ function welcome_sms() {
                                 aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
                                 ;;
                             csv)
-                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smskey_batch.csv
+                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent >> state/$user_group/$server_group/smskey_batch.csv
                                 ;;
                             script)
                                 echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee state/$user_group/$server_group/$username/sms.sent >> state/$user_group/$server_group/smskey_batch.sh
@@ -231,10 +231,10 @@ function welcome_password_sms() {
                                 aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/password_sms.sent
                                 ;;
                             csv)
-                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smspass_batch.csv
+                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent >> state/$user_group/$server_group/smspass_batch.csv
                                 ;;
                             script)
-                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smskey_batch.sh
+                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee state/$user_group/$server_group/$username/sms.sent >> state/$user_group/$server_group/smskey_batch.sh
                                 ;;
                             *)
                                 echo "Not supported: $channel"
