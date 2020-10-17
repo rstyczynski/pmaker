@@ -112,6 +112,7 @@ function welcome_sms() {
     fi
 
     rm -rf state/$user_group/$server_group/smskey_batch.csv
+    rm -rf state/$user_group/$server_group/smskey_batch.sh
 
     for username in $usernames; do
 
@@ -137,6 +138,9 @@ function welcome_sms() {
                                 ;;
                             csv)
                                 echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smskey_batch.csv
+                                ;;
+                            script)
+                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smskey_batch.sh
                                 ;;
                             *)
                                 echo "Not supported: $channel"
@@ -167,6 +171,11 @@ function welcome_sms() {
         echo "SMS batch to send:"
         cat state/$user_group/$server_group/smskey_batch.csv
     fi
+
+    if [ -f state/$user_group/$server_group/smskey_batch.sh ]; then
+        echo "SMS script to send:"
+        cat state/$user_group/$server_group/smskey_batch.sh
+    fi
 }
 
 #
@@ -196,6 +205,7 @@ function welcome_password_sms() {
     fi
 
     rm -rf state/$user_group/$server_group/smspass_batch.csv
+    rm -rf state/$user_group/$server_group/smskey_batch.sh
 
     for username in $usernames; do
 
@@ -222,6 +232,9 @@ function welcome_password_sms() {
                                 ;;
                             csv)
                                 echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smspass_batch.csv
+                                ;;
+                            script)
+                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/$server_group/smskey_batch.sh
                                 ;;
                             *)
                                 echo "Not supported: $channel"
@@ -253,6 +266,11 @@ function welcome_password_sms() {
     if [ -f state/$user_group/$server_group/smspass_batch.csv ]; then
         echo "SMS batch to send:"
         cat state/$user_group/$server_group/smspass_batch.csv
+    fi
+
+    if [ -f state/$user_group/$server_group/smskey_batch.sh ]; then
+        echo "SMS script to send:"
+        cat state/$user_group/$server_group/smskey_batch.sh
     fi
 }
 
