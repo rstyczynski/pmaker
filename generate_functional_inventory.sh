@@ -4,7 +4,7 @@
 # functions
 #
 
-function prepare_functional_inventory() {
+function generate_functional_inventory() {
     user_group=$1
     inventory_file=$2
 
@@ -88,3 +88,6 @@ function prepare_functional_inventory() {
     done 
 
 }
+
+
+generate_functional_inventory $@
