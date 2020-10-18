@@ -1,0 +1,7 @@
+---
+- name: configure kernel
+  hosts: all
+  sudo: yes
+  tasks:
+     - name: Run the script
+       script: {{ script }}
