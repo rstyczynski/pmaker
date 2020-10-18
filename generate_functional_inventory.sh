@@ -38,7 +38,7 @@ function generate_functional_inventory() {
     if [ state/$user_group/functional/inventory.cfg -ot $inventory_file ]; then
         rm -f state/$user_group/functional/inventory.cfg
 
-        host_products=$(cat $inventory_file | perl -ne '/host_product=(\w+) / && print($1 ,"\n")' | sort -u)
+        host_products=$(cat $inventory_file | perl -ne '/host_product=(\w+) / && print($1 ,"\n")' 2>/dev/null | sort -u)
         for host_product in $host_products; do
             if [ "$host_product" != "$host_product_prev" ]; then
                 echo "[$host_product]" >>state/$user_group/functional/inventory.cfg
@@ -72,7 +72,7 @@ function generate_functional_inventory() {
         if [ state/$user_group/$server_group/functional/inventory.cfg -ot state/$user_group/$server_group/inventory.cfg ]; then
             rm -f state/$user_group/$server_group/functional/inventory.cfg
 
-            host_products=$(cat state/$user_group/$server_group/inventory.cfg | perl -ne '/host_product=(\w+) / && print($1 ,"\n")' | sort -u)
+            host_products=$(cat state/$user_group/$server_group/inventory.cfg | perl -ne '/host_product=(\w+) / && print($1 ,"\n")' 2>/dev/null | sort -u)
 
             for host_product in $host_products; do
                 if [ "$host_product" != "$host_product_prev" ]; then
