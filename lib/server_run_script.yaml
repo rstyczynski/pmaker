@@ -1,7 +1,5 @@
----
-- name: configure kernel
-  hosts: all
-  sudo: yes
+- hosts: all
+  become: yes
   tasks:
      - name: Run the script
        script: "{{ script }}"
