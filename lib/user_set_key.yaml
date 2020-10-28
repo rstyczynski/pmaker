@@ -31,10 +31,27 @@
   authorized_key:
     user: "{{ item.username }}"
     state: present
+    # REQ: Authorized keys may contain more than one key on hosts shared between environmants e.g. jumps
     exclusive: no
     manage_dir: yes
     key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub') }}"
   register: authorized_keys_result
+
+# make decission if unathorized keys shoudld be automatically removed
+#
+#   when: host_type is defined and (host_type == "jump")
+
+# - name: Ensure ~/.ssh/authorized_keys contains only oficial user's public key
+#   become: yes
+#   authorized_key:
+#     user: "{{ item.username }}"
+#     state: present
+#     # REQ: Authorized keys must contain more than one key as some hosts are shared e.g. jump
+#     exclusive: yes
+#     manage_dir: yes
+#     key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.pub') }}"
+#   register: authorized_keys_result
+#   when: host_type is defined and (host_type != "jump")
 
 - name: tweak authorized_keys permissions
   become: yes
