@@ -84,7 +84,7 @@ function generatePasswordSMS() {
 	local server_group=$2
 	local username=$3
 
-	export password_account=$(cat state/$user_group/$server_group/$username/.ssh/secret.txt)
+	export password_account=$(cat state/$user_group/$server_group/$username/.ssh/pass.secret)
 	j2 templates/welcome_password_account.j2
 }
 
@@ -93,7 +93,7 @@ function generateKeySMS() {
 	local server_group=$2
 	local username=$3
 
-	export password_key=$(cat state/$user_group/$server_group/$username/.ssh/secret.key)
+	export password_key=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.secret)
 	j2 templates/welcome_password_key.j2
 }
 

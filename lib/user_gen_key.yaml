@@ -17,7 +17,7 @@
 
 - name: Check if key password file exists i.e. password already generated
   stat:
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret"
   register: key_password_created
 
 - name: Generate key password
@@ -30,7 +30,7 @@
 
 - name: Save key password locally
   become: no
-  local_action: copy content={{ pwgen.stdout }} dest="{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key"
+  local_action: copy content={{ pwgen.stdout }} dest="{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret"
   when: key_password_created.stat.exists == False
 
 - name: Check if enc rsa key password file exists
@@ -51,7 +51,7 @@
 
 - name: convert the key to putty format
   become: no
-  local_action: command puttygen "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -o "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.ppk" -O private --new-passphrase "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/secret.key"
+  local_action: command puttygen "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -o "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.ppk" -O private --new-passphrase "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret"
   when: enc_ppk_created.stat.exists == False
   register: puttygen
 

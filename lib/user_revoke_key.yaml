@@ -26,33 +26,33 @@
 
 - name: Check if key should be revoked
   stat: 
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke"
   register: revoke_file_check
   delegate_to: 127.0.0.1
 
 - name: Check if key is already revoked
   stat: 
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoked"
   register: revoked_file_check
   delegate_to: 127.0.0.1
 
 # - name: check if key revoke is already known at server
 #   stat: 
-#     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke"
+#     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoke"
 #   register: revoke_at_server_file_check
 
 # TODO How about when revoke file oes not exist, but exists at server?
 
-- name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke"
+- name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke"
   debug:
     var: revoke_file_check
     
-- name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked"
+- name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoked"
   debug:
     var: revoked_file_check
 
 - name: Register key to be revoked
-  command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/id_rsa.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke
+  command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoke
   when: (revoke_file_check.stat.exists == true) and (revoked_file_check.stat.exists == false)
   #(revoke_at_server_file_check.stat.exists == false) 
   delegate_to: 127.0.0.1
@@ -62,7 +62,7 @@
 #
 - name: check if key should be revoked
   stat: 
-    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke"
+    path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoke"
   register: revoke_file
   delegate_to: 127.0.0.1
 
@@ -77,7 +77,7 @@
     state: absent
     exclusive: no
     manage_dir: yes
-    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke') }}"
+    key: "{{ lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoke') }}"
   register: authorized_keys_result
   when: revoke_file.stat.exists == true
 
@@ -96,7 +96,7 @@
     when: authorized_keys_result.state == 'absent'
 
   - name: rename revoked key 
-    command: mv {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/id_rsa.revoked
+    command: mv {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoked
 
   - name: Log failed key revoke at host
     lineinfile:
