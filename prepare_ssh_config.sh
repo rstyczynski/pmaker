@@ -61,9 +61,13 @@ for host in $hosts; do
     if [ ! -z "$jump_server" ]; then
         cat >>$tmp/ssh_config<<EOF
 Host $host
-    IdentityFile $server_group_key
     ProxyJump $jump_server
 EOF
+        if [ $server_group_key != no ]; then
+    cat >>$tmp/ssh_config <<EOF
+    IdentityFile $server_group_key
+EOF
+        fi
     else
         if [ -z "$group_jump_server" ]; then
             echo "Error. jump server does not found in inventory file."
