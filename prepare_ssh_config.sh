@@ -14,7 +14,7 @@ if [ -z "$user_group" ] || [ -z "$server_group" ]; then
 fi
 
 : ${proxy_user:=opc}
-: ${server_group_key:=no}
+: ${server_group_key:=~/.ssh/$server_group.key}
 
 server_groups=$(cat data/$user_group.inventory.cfg | grep -v '^#' | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
 # take from [env] section
