@@ -45,7 +45,11 @@ cat >>$tmp/ssh_config <<EOF
 EOF
 fi
 
-hosts=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | cut -f1 -d' ')
+hosts=$(cat data/$user_group.inventory.cfg | 
+sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | 
+grep -v '^$' | 
+grep -v '^#' | 
+cut -f1 -d' ')
 
 for host in $hosts; do
 
