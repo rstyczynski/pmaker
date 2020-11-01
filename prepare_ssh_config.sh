@@ -75,9 +75,13 @@ EOF
         fi
         cat >>$tmp/ssh_config<<EOF
 Host $host
-    IdentityFile $server_group_key
     ProxyJump $group_jump_server
 EOF
+        if [ $server_group_key != no ]; then
+            cat >>$tmp/ssh_config <<EOF
+    IdentityFile $server_group_key
+EOF
+        fi
     fi
 done
 
