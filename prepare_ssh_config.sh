@@ -50,12 +50,24 @@ fi
 hosts=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | cut -f1 -d' ')
 
 for host in $hosts; do
-    cat >>$tmp/ssh_config<<EOF
+
+    jump_server=$(cat data/$user_group.inventory.cfg | grep $host | tr -s ' ' | tr ' ' '\n' | grep "^jump=" | cut -d= -f2)
+    
+    if [ ! -z "$jump_server" ]; then
+        cat >>$tmp/ssh_config<<EOF
+Host $host
+    IdentityFile $server_group_key
+    ProxyJump $jump_server
+EOF
+    else
+        cat >>$tmp/ssh_config<<EOF
 Host $host
     IdentityFile $server_group_key
     ProxyJump ${server_group}_jump
 EOF
+    fi
 done
+
 echo "# STOP - $user_group $server_group access" >>$tmp/ssh_config
 
 mv ~/.ssh/config ~/.ssh/config.old
