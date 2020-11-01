@@ -14,7 +14,7 @@ if [ -z "$user_group" ] || [ -z "$server_group" ]; then
 fi
 
 : ${proxy_user:=opc}
-: ${server_group_key:=~/.ssh/$server_group.key}
+: ${server_group_key:=no}
 
 server_groups=$(cat data/$user_group.inventory.cfg | grep -v '^#' | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
 # take from [env] section
@@ -40,13 +40,13 @@ Host ${server_group}_jump
     ForwardAgent yes
     User $proxy_user
 EOF
-fi
-
 if [ $server_group_key != no ]; then
-cat >>$tmp/ssh_config <<EOF
+    cat >>$tmp/ssh_config <<EOF
     IdentityFile $server_group_key
 EOF
 fi
+fi
+
 
 hosts=$(cat data/$user_group.inventory.cfg | 
 sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | 
