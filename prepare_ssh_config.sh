@@ -28,10 +28,13 @@ tmp=$pmaker_home/tmp; mkdir -p $tmp
 # take copy of ssh config w/o section
 cat ~/.ssh/config | sed "/# START - $user_group $server_group access/,/# STOP - $user_group $server_group access/d" >$tmp/ssh_config
 
+    cat >>$tmp/ssh_config <<EOF
+# START - $user_group $server_group access
+EOF
+
 # prepare new ssh connection info for users / env
 if [ ! -z "$group_jump_server" ]; then
     cat >>$tmp/ssh_config <<EOF
-# START - $user_group $server_group access
 Host ${server_group}_jump
     HostName $group_jump_server
     ForwardAgent yes
