@@ -20,12 +20,8 @@ server_groups=$(cat data/$user_group.inventory.cfg | grep -v '^#' | grep '\[' | 
 # take from [env] section
 #jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
 # take from [jumps] sectino
-jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d= -f2)
+group_jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d= -f2)
 
-if [ -z "$jump_server" ]; then
-    echo "Error. jump server does not found in inventory file."
-    exit 1
-fi
 
 tmp=$pmaker_home/tmp; mkdir -p $tmp
 
@@ -33,13 +29,15 @@ tmp=$pmaker_home/tmp; mkdir -p $tmp
 cat ~/.ssh/config | sed "/# START - $user_group $server_group access/,/# STOP - $user_group $server_group access/d" >$tmp/ssh_config
 
 # prepare new ssh connection info for users / env
-cat >>$tmp/ssh_config <<EOF
+if [ ! -z "$group_jump_server" ]; then
+    cat >>$tmp/ssh_config <<EOF
 # START - $user_group $server_group access
 Host ${server_group}_jump
-    HostName $jump_server
+    HostName $group_jump_server
     ForwardAgent yes
     User $proxy_user
 EOF
+fi
 
 if [ $server_group_key != no ]; then
 cat >>$tmp/ssh_config <<EOF
@@ -60,10 +58,14 @@ Host $host
     ProxyJump $jump_server
 EOF
     else
+        if [ -z "$group_jump_server" ]; then
+            echo "Error. jump server does not found in inventory file."
+            exit 1
+        fi
         cat >>$tmp/ssh_config<<EOF
 Host $host
     IdentityFile $server_group_key
-    ProxyJump ${server_group}_jump
+    ProxyJump $group_jump_server
 EOF
     fi
 done
