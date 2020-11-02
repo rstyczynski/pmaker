@@ -21,6 +21,7 @@ server_groups=$(cat data/$user_group.inventory.cfg | grep -v '^#' | grep '\[' | 
 #jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
 # take from [jumps] sectino
 group_jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | cut -f1 -d' ' )
+group_jump_server_ip=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d= -f2)
 
 tmp=$pmaker_home/tmp; mkdir -p $tmp
 
@@ -34,8 +35,8 @@ EOF
 # prepare new ssh connection info for users / env
 if [ ! -z "$group_jump_server" ]; then
     cat >>$tmp/ssh_config <<EOF
-Host ${server_group}_jump
-    HostName $group_jump_server
+Host $group_jump_server
+    HostName $group_jump_server_ip
     ForwardAgent yes
     User $proxy_user
 EOF
