@@ -55,7 +55,7 @@ cut -f1 -d' ')
 
 for host in $hosts; do
 
-    jump_server=$(cat data/$user_group.inventory.cfg | grep $host | tr -s ' ' | tr ' ' '\n' | grep "^jump=" | cut -d= -f2)
+    jump_server=$(cat data/$user_group.inventory.cfg | grep "^$host\s" | tr -s ' ' | tr ' ' '\n' | grep "^jump=" | cut -d= -f2)
     
     if [ ! -z "$jump_server" ]; then
         cat >>$tmp/ssh_config<<EOF
