@@ -20,8 +20,7 @@ server_groups=$(cat data/$user_group.inventory.cfg | grep -v '^#' | grep '\[' | 
 # take from [env] section
 #jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
 # take from [jumps] sectino
-group_jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d= -f2)
-
+group_jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | cut -f1 -d' ' )
 
 tmp=$pmaker_home/tmp; mkdir -p $tmp
 
