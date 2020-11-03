@@ -65,7 +65,7 @@ for server_group in $server_groups; do
    echo \-having servers: $server_list
    echo '========================='
 
-   # it's cntrolled using ssh config
+   # it's controlled using ssh config
    if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
       echo "Settgn up ssh config for $server_group"
       $pmaker_home/prepare_ssh_config.sh $user_group $server_group pmaker state/$user_group/$server_group/pmaker/.ssh/id_rsa

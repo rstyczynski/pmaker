@@ -120,8 +120,8 @@ for server_group in $server_groups; do
                 if [ $revoked_keys -eq $known_servers ]; then
                     echo OK
 
-                    [ -f $ssh_root/$keyfile ] && fprint=$(sha1sum $ssh_root/$keyfile)
-                    [ -f $ssh_root/$keyfile.key ] && fprint=$(sha1sum $ssh_root/$keyfile.key)
+                    [ -f $ssh_root/$keyfile ] && fprint=$(sha1sum $ssh_root/$keyfile | cut -f1 -d ' ')
+                    [ -f $ssh_root/$keyfile.key ] && fprint=$(sha1sum $ssh_root/$keyfile.key | cut -f1 -d ' ')
                     
                     if [ -z "$fprint" ]; then
                         echo "Error. Key not found."
