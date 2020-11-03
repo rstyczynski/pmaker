@@ -136,7 +136,7 @@ for server_group in $server_groups; do
 
                     # all done - change main rsa_id to unique name, kept for historical purposes
                     [ -f $ssh_root/$keyfile ]        && mv $ssh_root/$keyfile $ssh_root/$fprint.key
-                    [ -f $ssh_root/$keyfile.key ]    && mv $ssh_root/$keyfile $ssh_root/$fprint.key 
+                    [ -f $ssh_root/$keyfile.key ]    && mv $ssh_root/$keyfile.key $ssh_root/$fprint.key 
                     [ -f $ssh_root/$keyfile.revoke ] && mv $ssh_root/$keyfile.revoke $ssh_root/$fprint.revoked
                     [ -f $ssh_root/$keyfile.enc ]    && mv $ssh_root/$keyfile.enc $ssh_root/$fprint.enc
                     [ -f $ssh_root/$keyfile.ppk ]    && mv $ssh_root/$keyfile.ppk $ssh_root/$fprint.ppk
