@@ -52,9 +52,9 @@ for server_group in $server_groups; do
     echo '========================='
 
     # TODO select proper pmaker key
-    if [ -f ~/.ssh/$server_group.key ]; then
-        ssh-add ~/.ssh/$server_group.key
-    fi
+    # if [ -f ~/.ssh/$server_group.key ]; then
+    #     ssh-add ~/.ssh/$server_group.key
+    # fi
     # users=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r ".users[].username")
     
     if [ "$user_to_process" == all ]; then
@@ -120,21 +120,27 @@ for server_group in $server_groups; do
                 if [ $revoked_keys -eq $known_servers ]; then
                     echo OK
 
+                    [ -f $ssh_root/$keyfile ] && fprint=$(sha1sum $ssh_root/$keyfile)
+                    [ -f $ssh_root/$keyfile.key ] && fprint=$(sha1sum $ssh_root/$keyfile.key)
+                    
+                    if [ -z "$fprint" ]; then
+                        echo "Error. Key not found."
+                        exit 1
+                    fi
+
                     # Change $keyfile.pub to unique names in server's directory
                     # Note that change is tracked per-server to catch potential problems with e.g. crashed machines
                     for key in $(find $ssh_root/servers -name $keyfile.revoked); do
-                        mv $key $(dirname $key)/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').revoked
+                        mv $key "$(dirname $key)/$fprint.revoked"
                     done
 
                     # all done - change main rsa_id to unique name, kept for historical purposes
-                    mv $ssh_root/$keyfile.revoke $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').revoked
-                    mv $ssh_root/$keyfile.enc $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').enc
-                    mv $ssh_root/$keyfile.ppk $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').ppk
-                    mv $ssh_root/$keyfile.secret $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').secret
-                                    
-                    mv $ssh_root/$keyfile $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').key
-
-
+                    [ -f $ssh_root/$keyfile ]        && mv $ssh_root/$keyfile $ssh_root/$fprint.key
+                    [ -f $ssh_root/$keyfile.key ]    && mv $ssh_root/$keyfile $ssh_root/$fprint.key 
+                    [ -f $ssh_root/$keyfile.revoke ] && mv $ssh_root/$keyfile.revoke $ssh_root/$fprint.revoked
+                    [ -f $ssh_root/$keyfile.enc ]    && mv $ssh_root/$keyfile.enc $ssh_root/$fprint.enc
+                    [ -f $ssh_root/$keyfile.ppk ]    && mv $ssh_root/$keyfile.ppk $ssh_root/$fprint.ppk
+                    [ -f $ssh_root/$keyfile.secret ] && mv $ssh_root/$keyfile.secret $ssh_root/$fprint.secret
                 else
                     echo Some errors detected.
                     find $ssh_root/servers -name $keyfile.revoke
@@ -142,7 +148,6 @@ for server_group in $server_groups; do
                     ls $ssh_root/servers | grep -v localhost | sort >/tmp/all
                     find $ssh_root/servers -name $keyfile.revoked | cut -d'/' -f3 | sort >/tmp/revoked
                     sdiff /tmp/all /tmp/revoked
-
                 fi
             else
                 echo '!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
