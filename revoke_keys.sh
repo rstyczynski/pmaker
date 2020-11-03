@@ -6,6 +6,8 @@ server_groups=$1
 shift
 user_to_process=$1
 shift
+keyfile=$1
+shift
 
 function usage() {
     echo Usage: revoke_keys.sh user_group [server_groups] [user]
@@ -17,6 +19,9 @@ if [ -z "$user_group" ]; then
     usage
     error 1
 fi
+
+: ${server_groups:=all}
+: ${user_to_process:=all}
 
 if [ -z "$pmaker_home" ]; then
     pmaker_home=/opt/pmaker
@@ -30,7 +35,7 @@ function y2j() {
     ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'
 }
 
-if [ -z "$server_groups" ]; then
+if [ "$server_groups" == all ]; then
     server_groups=$(cat data/$user_group.users.yaml | y2j | jq -r '[.users[].server_groups[]] | unique | .[]')
     #Source: https://stackoverflow.com/questions/29822622/get-all-unique-json-key-names-with-jq
 fi
@@ -50,11 +55,9 @@ for server_group in $server_groups; do
     if [ -f ~/.ssh/$server_group.key ]; then
         ssh-add ~/.ssh/$server_group.key
     fi
-
     # users=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r ".users[].username")
     
-
-    if [ -z "$user_to_process" ]; then
+    if [ "$user_to_process" == all ]; then
     # use list of users known to the system i.e. already registered. 
     # this list may be different from users.yaml i.e. older
     users="pmaker_global pmaker_env $(ls state/$user_group/$server_group | grep -v users.yaml)"
@@ -77,6 +80,7 @@ for server_group in $server_groups; do
                 ansible-playbook  \
                 setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=global \
+                -e keyfile=$keyfile \ 
                 -e server_group=$server_group \
                 -e user_group=$user_group \
                 -l $server_group \
@@ -88,6 +92,7 @@ for server_group in $server_groups; do
                 ansible-playbook  \
                 setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=env \
+                -e keyfile=$keyfile \ 
                 -e server_group=$server_group \
                 -e user_group=$user_group \
                 -l $server_group \
@@ -99,6 +104,7 @@ for server_group in $server_groups; do
                 ansible-playbook  \
                 lib/user_revoke_keys.yaml \
                 -e username=$username \
+                -e keyfile=$keyfile \
                 -e server_group=$server_group \
                 -e user_group=$user_group \
                 -l $server_group \
@@ -110,30 +116,31 @@ for server_group in $server_groups; do
             known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)
 
             if [ ! -z "$known_servers" ]  && [ $known_servers -gt 0 ]; then
-                revoked_keys=$(find $ssh_root/servers -name id_rsa.revoked | wc -l)
+                revoked_keys=$(find $ssh_root/servers -name $keyfile.revoked | wc -l)
                 if [ $revoked_keys -eq $known_servers ]; then
                     echo OK
 
-                    # change id_rsa.pub to unique names
-                    for key in $(find $ssh_root/servers -name id_rsa.revoked); do
-                        mv $key $(dirname $key)/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
+                    # Change $keyfile.pub to unique names in server's directory
+                    # Note that change is tracked per-server to catch potential problems with e.g. crashed machines
+                    for key in $(find $ssh_root/servers -name $keyfile.revoked); do
+                        mv $key $(dirname $key)/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').revoked
                     done
 
-                    # all done - change main rsa_id to unique name, kept to historical purposes
-                    mv $ssh_root/id_rsa.revoke $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').revoked
-                    mv $ssh_root/id_rsa.enc $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').enc
-                    mv $ssh_root/id_rsa.ppk $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').ppk
-                    mv $ssh_root/secret.key $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').secret
+                    # all done - change main rsa_id to unique name, kept for historical purposes
+                    mv $ssh_root/$keyfile.revoke $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').revoked
+                    mv $ssh_root/$keyfile.enc $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').enc
+                    mv $ssh_root/$keyfile.ppk $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').ppk
+                    mv $ssh_root/$keyfile.secret $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').secret
                                     
-                    mv $ssh_root/id_rsa $ssh_root/$(sha1sum $ssh_root/id_rsa | cut -f1 -d' ').key
+                    mv $ssh_root/$keyfile $ssh_root/$(sha1sum $ssh_root/$keyfile | cut -f1 -d' ').key
 
 
                 else
                     echo Some errors detected.
-                    find $ssh_root/servers -name id_rsa.revoke
+                    find $ssh_root/servers -name $keyfile.revoke
 
                     ls $ssh_root/servers | grep -v localhost | sort >/tmp/all
-                    find $ssh_root/servers -name id_rsa.revoked | cut -d'/' -f3 | sort >/tmp/revoked
+                    find $ssh_root/servers -name $keyfile.revoked | cut -d'/' -f3 | sort >/tmp/revoked
                     sdiff /tmp/all /tmp/revoked
 
                 fi
