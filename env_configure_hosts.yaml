@@ -7,33 +7,33 @@
 # execute on remote host
 #
 - hosts: all:!localhost
-  strategy: linear
-  serial: 100
   
   tasks:
     - include_vars: "config.yaml"
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
+    # create users
+    - include: "{{ pmaker_home }}/lib/user_create_stub.yaml"
+      with_items: "{{ users }}"
+      when: host_type is defined and (host_type == "jump")
 
-    - block:
-      # create users
-      - include: "{{ pmaker_home }}/lib/user_create_stub.yaml"
-        when: host_type is defined and (host_type == "jump")
+    # create users
+    - include: "{{ pmaker_home }}/lib/user_create.yaml"
+      with_items: "{{ users }}"
+      when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
 
-      # create users
-      - include: "{{ pmaker_home }}/lib/user_create.yaml"
-        when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
+    # define ssh keys
+    - include: "{{ pmaker_home }}/lib/user_set_key.yaml"
+      when: (item.key is defined) and (item.key == true)
+      with_items: "{{ users }}"
 
-      # define ssh keys
-      - include: "{{ pmaker_home }}/lib/user_set_key.yaml"
-        when: (item.key is defined) and (item.key == true)
+    # define account password
+    - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
+      when: (item.password is defined) and (item.password == true)
+      with_items: "{{ users }}"
 
-      # define account password
-      - include: "{{ pmaker_home }}/lib/user_set_password.yaml"
-        when: (item.password is defined) and (item.password == true)
+    # process sudo rights (add, revoke)
+    - include: "{{ pmaker_home }}/lib/user_sudoers.yaml"
+      with_items: "{{ users }}"
+      when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
 
-      # process sudo rights (add, revoke)
-      - include: "{{ pmaker_home }}/lib/user_sudoers.yaml"
-        when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
-    
-      loop: "{{ users }}"
