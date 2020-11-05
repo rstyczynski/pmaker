@@ -1,0 +1,22 @@
+---
+- name: create users
+  include: "{{ pmaker_home }}/lib/user_create_stub.yaml"
+  when: host_type is defined and (host_type == "jump")
+
+- name: create users
+  include: "{{ pmaker_home }}/lib/user_create.yaml"
+  when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
+
+- name: define ssh keys
+  include: "{{ pmaker_home }}/lib/user_set_key.yaml"
+  when: (item.key is defined) and (item.key == true)
+
+- name: define account password
+  include: "{{ pmaker_home }}/lib/user_set_password.yaml"
+  when: (item.password is defined) and (item.password == true)
+
+- name: process sudo rights (add, revoke)
+  include: "{{ pmaker_home }}/lib/user_sudoers.yaml"
+  when: host_type is defined and (host_type == "application" or host_type == "network"  or host_type == "util") 
+
+
