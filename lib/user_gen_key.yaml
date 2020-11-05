@@ -43,6 +43,11 @@
     path: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc"
   register: enc_key_created
 
+- name: get enc. pass
+  set_fact:  "{{lookup('encpassfile', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret') }}"
+  when: key_password_stored.stat.exists == True
+  register: encpass
+
 - name: encrypt the key
   become: no
   local_action: command openssl rsa -aes128 -in "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -out "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc" -passout "pass:$(cat {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret)"
@@ -53,6 +58,10 @@
     msg: openssl rsa -aes128 -in "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -out "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc" -passout "pass:$(cat {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret)"
 - debug: 
     var: openssl
+- debug: 
+    var: encpass
+- debug: 
+    var: encpassfile
 
 - name: Check if enc putty key password file exists
   stat:
