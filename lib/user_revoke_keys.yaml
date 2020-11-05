@@ -7,8 +7,8 @@
   tasks:
   - include_vars: ../config.yaml
 
-  - debug:
-      var: username
+  # - debug:
+  #     var: username
       
   - include: user_revoke_key.yaml
     with_items: 

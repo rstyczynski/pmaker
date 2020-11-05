@@ -77,7 +77,7 @@ for server_group in $server_groups; do
    -i $pmaker_home/data/$user_group.inventory_hosts.cfg \
    -l localhost
 
-   ansible-playbook $pmaker_home/env_configure.yaml \
+   ansible-playbook $pmaker_home/env_configure_hosts.yaml \
    -e server_group=$server_group \
    -e user_group=$user_group \
    -i $pmaker_home/data/$user_group.inventory.cfg \

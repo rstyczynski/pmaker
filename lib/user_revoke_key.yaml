@@ -43,13 +43,13 @@
 
 # TODO How about when revoke file oes not exist, but exists at server?
 
-- name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke"
-  debug:
-    var: revoke_file_check
+# - name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke"
+#   debug:
+#     var: revoke_file_check
     
-- name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoked"
-  debug:
-    var: revoked_file_check
+# - name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoked"
+#   debug:
+#     var: revoked_file_check
 
 - name: Register key to be revoked
   command: cp {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoke
@@ -66,9 +66,9 @@
   register: revoke_file
   delegate_to: 127.0.0.1
 
-- name: debug
-  debug:
-    msg: "{{ revoke_file }}"
+# - name: debug
+#   debug:
+#     msg: "{{ revoke_file }}"
 
 - name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
   become: yes
@@ -83,9 +83,9 @@
 
 - name: Perform post revoke procedure
   block:
-  - name: debug
-    debug:
-      msg: "{{ authorized_keys_result }}"
+  # - name: debug
+  #   debug:
+  #     msg: "{{ authorized_keys_result }}"
 
   - name: Log key revoke at host
     lineinfile:
