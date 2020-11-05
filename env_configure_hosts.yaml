@@ -7,7 +7,8 @@
 # execute on remote host
 #
 - hosts: all:!localhost
-
+  strategy: free
+  
   tasks:
     - include_vars: "config.yaml"
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"

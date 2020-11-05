@@ -1,6 +1,38 @@
 #!/bin/bash
 
 #
+# resend
+#
+
+function resend_credentials() {
+    channel=$1
+    user_group=$2
+    server_env=$3
+    username=$4
+    #
+    source ~/.umc/smtp.cfg
+
+    case $channel in
+    email)
+        generateUserMessages $user_group $server_env $username
+        clear_welcome_email $user_group $server_env $username
+        welcome_email $user_group $server_env $username deliver
+        ;;
+    sms)
+        clear_welcome_sms $user_group $server_env $username
+        welcome_sms $user_group $server_env $username deliver aws
+        ;;
+    both)
+        generateUserMessages $user_group $server_env $username
+        clear_welcome_email $user_group $server_env $username
+        welcome_email $user_group $server_env $username deliver
+        clear_welcome_sms $user_group $server_env $username
+        welcome_sms $user_group $server_env $username deliver aws
+        ;;
+    esac
+}
+
+#
 # send email
 #
 function welcome_email() {
@@ -19,7 +51,7 @@ function welcome_email() {
     if [ "$server_groups" == all ]; then
         server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
-        
+
     for server_group in $server_groups; do
 
         if [ "$usernames" == all ]; then
@@ -108,7 +140,6 @@ function welcome_sms() {
         return 1
     fi
 
-
     rm -rf state/$user_group/smskey_batch.csv
     rm -rf state/$user_group/smskey_batch.sh
 
@@ -117,7 +148,7 @@ function welcome_sms() {
     fi
 
     for server_group in $server_groups; do
-       
+
         if [ "$usernames" == all ]; then
             usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
