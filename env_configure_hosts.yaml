@@ -7,7 +7,7 @@
 # execute on remote host
 #
 - hosts: all:!localhost
-  strategy: free
+  strategy: serial
   
   tasks:
     - include_vars: "config.yaml"
