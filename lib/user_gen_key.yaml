@@ -41,8 +41,8 @@
 - name: encrypt the key
   become: no
   local_action: command openssl rsa -aes128 -in "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -out "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc" -passout "pass:{{ pwgen.stdout }}"
-  when: enc_key_created.stat.exists == False
-  # when: (enc_key_created.stat.exists == False) and (key_password_created.stat.exists == False)
+  # when: enc_key_created.stat.exists == False
+  when: (enc_key_created.stat.exists == False) and (key_password_created.stat.exists == False)
   register: openssl
 
 - name: Check if enc putty key password file exists
