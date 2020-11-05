@@ -71,6 +71,12 @@ for server_group in $server_groups; do
       $pmaker_home/prepare_ssh_config.sh $user_group $server_group pmaker state/$user_group/$server_group/pmaker/.ssh/id_rsa
    fi
 
+   ansible-playbook $pmaker_home/env_configure_controller.yaml \
+   -e server_group=$server_group \
+   -e user_group=$user_group \
+   -i $pmaker_home/data/$user_group.inventory_hosts.cfg \
+   -l "$server_list" $@
+
    ansible-playbook $pmaker_home/env_configure.yaml \
    -e server_group=$server_group \
    -e user_group=$user_group \

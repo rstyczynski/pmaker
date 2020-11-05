@@ -277,8 +277,8 @@ state/sample/dev/alice/.ssh/id_rsa
 state/sample/dev/alice/.ssh/id_rsa.pub
 state/sample/dev/alice/.ssh/id_rsa.enc
 state/sample/dev/alice/.ssh/id_rsa.ppk
-state/sample/dev/alice/.ssh/secret.key
-state/sample/dev/alice/.ssh/secret.txt
+state/sample/dev/alice/.ssh/id_rsa.secret
+state/sample/dev/alice/.ssh/pass.secret
 ```
 
 sample is directory having all users for given group; under this environments are reflected, with list of users in yaml format. Finally there is a directory having top secret user files.
@@ -287,8 +287,8 @@ id_rsa.pub - openssh sa public key. This one is distributed to all servers
 id_rsa     - openssh rsa private key
 id_rsa.enc - openssh encrypted rsa private key
 id_rsa.ppk - putty encrypted rsa private key
-secret.key - 15 character long password for encrypted keys
-secret.txt - 12 character long password used for authentication.
+id_rsa.secret - 15 character long password for encrypted keys
+pass.secret - 12 character long password used for authentication.
 
 *Remeber: pmaker is like a root user! Protect this account, and use only to manage users.*
 
