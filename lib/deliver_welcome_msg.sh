@@ -16,17 +16,18 @@ function welcome_email() {
 
     : ${usernames:=all}
 
-    if [ "$usernames" == all ]; then
-        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    if [ "$server_groups" == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
+        
+    for server_group in $server_groups; do
 
-    for username in $usernames; do
-
-        if [ "$server_groups" == all ]; then
-            server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        if [ "$usernames" == all ]; then
+            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
-        for server_group in $server_groups; do
+        for username in $usernames; do
+
             echo -n ">>> $server_group $username: "
 
             if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then
@@ -107,22 +108,24 @@ function welcome_sms() {
         return 1
     fi
 
-    if [ "$usernames" == all ]; then
-        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
-    fi
 
     rm -rf state/$user_group/smskey_batch.csv
     rm -rf state/$user_group/smskey_batch.sh
 
-    for username in $usernames; do
+    if [ "$server_groups" == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    fi
 
-        if [ "$server_groups" == all ]; then
-            server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    for server_group in $server_groups; do
+       
+        if [ "$usernames" == all ]; then
+            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
-        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
-        if [ ! -z "$mobile" ]; then
-            for server_group in $server_groups; do
+        for username in $usernames; do
+
+            mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+            if [ ! -z "$mobile" ]; then
                 echo -n ">>> $server_group $username: "
                 if [ ! -f state/$user_group/$server_group/$username/sms.sent ]; then
                     if [ "$deliver" == 'deliver' ]; then
@@ -161,10 +164,10 @@ function welcome_sms() {
                 else
                     echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/sms.sent | cut -d' ' -f6-8)"
                 fi
-            done
-        else
-            echo User has no mobile number.
-        fi
+            else
+                echo User has no mobile number.
+            fi
+        done
     done
 
     if [ -f state/$user_group/smskey_batch.csv ]; then
@@ -207,15 +210,21 @@ function welcome_password_sms() {
     rm -rf state/$user_group/smspass_batch.csv
     rm -rf state/$user_group/smskey_batch.sh
 
-    for username in $usernames; do
+    if [ "$server_groups" == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    fi
 
-        if [ "$server_groups" == all ]; then
-            server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+    for server_group in $server_groups; do
+
+        if [ "$usernames" == all ]; then
+            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
-        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
-        if [ ! -z "$mobile" ]; then
-            for server_group in $server_groups; do
+        for username in $usernames; do
+
+            mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+            if [ ! -z "$mobile" ]; then
+
                 echo -n ">>> $server_group $username: "
 
                 if [ ! -f state/$user_group/$server_group/$username/password_sms.sent ]; then
@@ -289,18 +298,17 @@ function clear_welcome_email() {
 
     : ${usernames:=all}
 
-    if [ "$usernames" == all ]; then
-        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    if [ "$server_groups" == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
-    for username in $usernames; do
-        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+    for server_group in $server_groups; do
 
-        if [ "$server_groups" == all ]; then
-            server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        if [ "$usernames" == all ]; then
+            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
-        for server_group in $server_groups; do
+        for username in $usernames; do
             echo -n ">>> $server_group $username: "
             if [ -f state/$user_group/$server_group/$username/welcome.sent ]; then
                 mv state/$user_group/$server_group/$username/welcome.sent state/$user_group/$server_group/$username/welcome.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
@@ -326,18 +334,17 @@ function clear_welcome_sms() {
 
     : ${usernames:=all}
 
-    if [ "$usernames" == all ]; then
-        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    if [ "$server_groups" == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
-    for username in $usernames; do
-        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+    for server_group in $server_groups; do
 
-        if [ "$server_groups" == all ]; then
-            server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        if [ "$usernames" == all ]; then
+            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
-        for server_group in $server_groups; do
+        for username in $usernames; do
             echo -n ">>> $server_group $username: "
             if [ -f state/$user_group/$server_group/$username/sms.sent ]; then
                 mv state/$user_group/$server_group/$username/sms.sent state/$user_group/$server_group/$username/sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
@@ -363,18 +370,17 @@ function clear_welcome_password_sms() {
 
     : ${usernames:=all}
 
-    if [ "$usernames" == all ]; then
-        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+    if [ "$server_groups" == all ]; then
+        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
-    for username in $usernames; do
-        mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+    for server_group in $server_groups; do
 
-        if [ "$server_groups" == all ]; then
-            server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        if [ "$usernames" == all ]; then
+            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
-        for server_group in $server_groups; do
+        for username in $usernames; do
             echo -n ">>> $server_group $username: "
             if [ -f state/$user_group/$server_group/$username/password_sms.sent ]; then
                 mv state/$user_group/$server_group/$username/password_sms.sent state/$user_group/$server_group/$username/password_sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
