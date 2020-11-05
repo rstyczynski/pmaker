@@ -44,7 +44,7 @@
   register: enc_key_created
 
 - name: get enc. pass
-  set_fact:  "{{lookup('encpassfile', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret') }}"
+  set_fact:  "{{lookup('file', '{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret') }}"
   when: key_password_stored.stat.exists == True
   register: encpass
 
