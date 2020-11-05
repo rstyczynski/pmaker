@@ -265,11 +265,10 @@ function welcome_password_sms() {
                 else
                     echo "Password SMS already sent at $(ls -l state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
                 fi
-            done
-
-        else
-            echo User has no mobile number.
-        fi
+            else
+                echo User has no mobile number.
+            fi
+        done
     done
 
     if [ -f state/$user_group/smspass_batch.csv ]; then
