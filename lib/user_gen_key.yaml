@@ -57,7 +57,7 @@
 - debug: 
     msg: openssl rsa -aes128 -in "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa"  -out "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.enc" -passout "pass:$(cat {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/id_rsa.secret)"
 - debug: 
-    var: openssl
+    msg: "{{ encpass }}"
 - debug: 
     var: encpass
 - debug: 
