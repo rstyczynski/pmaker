@@ -242,15 +242,11 @@ function test_ssh_access() {
     say -n "Testing user access..."
 
     server_header="$(sayatcell -n -f instance 15)"
-    echo "$server_header"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
         target_host_tab="$(sayatcell -n -f $target_host 15)"
-        echo "$target_host_tab"
         server_header="$server_header$target_host_tab"
-        echo "$server_header"
+
     done
-    echo "$server_header"
-    
     say "$server_header" > $tmp/$user_group.$server_group.access
 
     # discover jumps
@@ -298,11 +294,11 @@ function test_ssh_access() {
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
                     statusline="$statusline+"
                 else
-                    statusline="$statusline\!"
+                    statusline="$statusline"'!'
                 fi
             else
                 say Skipped.
-                statusline="$statusline\s"
+                statusline="${statusline}s"
             fi
 
             say -n "Connection to server:"
@@ -310,7 +306,7 @@ function test_ssh_access() {
             if [ ${PIPESTATUS[0]} -eq 0 ]; then
                 statusline="$statusline+"
             else
-                statusline="$statusline\!"
+                statusline="$statusline"'!'
             fi
 
             say -n "Connection to server over jump:"
@@ -319,13 +315,12 @@ function test_ssh_access() {
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
                     statusline="$statusline+"
                 else
-                    statusline="$statusline\!"
+                    statusline="$statusline"'!'
                 fi
             else
                 say Skipped.
-                statusline="$statusline\s"
+                statusline="${statusline}s"
             fi
-            $statusline="$(echo $statusline | tr -d '\\')"
             status_tab="$(sayatcell -n -f $statusline 15)"
             userline="$userline$status_tab"
         done
