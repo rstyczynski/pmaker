@@ -129,7 +129,7 @@ function test_ssh_access() {
     fi
 
     say -n "Extracting jump server..."
-    jump_server=$(cat $inventory | sed -n '/\[deves\]/,/\[/p' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
+    jump_server=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
     if [ ! -z "$jump_server" ]; then
         say Done.
     else
@@ -146,7 +146,7 @@ function test_ssh_access() {
     say $server_header >$tmp/$user_group.$server_group.access
 
     for username in $(cat $tmp/$user_group.$server_group.users); do
-        ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa 
+        ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
 
         userline="$username;"
         for target_host in $(cat $tmp/$user_group.$server_group.servers); do
@@ -181,7 +181,7 @@ function test_ssh_access() {
         done
         echo $userline >> $tmp/$user_group.$server_group.access
 
-        ssh-add -d state/alshaya/deves/$username/.ssh/id_rsa
+        ssh-add -d state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
     done
 
     summary
