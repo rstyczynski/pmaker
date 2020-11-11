@@ -14,7 +14,7 @@ function y2j() {
 function quit() {
     error_code=$1
 
-    echo "Quit requested from $0"
+    #echo "Quit requested from $0"
 
     if [ ! -f "$0" ]; then
         return $error_code
@@ -33,7 +33,9 @@ function summary() {
     say "##########################################"
     say "# user group:   $user_group"
     say "# server group: $server_group"
-    say "# all users:    $(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')"
+    say "# inventory:    $inventory"
+    say "# all users: $(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '.users[].username')"
+    say "# all users with access to server group: $(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')"
     say "# all servers:  $(ansible-inventory -i $inventory --list | jq -r ".$server_group.hosts[]")"
     say "# user filter:  $user_subset"
     say "# server filter:$server_subset"
@@ -48,7 +50,7 @@ function summary() {
     say 'Legend: + access ok, ! access error'
     say '+++ jump ok, server ok, server over jump ok'
     say '!+! jump error, server ok, server over jump error'
-    say '+!+ jump ok, server error, server over jump ok'
+    say '+!! jump ok, server error, server over jump error'
 }
 
 function test_ssh_access() {
@@ -72,10 +74,11 @@ function test_ssh_access() {
     : ${server_subset:=all}
 
     oldTmp=$tmp
-    tmp=$pmaker_home/tmp
+    tmp=$pmaker_home/tmp/$$
+    rm -rf $pmaker_home/tmp/$$
     mkdir -p $tmp
 
-    report=$pmaker_home/tmp/$user_group\_$server_group\_user_access_report_$(date -I).log
+    report=$tmp/$user_group\_$server_group\_user_access_report_$(date -I).log
     rm -rf $report
 
     say "##############"
@@ -182,11 +185,16 @@ function test_ssh_access() {
 
     summary
 
+    mkdir -p $pmaker_home/report
+    cat $tmp/$user_group\_$server_group\_user_access_report_$(date -I).log | grep -v "Killed by signal 1" \
+    > $pmaker_home/report/$user_group\_$server_group\_user_access_report_$(date -I).log
+
+    echo
+    echo "Full report available at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_$(date -I).log"
+
+    rm -rf $pmaker_home/tmp/$$
     tmp=$oldTmp
 }
 
 test_ssh_access $@
 #test_ssh_access alshaya deves data/alshaya.inventory.cfg "psingh asaha" "10.106.4.52 10.106.6.97"
-
-
-
