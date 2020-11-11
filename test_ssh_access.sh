@@ -259,6 +259,16 @@ function test_ssh_access() {
     done
     say "$server_name_header" >> $tmp/$user_group.$server_group.access
 
+    # host type header
+    server_type_header="$(sayatcell -n -f type 15)"
+    for target_host in $(cat $tmp/$user_group.$server_group.servers); do
+        server_type=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'host_type=' | cut -f2 -d=)
+        : ${server_type:=unknown}
+        server_type_header_tab="$(sayatcell -n -f "$server_type" 15)"
+        server_type_header="$server_type_header$server_type_header_tab"
+    done
+    say "$server_type_header" >> $tmp/$user_group.$server_group.access
+
     # discover jumps
     declare -A host_cfg 
     jump_header="$(sayatcell -n -f jump 15)"
