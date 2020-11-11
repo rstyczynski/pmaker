@@ -28,7 +28,7 @@ if [ -z "$server_groups" ]; then
 fi 
 
 echo '==========================================================================='
-echo Spliting usaers into group using: $server_groups
+echo Spliting users into group using: $server_groups
 echo '==========================================================================='
 for server_group in $server_groups; do
    echo '========================='
@@ -67,7 +67,7 @@ for server_group in $server_groups; do
 
    # it's controlled using ssh config
    if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
-      echo "Settgn up ssh config for $server_group"
+      echo "Setting up ssh config for $server_group"
       $pmaker_home/prepare_ssh_config.sh $user_group $server_group pmaker state/$user_group/$server_group/pmaker/.ssh/id_rsa
    fi
 
