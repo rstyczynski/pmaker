@@ -33,6 +33,7 @@ function summary() {
     say "##########################################"
     say "# user group:   $user_group"
     say "# server group: $server_group"
+    say "# jump server:  $jump_server"
     say "# inventory:    $inventory"
     say "# all users: $(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '.users[].username')"
     say "# all users with access to server group: $(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')"
@@ -145,7 +146,7 @@ function test_ssh_access() {
     say $server_header >$tmp/$user_group.$server_group.access
 
     for username in $(cat $tmp/$user_group.$server_group.users); do
-        ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa >/dev/null 2>&1
+        ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa 
 
         userline="$username;"
         for target_host in $(cat $tmp/$user_group.$server_group.servers); do
@@ -180,7 +181,7 @@ function test_ssh_access() {
         done
         echo $userline >> $tmp/$user_group.$server_group.access
 
-        ssh-add -d state/alshaya/deves/$username/.ssh/id_rsa >/dev/null 2>&1
+        ssh-add -d state/alshaya/deves/$username/.ssh/id_rsa
     done
 
     summary
