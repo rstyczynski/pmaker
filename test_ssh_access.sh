@@ -238,7 +238,7 @@ function test_ssh_access() {
                     userline="$userline\!;"
                 fi
             else
-                userline="$userline\s"
+                userline="$userline\s;"
             fi
         done
         echo $userline >> $tmp/$user_group.$server_group.access
