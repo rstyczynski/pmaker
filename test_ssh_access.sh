@@ -147,6 +147,8 @@ function test_ssh_access() {
     : ${user_subset:=all}
     : ${server_subset:=all}
 
+    : ${pmaker_home:=/opt/pmaker}
+    
     oldTmp=$tmp
     tmp=$HOME/pmaker/tmp/$$
     rm -rf $HOME/pmaker/tmp/$$
