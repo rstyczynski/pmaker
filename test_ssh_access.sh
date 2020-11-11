@@ -274,6 +274,8 @@ function test_ssh_access() {
     done
     say "$jump_header" >> $tmp/$user_group.$server_group.access
 
+    eval $(ssh-agent)
+
     for username in $(cat $tmp/$user_group.$server_group.users); do
         ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
 
