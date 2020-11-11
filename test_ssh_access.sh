@@ -191,6 +191,8 @@ function test_ssh_access() {
                     quit 1
                 fi
             fi
+        else
+            jump_server=$jump_server_group
         fi
         host_cfg[$target_host|jump]=$jump_server
         jump_header="$jump_header;$jump_server"
