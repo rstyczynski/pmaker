@@ -118,7 +118,7 @@ function summary() {
     say "# tested by:    $(whoami)"
     say "##########################################"
     say
-    cat $tmp/$user_group.$server_group.access | tr -d '\\' | tee -a $report
+    cat $tmp/$user_group.$server_group.access | tee -a $report
     say
     say 'Legend: + access ok, ! access error, s access skipped'
     say '+++ jump ok, server ok, server over jump ok'
@@ -325,6 +325,7 @@ function test_ssh_access() {
                 say Skipped.
                 statusline="$statusline\s"
             fi
+            $statusline="$(echo $statusline | tr -d '\\')"
             status_tab="$(sayatcell -n -f $statusline 15)"
             userline="$userline$status_tab"
         done
