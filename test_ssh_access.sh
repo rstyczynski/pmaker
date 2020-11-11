@@ -49,10 +49,11 @@ function summary() {
     say
     cat $tmp/$user_group.$server_group.access | tr -d '\\'  | tr ';' '\t' | tee -a $report
     say
-    say 'Legend: + access ok, ! access error'
+    say 'Legend: + access ok, ! access error, s access skipped'
     say '+++ jump ok, server ok, server over jump ok'
     say '!+! jump error, server ok, server over jump error'
     say '+!! jump ok, server error, server over jump error'
+    say 's+s jump skiped, server ok, server over jump skiped'
 }
 
 function test_ssh_access() {
@@ -149,8 +150,8 @@ function test_ssh_access() {
 
     case $jumps_cnt in
     1)
-        jump_server=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
-        if [ ! -z "$jump_server" ]; then
+        jump_server_group=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
+        if [ ! -z "$jump_server_group" ]; then
             say Done.
         else
             say "Error. Jump server not detected."
@@ -158,12 +159,12 @@ function test_ssh_access() {
         fi
         ;;
     0)
-        unset jump_server
+        unset jump_server_group
         say "Error. Jump server not detected. Maybe is set at host level..."
         ;;
     *)
-        unset jump_server
-        say "Error. Multiple jump server detected. The one is set at host level..."
+        unset jump_server_group
+        say "Error. Multiple jump servers detected. The one is set at host level..."
         ;;
     esac
 
@@ -179,11 +180,10 @@ function test_ssh_access() {
     declare -A host_cfg 
     jump_header=jump
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
-        if [ -z $jump_server ]; then
+        if [ -z $jump_server_group ]; then
             jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
             if [ -z "$jump_server_name" ]; then
-                say "Error. Jump server not detected at host."
-                quit 1
+                jump_server=none
             else
                 jump_server=$(cat $inventory | sed -n "/\[jumps\]/,/\[/p" | grep "^$jump_server_name" | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
                 if [ -z "$jump_server" ]; then
@@ -207,13 +207,18 @@ function test_ssh_access() {
             say "### user: $username @ $target_host"
             say "##########################################"
 
-            jump_server=$(host_cfg[$target_host|jump])
-            say -n "Connection to jump:"
-            timeout 10 ssh $username@$jump_server 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
-            if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                userline="$userline+"
+            jump_server=${host_cfg[$target_host|jump]}
+
+            if [ $jump_server != none ]; then
+                say -n "Connection to jump:"
+                timeout 10 ssh $username@$jump_server 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
+                if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                    userline="$userline+"
+                else
+                    userline="$userline\!"
+                fi
             else
-                userline="$userline\!"
+                userline="$userline\s"
             fi
 
             say -n "Connection to server:"
@@ -225,11 +230,15 @@ function test_ssh_access() {
             fi
 
             say -n "Connection to server over jump:"
-            timeout 10 ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
-            if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                userline="$userline+;"
+            if [ $jump_server != none ]; then
+                timeout 10 ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
+                if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                    userline="$userline+;"
+                else
+                    userline="$userline\!;"
+                fi
             else
-                userline="$userline\!;"
+                userline="$userline\s"
             fi
         done
         echo $userline >> $tmp/$user_group.$server_group.access
