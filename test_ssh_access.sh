@@ -112,6 +112,7 @@ function test_ssh_access() {
             cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username' |
                 egrep "$(echo $user_subset | tr ' ,' '|')" \
                     >$tmp/$user_group.$server_group.users
+                say Done.
             if [ $(cat $tmp/$user_group.$server_group.users | wc -l) -eq 0 ]; then
                 say "Error. User list empty after applying filter."
                 quit 1
@@ -134,6 +135,7 @@ function test_ssh_access() {
                 jq -r ".$server_group.hosts[]" |
                 egrep "$(echo $server_subset | tr ' ,' '|')" \
                     >$tmp/$user_group.$server_group.servers
+                say Done.
             if [ $(cat $tmp/$user_group.$server_group.servers | wc -l) -eq 0 ]; then
                 say "Error. Server list empty after applying filter."
                 quit 1
@@ -142,13 +144,28 @@ function test_ssh_access() {
     fi
 
     say -n "Extracting jump server..."
-    jump_server=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
-    if [ ! -z "$jump_server" ]; then
-        say Done.
-    else
-        say "Error. Jump server not detected."
-        quit 1
-    fi
+
+    jumps_cnt=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -f2 -d= | wc -l)
+
+    case $jumps_cnt in
+    1)
+        jump_server=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -f2 -d=)
+        if [ ! -z "$jump_server" ]; then
+            say Done.
+        else
+            say "Error. Jump server not detected."
+            quit 1
+        fi
+        ;;
+    0)
+        unset jump_server
+        say "Error. Jump server not detected. Maybe is set at host level..."
+        ;;
+    *)
+        unset jump_server
+        say "Error. Multiple jump server detected. The one is set at host level..."
+        ;;
+    esac
 
     say -n "Testing user access..."
 
@@ -167,6 +184,20 @@ function test_ssh_access() {
             say "##########################################"
             say "### user: $username @ $target_host"
             say "##########################################"
+
+            if [ -z $jump_server ]; then
+                jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
+                if [ -z "$jump_server_name" ]; then
+                    say "Error. Jump server not detected at host."
+                    quit 1
+                else
+                    jump_server=$(cat $inventory | sed -n "/\[jumps\]/,/\[/p" | grep "^$jump_server_name" | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
+                    if [ -z "$jump_server" ]; then
+                        say "Error. Jump server IP not detected at jump section."
+                        quit 1
+                    fi
+                fi
+            fi
 
             say -n "Connection to jump:"
             ssh $username@$jump_server 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
