@@ -14,7 +14,8 @@ function y2j() {
 function quit() {
     error_code=$1
 
-    if [ ! -f $0 ]; then
+    echo "Quit requested from $0"
+    if [ ! -f "$0" ]; then
         return $error_code
     else
         exit $error_code
@@ -73,7 +74,7 @@ function test_ssh_access() {
     tmp=$pmaker_home/tmp
     mkdir -p $tmp
 
-    report=$pmaker_home/tmp/$(user_group)_$(server_group)_user_access_report_$(date -I).log
+    report=$pmaker_home/tmp/$user_group\_$server_group\_user_access_report_$(date -I).log
     rm -rf $report
 
     say "##############"

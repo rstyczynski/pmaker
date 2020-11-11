@@ -28,7 +28,7 @@ if [ -z "$server_groups" ]; then
 fi 
 
 echo '==========================================================================='
-echo Spliting users into group using: $server_groups
+echo Spliting ussers into group using: $server_groups
 echo '==========================================================================='
 for server_group in $server_groups; do
    echo '========================='
