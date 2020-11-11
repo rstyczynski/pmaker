@@ -24,8 +24,79 @@ function quit() {
 }
 
 function say() {
-    echo $@ | tee -a $report
+    nl=yes
+    if [ "$1" == '-n' ]; then
+        nl=no
+        shift
+    fi
+
+    if [ $nl == yes ]; then
+        echo "$@" | tee -a $report
+    else
+        echo -n "$@" | tee -a $report
+    fi
 }
+
+
+maxip=999.999.999.999
+iplth=$(echo -n $maxip | wc -c)
+
+function sayatcell() {
+
+    nl=yes
+    if [ $1 == '-n' ]; then
+        nl=no
+        shift
+    fi
+
+    fr=no
+    if [ $1 == '-f' ]; then
+        fr=yes
+        shift
+    fi
+
+    what=$1; shift
+    size=$1; shift
+
+    back='____________________________________________________________________________________________________________'
+    back='                                                                                                            '
+    dots='............................................................................................................'
+
+    what_lth=$(echo -n $what | wc -c)
+
+    if [ $what_lth -lt $size ]; then
+        pre=$(echo "($size - $what_lth)/2" | bc)
+        post=$(echo "$size - $what_lth - $pre" | bc)
+        
+        if [ $pre -gt 0 ]; then 
+            echo -n "$back" | cut -b1-$pre | tr -d '\n'
+        fi
+
+        echo -n "$what"
+        
+        if [ $post -gt 0 ]; then
+            echo -n "$back" | cut -b1-$post | tr -d '\n'
+        fi
+
+    elif [ $what_lth -gt $size ]; then
+        echo -n "$what" | cut -b1-$(( $size - 2 )) | tr -d '\n'
+        echo -n "$dots" | cut -b1-2 | tr -d '\n'
+    elif [ $what_lth -eq $size ]; then
+        echo -n "$what" 
+    fi
+
+    if [ $nl == yes ]; then
+        if [ $fr == yes ]; then
+            echo '|'
+        else
+            echo
+        fi
+    elif [ $fr == yes ]; then
+            echo -n '|'
+    fi
+}
+
+
 
 function summary() {
     say
@@ -36,9 +107,9 @@ function summary() {
     say "# server group: $server_group"
     say "# jump server:  $jump_server"
     say "# inventory:    $inventory"
-    say "# all users: $(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '.users[].username')"
-    say "# all users with access to server group: $(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')"
-    say "# all servers in the group:  $(ansible-inventory -i $inventory --list | jq -r ".$server_group.hosts[]")"
+    say "# all users: $(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '.users[].username' | tr '\n' ' ')"
+    say "# all users with access to server group: $(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username'| tr '\n' ' ')"
+    say "# all servers in the group:  $(ansible-inventory -i $inventory --list | jq -r ".$server_group.hosts[]" | tr '\n' ' ')"
     say "# user filter:  $user_subset"
     say "# server filter:$server_subset"
     say "##########################################"
@@ -47,7 +118,7 @@ function summary() {
     say "# tested by:    $(whoami)"
     say "##########################################"
     say
-    cat $tmp/$user_group.$server_group.access | tr -d '\\'  | tr ';' '\t' | tee -a $report
+    cat $tmp/$user_group.$server_group.access | tr -d '\\' | tee -a $report
     say
     say 'Legend: + access ok, ! access error, s access skipped'
     say '+++ jump ok, server ok, server over jump ok'
@@ -170,15 +241,21 @@ function test_ssh_access() {
 
     say -n "Testing user access..."
 
-    server_header=instance
+    server_header="$(sayatcell -n -f instance 15)"
+    echo "$server_header"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
-        server_header="$server_header;$target_host"
+        target_host_tab="$(sayatcell -n -f $target_host 15)"
+        echo "$target_host_tab"
+        server_header="$server_header$target_host_tab"
+        echo "$server_header"
     done
-    say $server_header > $tmp/$user_group.$server_group.access
+    echo "$server_header"
+    
+    say "$server_header" > $tmp/$user_group.$server_group.access
 
     # discover jumps
     declare -A host_cfg 
-    jump_header=jump
+    jump_header="$(sayatcell -n -f jump 15)"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
         if [ -z $jump_server_group ]; then
             jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
@@ -195,14 +272,16 @@ function test_ssh_access() {
             jump_server=$jump_server_group
         fi
         host_cfg[$target_host|jump]=$jump_server
-        jump_header="$jump_header;$jump_server"
+
+        jump_server_tab="$(sayatcell -n -f $jump_server 15)"
+        jump_header="$jump_header$jump_server_tab"
     done
-    say $jump_header >> $tmp/$user_group.$server_group.access
+    say "$jump_header" >> $tmp/$user_group.$server_group.access
 
     for username in $(cat $tmp/$user_group.$server_group.users); do
         ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
 
-        userline="$username;"
+        userline="$(sayatcell -n -f $username 15)"
         for target_host in $(cat $tmp/$user_group.$server_group.servers); do
             say
             say "##########################################"
@@ -211,41 +290,45 @@ function test_ssh_access() {
 
             jump_server=${host_cfg[$target_host|jump]}
 
+            unset statusline
+
             if [ "$jump_server" != none ]; then
                 say -n "Connection to jump:"
                 timeout 10 ssh $username@$jump_server 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                    userline="$userline+"
+                    statusline="$statusline+"
                 else
-                    userline="$userline\!"
+                    statusline="$statusline\!"
                 fi
             else
                 say Skipped.
-                userline="$userline\s"
+                statusline="$statusline\s"
             fi
 
             say -n "Connection to server:"
             timeout 10 ssh $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
             if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                userline="$userline+"
+                statusline="$statusline+"
             else
-                userline="$userline\!"
+                statusline="$statusline\!"
             fi
 
             say -n "Connection to server over jump:"
             if [ "$jump_server" != none ]; then
                 timeout 10 ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                    userline="$userline+;"
+                    statusline="$statusline+"
                 else
-                    userline="$userline\!;"
+                    statusline="$statusline\!"
                 fi
             else
                 say Skipped.
-                userline="$userline\s;"
+                statusline="$statusline\s"
             fi
+            status_tab="$(sayatcell -n -f $statusline 15)"
+            userline="$userline$status_tab"
         done
-        echo $userline >> $tmp/$user_group.$server_group.access
+        echo "$userline" >> $tmp/$user_group.$server_group.access
 
         ssh-add -d state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
     done
@@ -253,15 +336,19 @@ function test_ssh_access() {
     summary | tee $pmaker_home/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log
 
     mkdir -p $pmaker_home/report
-    cat $tmp/$user_group\_$server_group\_user_access_report_$dateStr.log | grep -v "Killed by signal 1" \
+    cat $tmp/$user_group\_$server_group\_user_access_report_$dateStr.log |
+    sed 's/Killed by signal 1//g' \
     > $pmaker_home/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log
 
     echo
     echo "Full report available at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log"
     echo "Summary report availabe at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log"
     
-    rm -rf $pmaker_home/tmp/$$
+    #rm -rf $pmaker_home/tmp/$$
     tmp=$oldTmp
 }
 
 test_ssh_access $@
+
+
+
