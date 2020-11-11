@@ -15,6 +15,7 @@ function quit() {
     error_code=$1
 
     echo "Quit requested from $0"
+
     if [ ! -f "$0" ]; then
         return $error_code
     else
