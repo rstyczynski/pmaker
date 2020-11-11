@@ -1,5 +1,12 @@
 #!/bin/bash
 
+function usage() {
+    cat <<EOF
+Usage: test_ssh_access.sh user_group server_group inventory [user_filter|all] [server_filter|all]
+EOF
+
+}
+
 function y2j() {
     ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'
 }
@@ -53,6 +60,11 @@ function test_ssh_access() {
     shift
     server_subset=$1
     shift
+
+    if [ -z "$user_group" ] || [ -z "$server_group" ]; then
+        usage
+        quit 1
+    fi
 
     : ${user_subset:=all}
     : ${server_subset:=all}
