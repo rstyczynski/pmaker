@@ -148,8 +148,8 @@ function test_ssh_access() {
     : ${server_subset:=all}
 
     oldTmp=$tmp
-    tmp=$pmaker_home/tmp/$$
-    rm -rf $pmaker_home/tmp/$$
+    tmp=$HOME/pmaker/tmp/$$
+    rm -rf $HOME/pmaker/tmp/$$
     mkdir -p $tmp
 
     dateStr=$(date -I)T$(date +%T)
@@ -239,8 +239,7 @@ function test_ssh_access() {
         ;;
     esac
 
-    say "Testing user access..."
-
+    say -n "Preparing report header..."
     # server ip header
     server_header="$(sayatcell -n -f instance 15)"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
@@ -268,8 +267,10 @@ function test_ssh_access() {
         server_type_header="$server_type_header$server_type_header_tab"
     done
     say "$server_type_header" >> $tmp/$user_group.$server_group.access
+    say Done.
 
-    # discover jumps
+
+    say -n "Discovering jump servers..."
     declare -A host_cfg 
     jump_header="$(sayatcell -n -f jump 15)"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
@@ -296,9 +297,13 @@ function test_ssh_access() {
         jump_header="$jump_header$jump_server_tab"
     done
     say "$jump_header" >> $tmp/$user_group.$server_group.access
+    say Done.
 
+    say -n "Starting ssh agent..."
     eval $(ssh-agent)
 
+
+    say "Testing user access..."
     for username in $(cat $tmp/$user_group.$server_group.users); do
         ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
 
@@ -354,18 +359,19 @@ function test_ssh_access() {
         ssh-add -d state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
     done
 
-    summary | tee $pmaker_home/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log
+    mkdir -p $HOME/pmaker/report
 
-    mkdir -p $pmaker_home/report
+    summary | tee $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log
+
     cat $tmp/$user_group\_$server_group\_user_access_report_$dateStr.log |
     sed 's/Killed by signal 1//g' \
-    > $pmaker_home/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log
+    > $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log
 
     echo
-    echo "Full report available at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log"
-    echo "Summary report availabe at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log"
+    echo "Full report available at: $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log"
+    echo "Summary report availabe at: $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log"
     
-    #rm -rf $pmaker_home/tmp/$$
+    rm -rf $HOME/pmaker/tmp/$$
     tmp=$oldTmp
 }
 
