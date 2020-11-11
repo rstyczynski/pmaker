@@ -218,6 +218,7 @@ function test_ssh_access() {
                     userline="$userline\!"
                 fi
             else
+                say Skipped.
                 userline="$userline\s"
             fi
 
@@ -238,6 +239,7 @@ function test_ssh_access() {
                     userline="$userline\!;"
                 fi
             else
+                say Skipped.
                 userline="$userline\s;"
             fi
         done
