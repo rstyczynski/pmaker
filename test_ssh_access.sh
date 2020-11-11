@@ -45,7 +45,7 @@ function summary() {
     say "# tested by:    $(whoami)"
     say "##########################################"
     say
-    cat $tmp/$user_group.$server_group.access | tr -d \  | tr ';' '\t'
+    cat $tmp/$user_group.$server_group.access | tr -d \  | tr ';' '\t' | tee -a $report
     say
     say 'Legend: + access ok, ! access error'
     say '+++ jump ok, server ok, server over jump ok'
