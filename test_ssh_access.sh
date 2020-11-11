@@ -173,7 +173,29 @@ function test_ssh_access() {
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
         server_header="$server_header;$target_host"
     done
-    say $server_header >$tmp/$user_group.$server_group.access
+    say $server_header > $tmp/$user_group.$server_group.access
+
+    # discover jumps
+    declare -A host_cfg 
+    jump_header=jump
+    for target_host in $(cat $tmp/$user_group.$server_group.servers); do
+        if [ -z $jump_server ]; then
+            jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
+            if [ -z "$jump_server_name" ]; then
+                say "Error. Jump server not detected at host."
+                quit 1
+            else
+                jump_server=$(cat $inventory | sed -n "/\[jumps\]/,/\[/p" | grep "^$jump_server_name" | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
+                if [ -z "$jump_server" ]; then
+                    say "Error. Jump server IP not detected at jump section."
+                    quit 1
+                fi
+            fi
+        fi
+        host_cfg[$target_host|jump]=$jump_server
+        jump_header="$jump_header;$jump_server"
+    done
+    say $jump_header >> $tmp/$user_group.$server_group.access
 
     for username in $(cat $tmp/$user_group.$server_group.users); do
         ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
@@ -185,22 +207,9 @@ function test_ssh_access() {
             say "### user: $username @ $target_host"
             say "##########################################"
 
-            if [ -z $jump_server ]; then
-                jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
-                if [ -z "$jump_server_name" ]; then
-                    say "Error. Jump server not detected at host."
-                    quit 1
-                else
-                    jump_server=$(cat $inventory | sed -n "/\[jumps\]/,/\[/p" | grep "^$jump_server_name" | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
-                    if [ -z "$jump_server" ]; then
-                        say "Error. Jump server IP not detected at jump section."
-                        quit 1
-                    fi
-                fi
-            fi
-
+            jump_server=$(host_cfg[$target_host|jump])
             say -n "Connection to jump:"
-            timeout 5 ssh $username@$jump_server 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
+            timeout 10 ssh $username@$jump_server 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
             if [ ${PIPESTATUS[0]} -eq 0 ]; then
                 userline="$userline+"
             else
@@ -208,7 +217,7 @@ function test_ssh_access() {
             fi
 
             say -n "Connection to server:"
-            timeout 5 ssh $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
+            timeout 10 ssh $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
             if [ ${PIPESTATUS[0]} -eq 0 ]; then
                 userline="$userline+"
             else
@@ -216,7 +225,7 @@ function test_ssh_access() {
             fi
 
             say -n "Connection to server over jump:"
-            timeout 5 ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
+            timeout 10 ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
             if [ ${PIPESTATUS[0]} -eq 0 ]; then
                 userline="$userline+;"
             else
