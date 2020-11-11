@@ -38,7 +38,7 @@ function summary() {
     say "# inventory:    $inventory"
     say "# all users: $(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '.users[].username')"
     say "# all users with access to server group: $(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')"
-    say "# all servers:  $(ansible-inventory -i $inventory --list | jq -r ".$server_group.hosts[]")"
+    say "# all servers in the group:  $(ansible-inventory -i $inventory --list | jq -r ".$server_group.hosts[]")"
     say "# user filter:  $user_subset"
     say "# server filter:$server_subset"
     say "##########################################"
@@ -85,9 +85,19 @@ function test_ssh_access() {
     report=$tmp/$user_group\_$server_group\_user_access_report_$dateStr.log
     rm -rf $report
 
-    say "##############"
-    say "### Processing: $server_group at $user_group"
-    say "##############"
+    say "##########################################"
+    say "############# SSH access test ############"
+    say "##########################################"
+    say "# user group:   $user_group"
+    say "# server group: $server_group"
+    say "# inventory:    $inventory"
+    say "# user filter:  $user_subset"
+    say "# server filter:$server_subset"
+    say "##########################################"
+    say "# tested on:    $(date)"
+    say "# tested at:    $(hostname)"
+    say "# tested by:    $(whoami)"
+    say "##########################################"
 
     say -n "Extracting users..."
     if [ ! -f "$pmaker_home/state/$user_group/$server_group/users.yaml" ]; then
@@ -202,4 +212,3 @@ function test_ssh_access() {
 }
 
 test_ssh_access $@
-#test_ssh_access alshaya deves data/alshaya.inventory.cfg "psingh asaha" "10.106.4.52 10.106.6.97"
