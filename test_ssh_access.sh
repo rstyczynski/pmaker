@@ -253,8 +253,9 @@ function test_ssh_access() {
     server_name_header="$(sayatcell -n -f name 15)"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
         server_name=$(nslookup $target_host | grep in-addr.arpa | tr '\t' ' ' | sed 's/\s*=\s*/\nname=/g' | grep 'name=' | cut -f2 -d= | cut -f1 -d.)
-        server_name_header_tab="$(sayatcell -n -f $server_name 15)"
-        server_name_header="$server_header$server_name_header_tab"
+        : ${server_name:=unknown}
+        server_name_header_tab="$(sayatcell -n -f "$server_name" 15)"
+        server_name_header="$server_name_header$server_name_header_tab"
     done
     say "$server_name_header" >> $tmp/$user_group.$server_group.access
 
