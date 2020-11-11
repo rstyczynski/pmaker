@@ -256,7 +256,10 @@ function test_ssh_access() {
         if [ -z $jump_server_group ]; then
             jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
             if [ -z "$jump_server_name" ]; then
-                jump_server=none
+                jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
+                if [ -z "$jump_server_name" ]; then
+                    jump_server=none
+                fi
             else
                 jump_server=$(cat $inventory | sed -n "/\[jumps\]/,/\[/p" | grep "^$jump_server_name" | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
                 if [ -z "$jump_server" ]; then
