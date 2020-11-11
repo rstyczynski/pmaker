@@ -28,6 +28,7 @@ function say() {
 }
 
 function summary() {
+    say
     say "##########################################"
     say "######### SSH access test summary ########"
     say "##########################################"
@@ -79,7 +80,9 @@ function test_ssh_access() {
     rm -rf $pmaker_home/tmp/$$
     mkdir -p $tmp
 
-    report=$tmp/$user_group\_$server_group\_user_access_report_$(date -I).log
+    dateStr=$(date -I)T$(date +%T)
+
+    report=$tmp/$user_group\_$server_group\_user_access_report_$dateStr.log
     rm -rf $report
 
     say "##############"
@@ -184,15 +187,16 @@ function test_ssh_access() {
         ssh-add -d state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
     done
 
-    summary
+    summary | tee $pmaker_home/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log
 
     mkdir -p $pmaker_home/report
-    cat $tmp/$user_group\_$server_group\_user_access_report_$(date -I).log | grep -v "Killed by signal 1" \
-    > $pmaker_home/report/$user_group\_$server_group\_user_access_report_$(date -I).log
+    cat $tmp/$user_group\_$server_group\_user_access_report_$dateStr.log | grep -v "Killed by signal 1" \
+    > $pmaker_home/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log
 
     echo
-    echo "Full report available at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_$(date -I).log"
-
+    echo "Full report available at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log"
+    echo "Summary report availabe at: $pmaker_home/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log"
+    
     rm -rf $pmaker_home/tmp/$$
     tmp=$oldTmp
 }
