@@ -239,15 +239,24 @@ function test_ssh_access() {
         ;;
     esac
 
-    say -n "Testing user access..."
+    say "Testing user access..."
 
+    # server ip header
     server_header="$(sayatcell -n -f instance 15)"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
         target_host_tab="$(sayatcell -n -f $target_host 15)"
         server_header="$server_header$target_host_tab"
-
     done
     say "$server_header" > $tmp/$user_group.$server_group.access
+
+    # host names header
+    server_name_header="$(sayatcell -n -f name 15)"
+    for target_host in $(cat $tmp/$user_group.$server_group.servers); do
+        server_name=$(nslookup $target_host | grep in-addr.arpa | tr '\t' ' ' | sed 's/\s*=\s*/\nname=/g' | grep 'name=' | cut -f2 -d= | cut -f1 -d.)
+        server_name_header_tab="$(sayatcell -n -f $server_name 15)"
+        server_name_header="$server_header$server_name_header_tab"
+    done
+    say "$server_name_header" >> $tmp/$user_group.$server_group.access
 
     # discover jumps
     declare -A host_cfg 
