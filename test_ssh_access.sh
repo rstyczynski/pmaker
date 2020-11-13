@@ -118,10 +118,10 @@ function summary() {
     say
     cat $tmp/$user_group.$server_group.access | tee -a $report
     say
-    say 'Legend: + access ok | - no access | ! access error | t timeout | s access skipped'
+    say 'Legend: + access ok | - no access | ! access error | t timeout | s access skipped | n no permission'
     say '++++++ jump ok | server over jump ok | server ok | sudo appl ok | sudo oracle ok | sudo root ok'
     say '++++-- jump ok | server over jump ok | server ok | sudo appl ok | sudo oracle not possible | sudo root not possible'
-    say '++++++s jump ok | server over jump ok | server ok | sudo appl ok | sudo oracle ok | sudo root no permission'
+    say '++++++n jump ok | server over jump ok | server ok | sudo appl ok | sudo oracle ok | sudo root no permission'
     say '!!++++ jump error | server over jump error | server ok | sudo appl ok | sudo oracle ok | sudo root ok'
     say '+!!!!! jump ok | server over jump error | server error | sudo appl error | sudo oracle error | sudo root error'
     say '+ttttt jump ok | server over jump timoeut | server timoeut | sudo appl timoeut | sudo oracle timoeut | sudo root timoeut'
@@ -384,19 +384,23 @@ function test_ssh_access() {
                     ' | tee -a $report
                     if [ ${PIPESTATUS[0]} -eq 0 ]; then
                         statusline="$statusline+"
+                        say OK.
                     elif [ ${PIPESTATUS[0]} -eq 1 ]; then
                         statusline="$statusline"'-' 
+                        say None.
                     elif [ ${PIPESTATUS[0]} -eq 124 ]; then
                         statusline="$statusline"'t' 
+                        say Timoeut.
                     else
                         statusline="$statusline"'!'
                     fi
                 else
                     say Skipped.
-                    statusline="${statusline}n"
+                    statusline="${statusline}s"
                 fi
             else
-                statusline="$statusline"'s'
+                statusline="$statusline"'n'
+                say Not permitted.
             fi
 
 
@@ -418,19 +422,23 @@ function test_ssh_access() {
                     ' | tee -a $report
                     if [ ${PIPESTATUS[0]} -eq 0 ]; then
                         statusline="$statusline+"
+                        say OK.
                     elif [ ${PIPESTATUS[0]} -eq 1 ]; then
                         statusline="$statusline"'-' 
+                        say None.
                     elif [ ${PIPESTATUS[0]} -eq 124 ]; then
                         statusline="$statusline"'t' 
+                        say Timoeut.
                     else
                         statusline="$statusline"'!'
                     fi
                 else
                     say Skipped.
-                    statusline="${statusline}n"
+                    statusline="${statusline}s"
                 fi
             else
-                statusline="$statusline"'s'
+                statusline="$statusline"'n'
+                say Not permitted.
             fi
 
 
@@ -452,19 +460,23 @@ function test_ssh_access() {
                     ' | tee -a $report
                     if [ ${PIPESTATUS[0]} -eq 0 ]; then
                         statusline="$statusline+"
+                        say OK.
                     elif [ ${PIPESTATUS[0]} -eq 1 ]; then
                         statusline="$statusline"'-' 
+                        say None.
                     elif [ ${PIPESTATUS[0]} -eq 124 ]; then
                         statusline="$statusline"'t' 
+                        say Timoeut.
                     else
                         statusline="$statusline"'!'
                     fi
                 else
                     say Skipped.
-                    statusline="${statusline}n"
+                    statusline="${statusline}s"
                 fi
             else
-                statusline="$statusline"'s'
+                statusline="$statusline"'n'
+                say Not permitted.
             fi
 
 
