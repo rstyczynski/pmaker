@@ -1,5 +1,7 @@
 #!/bin/bash
 
+: ${ssh_timoeut:=2}
+
 function usage() {
     cat <<EOF
 Usage: test_ssh_access.sh user_group server_group inventory [user_filter|all] [server_filter|all]
@@ -36,10 +38,6 @@ function say() {
         echo -n "$@" | tee -a $report
     fi
 }
-
-
-maxip=999.999.999.999
-iplth=$(echo -n $maxip | wc -c)
 
 function sayatcell() {
 
@@ -322,9 +320,26 @@ function test_ssh_access() {
 
             if [ "$jump_server" != none ]; then
                 say -n "Connection to jump:"
-                timeout 10 ssh $username@$jump_server 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
+                timeout $ssh_timoeut ssh $username@$jump_server 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
                     statusline="$statusline+"
+                elif [ ${PIPESTATUS[0]} -eq 124 ]; then
+                    statusline="$statusline"'t' 
+                else
+                    statusline="$statusline"'!'
+                fi
+            else
+                say Skipped.
+                statusline="${statusline}s"
+            fi
+
+            say -n "Connection to server over jump:"
+            if [ "$jump_server" != none ]; then
+                timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
+                if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                    statusline="$statusline+"
+                elif [ ${PIPESTATUS[0]} -eq 124 ]; then
+                    statusline="$statusline"'t' 
                 else
                     statusline="$statusline"'!'
                 fi
@@ -334,25 +349,122 @@ function test_ssh_access() {
             fi
 
             say -n "Connection to server:"
-            timeout 10 ssh $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
+            timeout $ssh_timoeut ssh $username@$target_host 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
             if [ ${PIPESTATUS[0]} -eq 0 ]; then
                 statusline="$statusline+"
+            elif [ ${PIPESTATUS[0]} -eq 124 ]; then
+                statusline="$statusline"'t' 
             else
                 statusline="$statusline"'!'
             fi
-
-            say -n "Connection to server over jump:"
-            if [ "$jump_server" != none ]; then
-                timeout 10 ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami).  $(hostname), $(date); exit' | tee -a $report
-                if [ ${PIPESTATUS[0]} -eq 0 ]; then
-                    statusline="$statusline+"
+            say -n "Test appl* user access"
+            cat state/$user_group/$server_group/users.yaml | 
+            y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_appl[]" |
+            grep -i "^$server_group$"  > /dev/null
+            if [ $? -eq 0 ]; then
+                if [ "$jump_server" != none ]; then
+                    timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host '
+                    users=$(cat /etc/passwd | grep '^appl' | cut -f1 -d:)
+                    for user in $users; do
+                        response=$(timeout 1 sudo su $user -c "whoami" )
+                        if [ "$response" != "$user" ]; then
+                            echo "Not able to become $user. $(hostname), $(date)"
+                            exit 1
+                        else
+                            echo "Greetings from $(whoami). $(hostname), $(date)"
+                            exit 0
+                        fi
+                    done
+                    ' | tee -a $report
+                    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                        statusline="$statusline+"
+                    elif [ ${PIPESTATUS[0]} -eq 1 ]; then
+                        statusline="$statusline"'-' 
+                    elif [ ${PIPESTATUS[0]} -eq 124 ]; then
+                        statusline="$statusline"'t' 
+                    else
+                        statusline="$statusline"'!'
+                    fi
                 else
-                    statusline="$statusline"'!'
+                    say Skipped.
+                    statusline="${statusline}n"
                 fi
             else
-                say Skipped.
-                statusline="${statusline}s"
+                statusline="$statusline"'s'
             fi
+
+
+            say -n "Test oracle user access"
+            cat state/$user_group/$server_group/users.yaml | 
+            y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_oracle[]" |
+            grep -i "^$server_group$"  > /dev/null
+            if [ $? -eq 0 ]; then
+                if [ "$jump_server" != none ]; then
+                    timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host '
+                    users=$(cat /etc/passwd | grep '^oracle' | cut -f1 -d:)
+                    for user in $users; do
+                        response=$(timeout 1 sudo su $user -c "whoami" )
+                        if [ "$response" != "$user" ]; then
+                            echo "Not able to become $user. $(hostname), $(date)"
+                            exit 1
+                        else
+                            echo "Greetings from $(whoami). $(hostname), $(date)"
+                            exit 0
+                        fi
+                    done
+                    ' | tee -a $report
+                    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                        statusline="$statusline+"
+                    elif [ ${PIPESTATUS[0]} -eq 1 ]; then
+                        statusline="$statusline"'-' 
+                    elif [ ${PIPESTATUS[0]} -eq 124 ]; then
+                        statusline="$statusline"'t' 
+                    else
+                        statusline="$statusline"'!'
+                    fi
+                else
+                    say Skipped.
+                    statusline="${statusline}n"
+                fi
+            else
+                statusline="$statusline"'s'
+            fi
+
+
+            say -n "Test root user access"
+            cat state/$user_group/$server_group/users.yaml | 
+            y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_root[]" |
+            grep -i "^$server_group$"  > /dev/null
+            if [ $? -eq 0 ]; then
+                if [ "$jump_server" != none ]; then
+                    timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host '
+                    response=$(timeout 1 sudo su -c "whoami" )
+                    if [ "$response" != "root" ]; then
+                        echo "Not able to become root. $(hostname), $(date)"
+                        exit 1
+                    else
+                        echo "Greetings from $(whoami). $(hostname), $(date)"
+                        exit 0
+                    fi
+                    ' | tee -a $report
+                    if [ ${PIPESTATUS[0]} -eq 0 ]; then
+                        statusline="$statusline+"
+                    elif [ ${PIPESTATUS[0]} -eq 1 ]; then
+                        statusline="$statusline"'-' 
+                    elif [ ${PIPESTATUS[0]} -eq 124 ]; then
+                        statusline="$statusline"'t' 
+                    else
+                        statusline="$statusline"'!'
+                    fi
+                else
+                    say Skipped.
+                    statusline="${statusline}n"
+                fi
+            else
+                statusline="$statusline"'s'
+            fi
+
+
             status_tab="$(sayatcell -n -f $statusline 15)"
             userline="$userline$status_tab"
         done
