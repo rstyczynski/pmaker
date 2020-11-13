@@ -371,7 +371,7 @@ function test_ssh_access() {
                             echo "Not able to become $user. $(hostname), $(date)"
                             exit 1
                         else
-                            echo "Greetings from $(whoami). $(hostname), $(date)"
+                            echo "Greetings from $(whomai) acting as $user. $(hostname), $(date)"
                             exit 0
                         fi
                     done
@@ -408,7 +408,7 @@ function test_ssh_access() {
                             echo "Not able to become $user. $(hostname), $(date)"
                             exit 1
                         else
-                            echo "Greetings from $(whoami). $(hostname), $(date)"
+                            echo "Greetings from $(whomai) acting as $user. $(hostname), $(date)"
                             exit 0
                         fi
                     done
@@ -443,7 +443,7 @@ function test_ssh_access() {
                         echo "Not able to become root. $(hostname), $(date)"
                         exit 1
                     else
-                        echo "Greetings from $(whoami). $(hostname), $(date)"
+                        echo "Greetings from $(whomai) acting as root. $(hostname), $(date)"
                         exit 0
                     fi
                     ' | tee -a $report
