@@ -118,11 +118,13 @@ function summary() {
     say
     cat $tmp/$user_group.$server_group.access | tee -a $report
     say
-    say 'Legend: + access ok, ! access error, s access skipped'
-    say '+++ jump ok, server ok, server over jump ok'
-    say '!+! jump error, server ok, server over jump error'
-    say '+!! jump ok, server error, server over jump error'
-    say 's+s jump skiped, server ok, server over jump skiped'
+    say 'Legend: + access ok | - no access | ! access error | t timeout | s access skipped'
+    say '++++++ jump ok | server over jump ok | server ok | sudo appl ok | sudo oracle ok | sudo root ok'
+    say '++++-- jump ok | server over jump ok | server ok | sudo appl ok | sudo oracle not possible | sudo root not possible'
+    say '++++++s jump ok | server over jump ok | server ok | sudo appl ok | sudo oracle ok | sudo root no permission'
+    say '!!++++ jump error | server over jump error | server ok | sudo appl ok | sudo oracle ok | sudo root ok'
+    say '+!!!!! jump ok | server over jump error | server error | sudo appl error | sudo oracle error | sudo root error'
+    say '+ttttt jump ok | server over jump timoeut | server timoeut | sudo appl timoeut | sudo oracle timoeut | sudo root timoeut'
 }
 
 function test_ssh_access() {
@@ -357,6 +359,7 @@ function test_ssh_access() {
             else
                 statusline="$statusline"'!'
             fi
+
             say -n "Test appl* user access"
             cat state/$user_group/$server_group/users.yaml | 
             y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_appl[]" |
@@ -365,16 +368,19 @@ function test_ssh_access() {
                 if [ "$jump_server" != none ]; then
                     timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host '
                     users=$(cat /etc/passwd | grep '^appl' | cut -f1 -d:)
+                    error=NO
                     for user in $users; do
                         response=$(timeout 1 sudo su $user -c "whoami" )
                         if [ "$response" != "$user" ]; then
                             echo "Not able to become $user. $(hostname), $(date)"
-                            exit 1
+                            error=YES
                         else
                             echo "Greetings from $(whomai) acting as $user. $(hostname), $(date)"
-                            exit 0
                         fi
                     done
+                    if [ "error" == "YES" ]; then
+                        exit 1
+                    fi
                     ' | tee -a $report
                     if [ ${PIPESTATUS[0]} -eq 0 ]; then
                         statusline="$statusline+"
@@ -401,17 +407,14 @@ function test_ssh_access() {
             if [ $? -eq 0 ]; then
                 if [ "$jump_server" != none ]; then
                     timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host '
-                    users=$(cat /etc/passwd | grep '^oracle' | cut -f1 -d:)
-                    for user in $users; do
-                        response=$(timeout 1 sudo su $user -c "whoami" )
-                        if [ "$response" != "$user" ]; then
-                            echo "Not able to become $user. $(hostname), $(date)"
-                            exit 1
-                        else
-                            echo "Greetings from $(whomai) acting as $user. $(hostname), $(date)"
-                            exit 0
-                        fi
-                    done
+                    response=$(timeout 1 sudo su oracle -c "whoami" )
+                    if [ "$response" != "oracle" ]; then
+                        echo "Not able to become oracle. $(hostname), $(date)"
+                        exit 1
+                    else
+                        echo "Greetings from $(whomai) acting as oracle. $(hostname), $(date)"
+                        exit 0
+                    fi
                     ' | tee -a $report
                     if [ ${PIPESTATUS[0]} -eq 0 ]; then
                         statusline="$statusline+"
