@@ -263,7 +263,7 @@ function test_ssh_access() {
     # host type header
     server_type_header="$(sayatcell -n -f type 15)"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
-        server_type=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'host_type=' | cut -f2 -d=)
+        server_type=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host\s" | tr -s ' ' | tr ' ' '\n' | grep 'host_type=' | cut -f2 -d=)
         : ${server_type:=unknown}
         server_type_header_tab="$(sayatcell -n -f "$server_type" 15)"
         server_type_header="$server_type_header$server_type_header_tab"
@@ -277,14 +277,14 @@ function test_ssh_access() {
     jump_header="$(sayatcell -n -f jump 15)"
     for target_host in $(cat $tmp/$user_group.$server_group.servers); do
         if [ -z $jump_server_group ]; then
-            jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
+            jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host\s" | tr -s ' ' | tr ' ' '\n' | grep 'jump=' | cut -f2 -d=)
             if [ -z "$jump_server_name" ]; then
-                jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
+                jump_server_name=$(cat $inventory | sed -n "/\[$server_group\]/,/\[/p" | grep "^$target_host\s" | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
                 if [ -z "$jump_server_name" ]; then
                     jump_server=none
                 fi
             else
-                jump_server=$(cat $inventory | sed -n "/\[jumps\]/,/\[/p" | grep "^$jump_server_name" | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
+                jump_server=$(cat $inventory | sed -n "/\[jumps\]/,/\[/p" | grep "^$jump_server_name\s" | tr -s ' ' | tr ' ' '\n' | grep 'public_ip=' | cut -f2 -d=)
                 if [ -z "$jump_server" ]; then
                     say "Error. Jump server IP not detected at jump section."
                     quit 1
@@ -375,7 +375,7 @@ function test_ssh_access() {
                             echo "Not able to become $user. $(hostname), $(date)"
                             error=YES
                         else
-                            echo "Greetings from $(whomai) acting as $user. $(hostname), $(date)"
+                            echo "Greetings from $(whoami) acting as $user. $(hostname), $(date)"
                         fi
                     done
                     if [ "error" == "YES" ]; then
@@ -416,7 +416,7 @@ function test_ssh_access() {
                         echo "Not able to become oracle. $(hostname), $(date)"
                         exit 1
                     else
-                        echo "Greetings from $(whomai) acting as oracle. $(hostname), $(date)"
+                        echo "Greetings from $(whoami) acting as oracle. $(hostname), $(date)"
                         exit 0
                     fi
                     ' | tee -a $report
@@ -454,7 +454,7 @@ function test_ssh_access() {
                         echo "Not able to become root. $(hostname), $(date)"
                         exit 1
                     else
-                        echo "Greetings from $(whomai) acting as root. $(hostname), $(date)"
+                        echo "Greetings from $(whoami) acting as root. $(hostname), $(date)"
                         exit 0
                     fi
                     ' | tee -a $report
