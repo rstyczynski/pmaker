@@ -34,7 +34,7 @@ function users2pmaker() {
     users_file=$(basename $excel_file)
 
     xlsx2csv $excel_file |
-        egrep "$user_filter" | 
+        egrep "$user_filter" |
         grep -v '^,,,,,,,,' |
         $pmaker_home/node_modules/csvtojson/bin/csvtojson | 
         jq -M '.' |
@@ -54,4 +54,4 @@ users:|' | # adds users: as name of data structure
 
 }
 
-users2pmaker $1
+users2pmaker $@
