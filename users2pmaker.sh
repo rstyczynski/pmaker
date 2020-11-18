@@ -33,16 +33,15 @@ function users2pmaker() {
     tmp=$pmaker_home/tmp; mkdir -p $tmp
     users_file=$(basename $excel_file)
 
-    xlsx2csv $excel_file |
-        egrep "$user_filter" |
-        grep -v '^,,,,,,,,' |
+    xlsx2csv $excel_file | 
+        grep -v '^,,,,,,,,' | 
+        egrep "username,date,team,manager|$user_filter" |
         $pmaker_home/node_modules/csvtojson/bin/csvtojson | 
         jq -M '.' |
         sed 's/,"field[0-9]*":"[a-zA-Z_-]*"//g' |
         sed 's/{"field[0-9]*":"[a-zA-Z_-]*",/{/g' |
         sed 's/"field[0-9][0-9]*":"[a-zA-Z_-]*",//g' |
         egrep '"username":|"user_groups":|"server_groups":|"email":|"password":|"key":|"mobile":|"full_name":|}|{|\[|\]|become_' |
-        jq 'del(.[0])' |
         sed 's/"\[/\[/g' | sed 's/\]"/\]/g' | sed 's|\\"|"|g' |
         egrep -v '"\w+ \w+":' |
         sed 's/"TRUE"/true/g' |
@@ -55,3 +54,5 @@ users:|' | # adds users: as name of data structure
 }
 
 users2pmaker $@
+
+# jq 'del(.[0])' |
