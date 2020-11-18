@@ -26,8 +26,8 @@
   blockinfile:
     path: "/etc/sudoers.d/{{ item.username }}"
     block: |
-      {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
-      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle *
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle *
     marker: "# {mark} ANSIBLE MANAGED BLOCK - oracle"
     state: present
     mode: 0440
@@ -40,8 +40,8 @@
   blockinfile:
     path: "/etc/sudoers.d/{{ item.username }}"
     block: |
-      {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
-      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle *
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle *
     marker: "# {mark} ANSIBLE MANAGED BLOCK - oracle"
     state: absent
     mode: 0440
