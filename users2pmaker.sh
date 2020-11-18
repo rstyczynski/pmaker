@@ -28,11 +28,13 @@ function y2j() {
 
 function users2pmaker() {
     excel_file=$1
+    user_filter=$2
 
     tmp=$pmaker_home/tmp; mkdir -p $tmp
     users_file=$(basename $excel_file)
 
     xlsx2csv $excel_file |
+        egrep "$user_filter" | 
         grep -v '^,,,,,,,,' |
         $pmaker_home/node_modules/csvtojson/bin/csvtojson | 
         jq -M '.' |
