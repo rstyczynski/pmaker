@@ -3,3 +3,5 @@
   tasks:
      - name: Run the script
        script: "{{ script }}"
+       register: out
+     - debug: var=out.stdout_lines
