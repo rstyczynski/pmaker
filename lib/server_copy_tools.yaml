@@ -2,7 +2,7 @@
   tasks:
     - name: Run the script
       copy:
-        src: "{{ env_files }}/tools/*"
+        src: "{{ env_files }}/tools/"
         dest: "~/"
         mode: preserve
         remote_src: yes
