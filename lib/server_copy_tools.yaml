@@ -5,3 +5,4 @@
         src: "{{ env_files }}/tools"
         dest: "~/"
         mode: preserve
+        remote_src: yes
