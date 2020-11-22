@@ -2,5 +2,5 @@
   tasks:
      - name: Run the command
        command: "{{ command }} {{ params }}"
-       register: command
-     - debug: msg="{{ command.stdout }}"
+       register: out
+     - debug: var=out.stdout_lines
