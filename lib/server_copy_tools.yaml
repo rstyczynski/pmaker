@@ -1,8 +1,4 @@
 - hosts: all
   tasks:
     - name: Copy tools
-      copy:
-        src: "{{ env_files }}/tools/"
-        dest: "~/"
-        mode: preserve
-        remote_src: yes
+      command: "cp -rf --preserve=mode,timestamps {{ env_files }}/tools/* ~/"
