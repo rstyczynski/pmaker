@@ -1,6 +1,6 @@
 - hosts: all
   tasks:
-    - name: Run the script
+    - name: Copy tools
       copy:
         src: "{{ env_files }}/tools/"
         dest: "~/"
