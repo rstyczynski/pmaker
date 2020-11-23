@@ -4,4 +4,5 @@
      - name: Run the command
        command: "{{ command }} {{ params }}"
        register: out
+     - debug: "{{ command }} {{ params }}"
      - debug: var=out.stdout_lines
