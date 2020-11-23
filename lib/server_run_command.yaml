@@ -5,7 +5,7 @@
        command:
           argv: 
             - "{{ command }}"
-            - " {{ params }}"
+            - '"{{ params }}"'
        register: out
      - debug: msg="{{ command }} {{ params }}"
      - debug: var=out.stdout_lines
