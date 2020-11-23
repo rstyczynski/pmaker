@@ -1,5 +1,6 @@
 - hosts: all
   tasks:
     - name: Copy tools
-      chdir: "{{ env_files }}/tools"
       command: "cp -rf --preserve=mode,timestamps . ~/"
+      args:
+        chdir: "{{ env_files }}/tools"
