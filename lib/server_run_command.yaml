@@ -2,7 +2,10 @@
   gather_facts: no
   tasks:
      - name: Run the command
-       command: "{{ command }} {{ params }}"
+       command:
+          argv: 
+            - "{{ command }}"
+            - " {{ params }}"
        register: out
      - debug: msg="{{ command }} {{ params }}"
      - debug: var=out.stdout_lines
