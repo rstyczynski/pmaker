@@ -1,4 +1,5 @@
 - hosts: all
   tasks:
     - name: Copy tools
-      command: "cd /mwlogs/tools; cp -rf --preserve=mode,timestamps . ~/; cd -"
+      chdir: "{{ env_files }}/tools"
+      command: "cp -rf --preserve=mode,timestamps . ~/"
