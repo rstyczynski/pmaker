@@ -17,7 +17,8 @@
     state: present
     mode: 0440
     create: yes
-
+  when: server_group in item.became_root
+  
 - name: Add user to root sudoers
   become: yes
   lineinfile:
