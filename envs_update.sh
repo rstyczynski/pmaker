@@ -28,14 +28,17 @@ if [ -z "$server_groups" ]; then
 fi 
 
 echo '==========================================================================='
-echo Spliting ussers into group using: $server_groups
+echo Spliting users into groups using: $server_groups
 echo '==========================================================================='
 for server_group in $server_groups; do
    echo '========================='
    echo Processing env: $server_group
    echo '========================='
 
-   ansible-playbook $pmaker_home/env_users.yaml -e user_group=$user_group -e server_group=$server_group $@
+   ansible-playbook $pmaker_home/env_users.yaml \
+   -e user_group=$user_group \
+   -e server_group=$server_group \
+   -l localhost
    
    echo '========================='
    echo Done.
