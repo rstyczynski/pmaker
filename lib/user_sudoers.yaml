@@ -8,6 +8,16 @@
       - "Appl: {{ item.became_appl }}"
       - "Oracle: {{ item.became_oracle }}"      
 
+- name: Add marker about file owner
+  become: yes
+  lineinfile:
+    path: "/etc/sudoers.d/{{ item.username }}"
+    insertbefore: BOF
+    line: "# managed by pmaker"
+    state: present
+    mode: 0440
+    create: yes
+
 - name: Add user to root sudoers
   become: yes
   lineinfile:
