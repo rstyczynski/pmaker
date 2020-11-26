@@ -8,7 +8,7 @@
       - "Appl: {{ item.became_appl }}"
       - "Oracle: {{ item.became_oracle }}"      
 
-- name: Add marker about file owner
+- name: Add marker about file owner (fix for blockinfile bug)
   become: yes
   lineinfile:
     path: "/etc/sudoers.d/{{ item.username }}"
@@ -60,7 +60,9 @@
   blockinfile:
     path: "/etc/sudoers.d/{{ item.username }}"
     block: |
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su oracle *
+      {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle
       {{ item.username }} ALL=(root) NOPASSWD: /bin/su - oracle *
     marker: "# {mark} ANSIBLE MANAGED BLOCK - oracle"
     state: absent
