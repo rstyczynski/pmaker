@@ -43,10 +43,14 @@
 
 # TODO How about when revoke file oes not exist, but exists at server?
 
-- name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke"
+- name: "DEBUG: revoke_file_check"
   debug:
     var: revoke_file_check
-    
+
+- name: "DEBUG: revoked_file_check"
+  debug:
+    var: revoked_file_check
+
 # - name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoked"
 #   debug:
 #     var: revoked_file_check
