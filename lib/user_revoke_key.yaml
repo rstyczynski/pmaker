@@ -43,9 +43,9 @@
 
 # TODO How about when revoke file oes not exist, but exists at server?
 
-# - name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke"
-#   debug:
-#     var: revoke_file_check
+- name: "Revoke: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/{{ keyfile }}.revoke"
+  debug:
+    var: revoke_file_check
     
 # - name: "Revoked: {{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/servers/{{ inventory_hostname }}/{{ keyfile }}.revoked"
 #   debug:
@@ -70,7 +70,7 @@
 #   debug:
 #     msg: "{{ revoke_file }}"
 
-- name: Ensure pmaker ~/.ssh/authorized_keys contains pmaker's public key
+- name: Ensure pmaker ~/.ssh/authorized_keys contains user's public key
   become: yes
   authorized_key:
     user: "{{ item }}"
