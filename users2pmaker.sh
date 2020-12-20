@@ -33,7 +33,7 @@ function users2pmaker() {
     tmp=$pmaker_home/tmp; mkdir -p $tmp
     users_file=$(basename $excel_file)
 
-    if [ ! -z "username" ]; then
+    if [ ! -z "$username" ]; then
         user_filter="|^$username,"
     fi
 
