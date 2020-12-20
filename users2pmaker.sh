@@ -34,8 +34,8 @@ function users2pmaker() {
     users_file=$(basename $excel_file)
 
     xlsx2csv $excel_file | 
-        grep -v '^,,,,,,,,' | 
-        egrep "username,date,team,manager|$user_filter" |
+        grep -v '^,,,,,,' | 
+        egrep "username,date,team,manager|^$user_filter," |
         $pmaker_home/node_modules/csvtojson/bin/csvtojson | 
         jq -M '.' |
         sed 's/,"field[0-9]*":"[a-zA-Z_-]*"//g' |
