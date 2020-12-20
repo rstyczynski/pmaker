@@ -33,13 +33,14 @@ function users2pmaker() {
     tmp=$pmaker_home/tmp; mkdir -p $tmp
     users_file=$(basename $excel_file)
 
+    unset user_filter
     if [ ! -z "$username" ]; then
-        user_filter="|^$username,"
+        user_filter="^$username,"
     fi
 
     xlsx2csv $excel_file | 
         grep -v '^,,,,,,' | 
-        egrep "username,date,team,manager$user_filter" |
+        egrep "username,date,team,manager|$user_filter" |
         $pmaker_home/node_modules/csvtojson/bin/csvtojson | 
         jq -M '.' |
         sed 's/,"field[0-9]*":"[a-zA-Z_-]*"//g' |
