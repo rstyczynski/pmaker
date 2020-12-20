@@ -10,9 +10,10 @@ keyfile=$1
 shift
 
 function usage() {
-    echo Usage: revoke_keys.sh user_group [server_groups] [user]
+    echo Usage: revoke_keys.sh user_group [server_groups] [user] [keyfile]
     echo server_groups defaults to all
-    echo user to ptocess defaults to pmaker, and all
+    echo user to process defaults to pmaker, and all
+    echo keyfile to process, defaults to id_rsa
 }
 
 if [ -z "$user_group" ]; then
@@ -22,6 +23,7 @@ fi
 
 : ${server_groups:=all}
 : ${user_to_process:=all}
+: ${keyfile:=id_rsa}
 
 if [ -z "$pmaker_home" ]; then
     pmaker_home=/opt/pmaker
@@ -137,6 +139,7 @@ for server_group in $server_groups; do
                     # all done - change main rsa_id to unique name, kept for historical purposes
                     [ -f $ssh_root/$keyfile ]        && mv $ssh_root/$keyfile $ssh_root/$fprint.key
                     [ -f $ssh_root/$keyfile.key ]    && mv $ssh_root/$keyfile.key $ssh_root/$fprint.key 
+                    [ -f $ssh_root/$keyfile.pub ]    && mv $ssh_root/$keyfile.key $ssh_root/$fprint.pub 
                     [ -f $ssh_root/$keyfile.revoke ] && mv $ssh_root/$keyfile.revoke $ssh_root/$fprint.revoked
                     [ -f $ssh_root/$keyfile.enc ]    && mv $ssh_root/$keyfile.enc $ssh_root/$fprint.enc
                     [ -f $ssh_root/$keyfile.ppk ]    && mv $ssh_root/$keyfile.ppk $ssh_root/$fprint.ppk
