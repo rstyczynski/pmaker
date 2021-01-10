@@ -307,7 +307,14 @@ function test_ssh_access() {
 
     say "Testing user access..."
     for username in $(cat $tmp/$user_group.$server_group.users); do
-        ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
+
+        if [ -f state/$user_group/$server_group/$username/.ssh/id_rsa ]; then
+            ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
+        else
+            key=$(ls -t state/$user_group/$server_group/$username/.ssh/*.key | head -1)
+            echo "id_rsa key not found. Taking latest available key: $key" | tee -a $report
+            ssh-add $key | tee -a $report
+        fi
 
         userline="$(sayatcell -n -f $username 15)"
         for target_host in $(cat $tmp/$user_group.$server_group.servers); do
