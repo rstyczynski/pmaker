@@ -188,8 +188,8 @@ function test_ssh_access() {
                     >$tmp/$user_group.$server_group.users
                 say Done.
             if [ $(cat $tmp/$user_group.$server_group.users | wc -l) -eq 0 ]; then
-                say "Error. User list empty after applying filter."
-                quit 1
+                say "Warning. User list empty after applying filter. Assuming requested user is a deleted one. Will perform negative test."
+                users_all=$user_subset
             fi
         fi
 
