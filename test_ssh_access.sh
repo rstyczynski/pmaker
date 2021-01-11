@@ -184,12 +184,12 @@ function test_ssh_access() {
             say Done.
         else
             cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username' |
-                egrep "$(echo $user_subset | tr ' ,' '|')" \
-                    >$tmp/$user_group.$server_group.users
+                egrep "$(echo $user_subset | tr -d ' '  | tr ',' '|')" \
+                > $tmp/$user_group.$server_group.users
                 say Done.
             if [ $(cat $tmp/$user_group.$server_group.users | wc -l) -eq 0 ]; then
                 say "Warning. User list empty after applying filter. Assuming requested user is a deleted one. Will perform negative test."
-                users_all=$user_subset
+                echo $user_subset | tr -d ' ' | tr ',' '\n' > $tmp/$user_group.$server_group.users
             fi
         fi
 
