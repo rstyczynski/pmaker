@@ -2,6 +2,8 @@
 
 user_group=$1; shift
 server_groups=$1; shift
+skip_hosts=$1; shift
+
 
 function usage() {
    echo Usage: configureInventory.sh user_group [server_groups]
@@ -41,8 +43,8 @@ echo '==========================================================================
 echo " Checking communication with servers belonging to: $user_group"
 echo '==========================================================================='
 
-# remove jumps
-cat data/$user_group.inventory.opc | sed '/jumps/,/^$/d' > data/$user_group.inventory.opc.no_jumps
+# remove jumps | skpis given hosts
+cat data/$user_group.inventory.opc | sed '/jumps/,/^$/d' | grep -v "$skip_hosts" > data/$user_group.inventory.opc.no_jumps
 
 ansible -m ping all -i data/$user_group.inventory.opc.no_jumps $@
 if [ $? -ne 0 ]; then
