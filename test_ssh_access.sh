@@ -328,7 +328,7 @@ function test_ssh_access() {
             unset statusline
 
             if [ "$jump_server" != none ]; then
-                say -n "Connection to jump $jump_server:"
+                say -n "Connection to jump $jump_server [ssh $username@$jump_server]:"
                 timeout $ssh_timoeut ssh $username@$jump_server 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
                     statusline="$statusline+"
@@ -342,7 +342,7 @@ function test_ssh_access() {
                 statusline="${statusline}s"
             fi
 
-            say -n "Connection to server over jump $jump_server:"
+            say -n "Connection to server over jump $jump_server [ssh -J $username@$jump_server $username@$target_host]:"
             if [ "$jump_server" != none ]; then
                 timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
@@ -357,7 +357,7 @@ function test_ssh_access() {
                 statusline="${statusline}s"
             fi
 
-            say -n "Connection to server:"
+            say -n "Connection to server [ssh $username@$target_host]:"
             timeout $ssh_timoeut ssh $username@$target_host 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
             if [ ${PIPESTATUS[0]} -eq 0 ]; then
                 statusline="$statusline+"
