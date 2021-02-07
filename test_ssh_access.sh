@@ -320,7 +320,7 @@ function test_ssh_access() {
         for target_host in $(cat $tmp/$user_group.$server_group.servers); do
             say
             say "##########################################"
-            say "### user: $username @ $target_host"
+            say "### user: $username@$target_host"
             say "##########################################"
 
             jump_server=${host_cfg[$target_host|jump]}
@@ -328,7 +328,7 @@ function test_ssh_access() {
             unset statusline
 
             if [ "$jump_server" != none ]; then
-                say -n "Connection to jump:"
+                say -n "Connection to jump $jump_server:"
                 timeout $ssh_timoeut ssh $username@$jump_server 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
                     statusline="$statusline+"
@@ -342,7 +342,7 @@ function test_ssh_access() {
                 statusline="${statusline}s"
             fi
 
-            say -n "Connection to server over jump:"
+            say -n "Connection to server over jump $jump_server:"
             if [ "$jump_server" != none ]; then
                 timeout $ssh_timoeut ssh -J $username@$jump_server $username@$target_host 'echo Greetings from $(whoami). $(hostname), $(date); exit' | tee -a $report
                 if [ ${PIPESTATUS[0]} -eq 0 ]; then
