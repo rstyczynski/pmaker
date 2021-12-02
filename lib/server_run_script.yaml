@@ -7,3 +7,4 @@
        register: out
      - debug: var=out.stderr_lines
      - debug: var=out.stdout_lines
+    

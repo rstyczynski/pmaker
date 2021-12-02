@@ -48,7 +48,7 @@ echo '==========================================================================
 cat data/$user_group.inventory.opc | grep -v "$skip_hosts" > data/$user_group.inventory.opc.selected
 
 for server_group in $server_groups; do
-   ansible -m ping $server_group -i data/$user_group.inventory.opc.selected $@
+   ansible -m ping $server_group -i data/$user_group.inventory.opc.selected
    if [ $? -ne 0 ]; then
    echo "Error. SSH communication not possible to all servers. Fix the erros and retry. Exiting."
    exit 1
