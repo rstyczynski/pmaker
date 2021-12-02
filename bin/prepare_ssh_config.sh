@@ -16,12 +16,12 @@ fi
 : ${proxy_user:=opc}
 : ${server_group_key:=no}
 
-server_groups=$(cat data/$user_group.inventory.cfg | grep -v '^#' | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep -v '^#' | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
 # take from [env] section
-#jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
+#jump_server=$(cat $pmaker_home/data/$user_group.inventory.cfg | sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | grep -v '^$' | grep 'host_type=jump' | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d'=' -f2)
 # take from [jumps] sectino
-group_jump_server=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | cut -f1 -d' ' )
-group_jump_server_ip=$(cat data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d= -f2)
+group_jump_server=$(cat $pmaker_home/data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | cut -f1 -d' ' )
+group_jump_server_ip=$(cat $pmaker_home/data/$user_group.inventory.cfg | sed -n "/\[jumps]/,/^\[/p" | grep "^$server_group\_jump" | tr -s ' ' | tr ' ' '\n' | grep public_ip | cut -d= -f2)
 
 tmp=$pmaker_home/tmp; mkdir -p $tmp
 
@@ -48,7 +48,7 @@ fi
 fi
 
 
-hosts=$(cat data/$user_group.inventory.cfg | 
+hosts=$(cat $pmaker_home/data/$user_group.inventory.cfg | 
 sed -n "/\[$server_group\]/,/^\[/p" | grep -v '\[' | 
 grep -v '^$' | 
 grep -v '^#' | 
@@ -56,7 +56,7 @@ cut -f1 -d' ')
 
 for host in $hosts; do
 
-    jump_server=$(cat data/$user_group.inventory.cfg | grep "^$host\s" | tr -s ' ' | tr ' ' '\n' | grep "^jump=" | cut -d= -f2)
+    jump_server=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep "^$host\s" | tr -s ' ' | tr ' ' '\n' | grep "^jump=" | cut -d= -f2)
     
     if [ ! -z "$jump_server" ]; then
         cat >>$tmp/ssh_config<<EOF
