@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# init runtime context
+#
+
 #unset executed
 declare -A executed
 declare -A prereq
@@ -13,6 +17,22 @@ prereq[welcome]="deploy"
 prereq[welcome validate]="welcome generate"
 prereq[welcome send]="welcome validate"
 
+#
+# helpers
+#
+
+function j2y {
+   ruby -ryaml -rjson -e 'puts YAML.dump(JSON.parse(STDIN.read))'
+}
+
+function y2j {
+   ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'
+}
+
+
+#
+# main logic
+#
 function pmaker() {
   command=$1
   shift
@@ -62,7 +82,19 @@ function pmaker() {
   # not all functions use pmaker_hoem, so It's mandatory to set current dir
   cd $pmaker_home
 
-  known_envs=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+  # select environments to process
+  if [ -f $pmaker_home/data/$user_group.users.yaml ]; then
+    known_envs=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+    if [ -z "$envs" ] || [ "$envs" = all ]; then
+      envs=$known_envs
+    fi
+
+    if [ -z "$known_envs" ]; then
+      echo "Warning. Environment list empty. Verify that spreadshhet contains proper access data."
+    fi
+  else
+    echo "Warning. User directory not ready. Use import excel."
+  fi
 
   # execute command
   result=0
@@ -86,20 +118,67 @@ function pmaker() {
     known_envs=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
 
     ;;
+  generate)
+    command="$command $what"
+    case $what in
+    keys)
+      for env in $envs; do
+        ansible-playbook $pmaker_lib/env_configure_controller.yaml \
+        -e server_group=$env \
+        -e user_group=$user_group \
+        -i $pmaker_home/data/$user_group.inventory_hosts.cfg \
+        -l localhost || result=$?
+      done
+      ;;
+    ssh)
+      where=$1; shift
+      command="$command $what $where"
+      case $where in
+      config)
+        for env in $envs; do
+          echo "Setting up ssh config for $env"
+          if [ -f state/$user_group/$env/pmaker/.ssh/id_rsa ]; then
+              $pmaker_bin/prepare_ssh_config.sh $user_group $env pmaker $pmaker_home/state/$user_group/$env/pmaker/.ssh/id_rsa || result=$?
+          else
+            result=1
+            echo "Error. pmaker key not available."
+          fi
+        done
+        ;;
+      *)
+        echo "Error. Unknown object for generate ssh."
+        result=1
+        ;;
+      esac
+      ;;
+    *)
+      echo "Error. Unknown object for generate."
+      result=1
+      ;;
+    esac
+    ;;
+
   deploy)
 
-    if [ -z "$envs" ] || [ "$envs" = all ]; then
-      $pmaker_bin/envs_update.sh $user_group | tee -a $pmaker_log/envs_update-$user_group-ALL-$(date -I).log
-      result=${PIPESTATUS[0]}
-    else
-      result=0
-      for env in $envs; do
-        $pmaker_bin/envs_update.sh $user_group $env | tee -a $pmaker_log/envs_update-$user_group-$env-$(date -I).log
-        if [ ${PIPESTATUS[0]} -ne 0 ]; then
-          result=1
-        fi
-      done
-    fi
+    for env in $envs; do
+
+      server_list="controller $(ansible-inventory -i $pmaker_home/data/$user_group.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$env.hosts | keys[]] | unique | .[]")"
+
+      echo '========================='
+      echo Processing env: $env
+      echo \-having servers: $server_list
+      echo '========================='
+
+      ansible-playbook $pmaker_lib/env_configure_hosts.yaml \
+      -e server_group=$env \
+      -e user_group=$user_group \
+      -i $pmaker_home/data/$user_group.inventory.cfg \
+      -l "$server_list" | 
+      tee -a $pmaker_log/envs_update-$user_group-$env-$(date -I).log
+      if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        result=1
+      fi
+    done
     ;;
 
   rebuild)
@@ -151,21 +230,8 @@ function pmaker() {
   welcome)
     command="$command $what"
 
-    source $pmaker_bin/deliver_welcome_msg.sh
-    source $pmaker_bin/generate_welcome_msg.sh
-
-    if [ -z "$envs" ] || [ "$envs" = all ]; then
-      #
-      # all environments
-      #
-      #process_envs=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '^\[' | grep '\]$' | egrep -v 'controller|jumps' | tr -d '][')
-      process_envs=$known_envs
-    else
-      #
-      # selected environments
-      #
-      process_envs="$envs"
-    fi
+    source $pmaker_lib/generate_welcome_msg.sh
+    source $pmaker_lib/deliver_welcome_msg.sh
 
     case $what in
     generate)
@@ -173,7 +239,7 @@ function pmaker() {
       # generate
       #
       result=0
-      for env in $process_envs; do
+      for env in $envs; do
         # generate e-mail and sms
         generateAllMessages $user_group $env || result=$?
       done
@@ -181,7 +247,7 @@ function pmaker() {
 
     validate)
       result=0
-      for env in $process_envs; do
+      for env in $envs; do
         # verify emails and sms
         welcome_email $user_group $env || result=$?
         welcome_sms $user_group $env || result=$?
@@ -197,7 +263,7 @@ function pmaker() {
         source ~/.pmaker/smtp.cfg
 
         result=0
-        for env in $process_envs; do
+        for env in $envs; do
           # deliver emails and sms
           welcome_email $user_group $env all deliver || result=$?
           welcome_sms $user_group $env all deliver $sms_delivery || result=$?
@@ -208,7 +274,7 @@ function pmaker() {
 
     redeliver)
       result=0
-      for env in $process_envs; do
+      for env in $envs; do
         # clear sent flag
         clear_welcome_email $user_group $env $user_filter || result=$?
         clear_welcome_sms $user_group $env $user_filter || result=$?

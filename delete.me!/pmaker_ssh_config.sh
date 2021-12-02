@@ -17,7 +17,7 @@ fi
 # build ssh config
 #
 
-cd state/$user_group
+cd $pmaker_home/state/$user_group
 server_groups=$(ls -d */ | egrep -v 'functional|outbox' | tr -d '/')
 cd - 2>/dev/null
 
@@ -26,11 +26,11 @@ if [ -f ~/.ssh/config ]; then
 fi 
 
 for server_group in $server_groups; do
-   if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
+   if [ -f $pmaker_home/state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
       echo "Settgn up ssh config for $server_group"
-      $pmaker_home/prepare_ssh_config.sh $user_group $server_group pmaker state/$user_group/$server_group/pmaker/.ssh/id_rsa
+      $pmaker_home/bin/prepare_ssh_config.sh $user_group $server_group pmaker $pmaker_home/state/$user_group/$server_group/pmaker/.ssh/id_rsa
    else
      echo No pmaker key for $server_group. Using global pmaker key
-     $pmaker_home/prepare_ssh_config.sh $user_group $server_group pmaker ~/.ssh/id_rsa
+     $pmaker_home/bin/prepare_ssh_config.sh $user_group $server_group pmaker ~/.ssh/id_rsa
    fi
 done

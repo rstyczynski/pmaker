@@ -308,10 +308,10 @@ function test_ssh_access() {
     say "Testing user access..."
     for username in $(cat $tmp/$user_group.$server_group.users); do
 
-        if [ -f state/$user_group/$server_group/$username/.ssh/id_rsa ]; then
-            ssh-add state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
+        if [ -f $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa ]; then
+            ssh-add $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
         else
-            key=$(ls -t state/$user_group/$server_group/$username/.ssh/*.key | head -1)
+            key=$(ls -t $pmaker_home/state/$user_group/$server_group/$username/.ssh/*.key | head -1)
             echo "id_rsa key not found. Taking latest available key: $key" | tee -a $report
             ssh-add $key | tee -a $report
         fi
@@ -368,7 +368,7 @@ function test_ssh_access() {
             fi
 
             say -n "Test appl* user access"
-            cat state/$user_group/$server_group/users.yaml | 
+            cat $pmaker_home/state/$user_group/$server_group/users.yaml | 
             y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_appl[]" |
             grep -i "^$server_group$"  > /dev/null
             if [ $? -eq 0 ]; then
@@ -412,7 +412,7 @@ function test_ssh_access() {
 
 
             say -n "Test oracle user access"
-            cat state/$user_group/$server_group/users.yaml | 
+            cat $pmaker_home/state/$user_group/$server_group/users.yaml | 
             y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_oracle[]" |
             grep -i "^$server_group$"  > /dev/null
             if [ $? -eq 0 ]; then
@@ -449,7 +449,7 @@ function test_ssh_access() {
             fi
 
             say -n "Test root user access"
-            cat state/$user_group/$server_group/users.yaml | 
+            cat $pmaker_home/state/$user_group/$server_group/users.yaml | 
             y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_root[]" |
             grep -i "^$server_group$"  > /dev/null
             if [ $? -eq 0 ]; then
@@ -491,7 +491,7 @@ function test_ssh_access() {
         done
         echo "$userline" >> $tmp/$user_group.$server_group.access
 
-        ssh-add -d state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
+        ssh-add -d $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
     done
 
     mkdir -p $pmaker_home/log

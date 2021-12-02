@@ -11,7 +11,7 @@
   strategy: free
   
   tasks:
-    - include_vars: config.yaml
+    - include_vars: "{{ pmaker_home }}/etc/config.yaml"
     - include_vars: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/users.yaml"
 
     - include: "{{ pmaker_home }}/lib/user_gen_key.yaml"
@@ -21,4 +21,3 @@
     - include: "{{ pmaker_home }}/lib/user_gen_password.yaml"
       when: (item.password is defined) and (item.password == true)
       with_items: "{{ users }}"
-

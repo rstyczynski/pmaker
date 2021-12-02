@@ -41,28 +41,28 @@ function welcome_email() {
     usernames=$3
     deliver=$4
 
-    if [ ! -d state ]; then
-        echo "Error. Email delivery must be started from pmaker home."
+    if [ ! -d $pmaker_home/state ]; then
+        echo "Error. Email delivery requires state to be ready. Import data first.."
         return 1
     fi
 
     : ${usernames:=all}
 
     if [ "$server_groups" == all ]; then
-        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
     for server_group in $server_groups; do
 
         if [ "$usernames" == all ]; then
-            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
+            usernames=$(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
         for username in $usernames; do
 
             echo -n ">>> $server_group $username: "
 
-            if [ ! -f state/$user_group/$server_group/$username/welcome.sent ]; then
+            if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/welcome.sent ]; then
                 if [ "$deliver" == 'deliver' ]; then
                     echo -n " mail delivery...."
 
@@ -86,8 +86,8 @@ function welcome_email() {
                                     -S smtp-auth-user=$ACCOUNT_USER \
                                     -S smtp-auth-password=$ACCOUNT_PASSWORD \
                                     -S smtp-auth=plain \
-                                    -a state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.enc \
-                                    -a state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk \
+                                    -a $pmaker_home/state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.enc \
+                                    -a $pmaker_home/state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk \
                                     $TO_EMAIL_ADDRESS 2>/tmp/email.$$.tmp
 
                             if [ $? -eq 0 ]; then
@@ -110,7 +110,7 @@ function welcome_email() {
                     read -p "press any key"
                 fi
             else
-                echo "Email already sent at $(ls -l state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
+                echo "Email already sent at $(ls -l $pmaker_home/state/$user_group/$server_group/$username/welcome.sent | cut -d' ' -f6-8)"
             fi
         done
     done
@@ -135,30 +135,30 @@ function welcome_sms() {
         return 1
     fi
 
-    if [ ! -d state ]; then
-        echo "Error. SMS delivery must be started from pmaker home."
+    if [ ! -d $pmaker_home/state ]; then
+        echo "Error. SMS delivery requires state to be ready. Import data first.."
         return 1
     fi
 
-    rm -rf state/$user_group/smskey_batch.csv
-    rm -rf state/$user_group/smskey_batch.sh
+    rm -rf $pmaker_home/state/$user_group/smskey_batch.csv
+    rm -rf $pmaker_home/state/$user_group/smskey_batch.sh
 
     if [ "$server_groups" == all ]; then
-        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
     for server_group in $server_groups; do
 
         if [ "$usernames" == all ]; then
-            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
+            usernames=$(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
         for username in $usernames; do
 
-            mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+            mobile=$(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
             if [ ! -z "$mobile" ]; then
                 echo -n ">>> $server_group $username: "
-                if [ ! -f state/$user_group/$server_group/$username/sms.sent ]; then
+                if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/sms.sent ]; then
                     if [ "$deliver" == 'deliver' ]; then
                         echo -n " sms delivery...."
                         sms_message=$(getKeySMS $user_group $server_group $username)
@@ -168,13 +168,13 @@ function welcome_sms() {
                         else
                             case "$channel" in
                             aws)
-                                aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/sms.sent
+                                aws sns publish --message "$sms_message" --phone-number "$mobile" | tee $pmaker_home/state/$user_group/$server_group/$username/sms.sent
                                 ;;
                             csv)
-                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/smskey_batch.csv
+                                echo "$mobile;$sms_message" | tee $pmaker_home/state/$user_group/$server_group/$username/sms.sent | tee -a $pmaker_home/state/$user_group/smskey_batch.csv
                                 ;;
                             script)
-                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/smskey_batch.sh
+                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee $pmaker_home/state/$user_group/$server_group/$username/sms.sent | tee -a $pmaker_home/state/$user_group/smskey_batch.sh
                                 ;;
                             *)
                                 echo "Not supported: $channel"
@@ -193,7 +193,7 @@ function welcome_sms() {
                         fi
                     fi
                 else
-                    echo "SMS already sent at $(ls -l state/$user_group/$server_group/$username/sms.sent | cut -d' ' -f6-8)"
+                    echo "SMS already sent at $(ls -l $pmaker_home/state/$user_group/$server_group/$username/sms.sent | cut -d' ' -f6-8)"
                 fi
             else
                 echo User has no mobile number.
@@ -201,14 +201,14 @@ function welcome_sms() {
         done
     done
 
-    if [ -f state/$user_group/smskey_batch.csv ]; then
+    if [ -f $pmaker_home/state/$user_group/smskey_batch.csv ]; then
         echo "SMS batch to send:"
-        cat state/$user_group/smskey_batch.csv
+        cat $pmaker_home/state/$user_group/smskey_batch.csv
     fi
 
-    if [ -f state/$user_group/smskey_batch.sh ]; then
+    if [ -f $pmaker_home/state/$user_group/smskey_batch.sh ]; then
         echo "SMS script to send:"
-        cat state/$user_group/smskey_batch.sh
+        cat $pmaker_home/state/$user_group/smskey_batch.sh
     fi
 }
 
@@ -229,36 +229,36 @@ function welcome_password_sms() {
         return 1
     fi
 
-    if [ ! -d state ]; then
-        echo "Error. SMS delivery must be started from pmaker home."
+    if [ ! -d $pmaker_home/state ]; then
+        echo "Error. SMS delivery requires state to be ready. Import data first.."
         return 1
     fi
 
     if [ "$usernames" == all ]; then
-        usernames=$(cat data/$user_group.users.yaml | y2j | jq -r '.users[].username')
+        usernames=$(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '.users[].username')
     fi
 
-    rm -rf state/$user_group/smspass_batch.csv
-    rm -rf state/$user_group/smskey_batch.sh
+    rm -rf $pmaker_home/state/$user_group/smspass_batch.csv
+    rm -rf $pmaker_home/state/$user_group/smskey_batch.sh
 
     if [ "$server_groups" == all ]; then
-        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
     for server_group in $server_groups; do
 
         if [ "$usernames" == all ]; then
-            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
+            usernames=$(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
         for username in $usernames; do
 
-            mobile=$(cat data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
+            mobile=$(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r ".users[] | select(.username==\"$username\") | .mobile")
             if [ ! -z "$mobile" ]; then
 
                 echo -n ">>> $server_group $username: "
 
-                if [ ! -f state/$user_group/$server_group/$username/password_sms.sent ]; then
+                if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/password_sms.sent ]; then
                     if [ "$deliver" == 'deliver' ]; then
                         echo -n " sms delivery...."
                         sms_message=$(getPasswordSMS $user_group $server_group $username)
@@ -268,13 +268,13 @@ function welcome_password_sms() {
                         else
                             case "$channel" in
                             aws)
-                                aws sns publish --message "$sms_message" --phone-number "$mobile" | tee state/$user_group/$server_group/$username/password_sms.sent
+                                aws sns publish --message "$sms_message" --phone-number "$mobile" | tee $pmaker_home/state/$user_group/$server_group/$username/password_sms.sent
                                 ;;
                             csv)
-                                echo "$mobile;$sms_message" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/smspass_batch.csv
+                                echo "$mobile;$sms_message" | tee $pmaker_home/state/$user_group/$server_group/$username/sms.sent | tee -a $pmaker_home/state/$user_group/smspass_batch.csv
                                 ;;
                             script)
-                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee state/$user_group/$server_group/$username/sms.sent | tee -a state/$user_group/smskey_batch.sh
+                                echo "sendSMS \"$mobile\" \"$sms_message\"; sleep 5" | tee $pmaker_home/state/$user_group/$server_group/$username/sms.sent | tee -a $pmaker_home/state/$user_group/smskey_batch.sh
                                 ;;
                             *)
                                 echo "Not supported: $channel"
@@ -294,7 +294,7 @@ function welcome_password_sms() {
                         fi
                     fi
                 else
-                    echo "Password SMS already sent at $(ls -l state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
+                    echo "Password SMS already sent at $(ls -l $pmaker_home/state/$user_group/$server_group/$username/password_sms.sent | cut -d' ' -f6-8)"
                 fi
             else
                 echo User has no mobile number.
@@ -302,14 +302,14 @@ function welcome_password_sms() {
         done
     done
 
-    if [ -f state/$user_group/smspass_batch.csv ]; then
+    if [ -f $pmaker_home/state/$user_group/smspass_batch.csv ]; then
         echo "SMS batch to send:"
-        cat state/$user_group/smspass_batch.csv
+        cat $pmaker_home/state/$user_group/smspass_batch.csv
     fi
 
-    if [ -f state/$user_group/smskey_batch.sh ]; then
+    if [ -f $pmaker_home/state/$user_group/smskey_batch.sh ]; then
         echo "SMS script to send:"
-        cat state/$user_group/smskey_batch.sh
+        cat $pmaker_home/state/$user_group/smskey_batch.sh
     fi
 }
 
@@ -321,27 +321,27 @@ function clear_welcome_email() {
     server_groups=$2
     usernames=$3
 
-    if [ ! -d state ]; then
-        echo "Error. SMS delivery must be started from pmaker home."
+    if [ ! -d $pmaker_home/state ]; then
+        echo "Error. E-mail delivery requires state to be ready. Import data first.."
         return 1
     fi
 
     : ${usernames:=all}
 
     if [ "$server_groups" == all ]; then
-        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
     for server_group in $server_groups; do
 
         if [ "$usernames" == all ]; then
-            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
+            usernames=$(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
         for username in $usernames; do
             echo -n ">>> $server_group $username: "
-            if [ -f state/$user_group/$server_group/$username/welcome.sent ]; then
-                mv state/$user_group/$server_group/$username/welcome.sent state/$user_group/$server_group/$username/welcome.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
+            if [ -f $pmaker_home/state/$user_group/$server_group/$username/welcome.sent ]; then
+                mv $pmaker_home/state/$user_group/$server_group/$username/welcome.sent $pmaker_home/state/$user_group/$server_group/$username/welcome.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
                 echo "sent status removed."
             fi
         done
@@ -357,27 +357,27 @@ function clear_welcome_sms() {
     server_groups=$2
     usernames=$3
 
-    if [ ! -d state ]; then
-        echo "Error. SMS delivery must be started from pmaker home."
+    if [ ! -d $pmaker_home/state ]; then
+        echo "Error. SMS delivery requires state to be ready. Import data first.."
         return 1
     fi
 
     : ${usernames:=all}
 
     if [ "$server_groups" == all ]; then
-        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
     for server_group in $server_groups; do
 
         if [ "$usernames" == all ]; then
-            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
+            usernames=$(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
         for username in $usernames; do
             echo -n ">>> $server_group $username: "
-            if [ -f state/$user_group/$server_group/$username/sms.sent ]; then
-                mv state/$user_group/$server_group/$username/sms.sent state/$user_group/$server_group/$username/sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
+            if [ -f $pmaker_home/state/$user_group/$server_group/$username/sms.sent ]; then
+                mv $pmaker_home/state/$user_group/$server_group/$username/sms.sent $pmaker_home/state/$user_group/$server_group/$username/sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
                 echo "sent status removed."
             fi
         done
@@ -393,27 +393,27 @@ function clear_welcome_password_sms() {
     server_groups=$2
     usernames=$3
 
-    if [ ! -d state ]; then
-        echo "Error. SMS delivery must be started from pmaker home."
+    if [ ! -d $pmaker_home/state ]; then
+        echo "Error. SMS delivery requires state to be ready. Import data first.."
         return 1
     fi
 
     : ${usernames:=all}
 
     if [ "$server_groups" == all ]; then
-        server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+        server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
     fi
 
     for server_group in $server_groups; do
 
         if [ "$usernames" == all ]; then
-            usernames=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
+            usernames=$(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username')
         fi
 
         for username in $usernames; do
             echo -n ">>> $server_group $username: "
-            if [ -f state/$user_group/$server_group/$username/password_sms.sent ]; then
-                mv state/$user_group/$server_group/$username/password_sms.sent state/$user_group/$server_group/$username/password_sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
+            if [ -f $pmaker_home/state/$user_group/$server_group/$username/password_sms.sent ]; then
+                mv $pmaker_home/state/$user_group/$server_group/$username/password_sms.sent $pmaker_home/state/$user_group/$server_group/$username/password_sms.sent.$(date_now=$(date -u +"%Y%m%dT%H%M%S"))
                 echo "sent status removed."
             fi
         done

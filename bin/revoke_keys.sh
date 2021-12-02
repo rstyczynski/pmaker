@@ -38,7 +38,7 @@ function y2j() {
 }
 
 if [ "$server_groups" == all ]; then
-    server_groups=$(cat data/$user_group.users.yaml | y2j | jq -r '[.users[].server_groups[]] | unique | .[]')
+    server_groups=$(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '[.users[].server_groups[]] | unique | .[]')
     #Source: https://stackoverflow.com/questions/29822622/get-all-unique-json-key-names-with-jq
 fi
 
@@ -46,7 +46,7 @@ echo '==========================================================================
 echo " Configuring servers: $server_groups"
 echo '==========================================================================='
 for server_group in $server_groups; do
-    server_list=$(ansible-inventory -i data/$user_group.inventory.cfg -y --list | y2j | jq -r "[.all.children.$server_group.hosts | keys[]] | unique | .[]")
+    server_list=$(ansible-inventory -i $pmaker_home/data/$user_group.inventory.cfg -y --list | y2j | jq -r "[.all.children.$server_group.hosts | keys[]] | unique | .[]")
 
     echo '========================='
     echo Processing env: $server_group
@@ -57,12 +57,12 @@ for server_group in $server_groups; do
     # if [ -f ~/.ssh/$server_group.key ]; then
     #     ssh-add ~/.ssh/$server_group.key
     # fi
-    # users=$(cat state/$user_group/$server_group/users.yaml | y2j | jq -r ".users[].username")
+    # users=$(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r ".users[].username")
     
     if [ "$user_to_process" == all ]; then
-    # use list of users known to the system i.e. already registered. 
-    # this list may be different from users.yaml i.e. older
-    users="pmaker_global pmaker_env $(ls state/$user_group/$server_group | grep -v users.yaml)"
+        # use list of users known to the system i.e. already registered. 
+        # this list may be different from users.yaml i.e. older
+        users="pmaker_global pmaker_env $(ls $pmaker_home/state/$user_group/$server_group | grep -v users.yaml)"
     else
         users=$user_to_process
     fi
@@ -86,7 +86,7 @@ for server_group in $server_groups; do
                 -e server_group=$server_group \
                 -e user_group=$user_group \
                 -l $server_group \
-                -i data/$user_group.inventory.cfg
+                -i $pmaker_home/data/$user_group.inventory.cfg
                 ;;
             pmaker_env)
                 ssh_root=$pmaker_home/state/$user_group/$server_group/$username/.ssh
@@ -98,7 +98,7 @@ for server_group in $server_groups; do
                 -e server_group=$server_group \
                 -e user_group=$user_group \
                 -l $server_group \
-                -i data/$user_group.inventory.cfg
+                -i $pmaker_home/data/$user_group.inventory.cfg
                 ;;
             *)
                 ssh_root=$pmaker_home/state/$user_group/$server_group/$username/.ssh
@@ -110,7 +110,7 @@ for server_group in $server_groups; do
                 -e server_group=$server_group \
                 -e user_group=$user_group \
                 -l $server_group \
-                -i data/$user_group.inventory.cfg
+                -i $pmaker_home/data/$user_group.inventory.cfg
                 ;;  
         esac
         if [ $? -eq 0 ]; then

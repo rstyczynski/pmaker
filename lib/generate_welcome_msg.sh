@@ -9,7 +9,7 @@ function getField() {
 	local username=$3
 	local attr=$4
 
-	users_def=state/$user_group/$server_group/users.yaml
+	users_def=$pmaker_home/state/$user_group/$server_group/users.yaml
 	cat $users_def | y2j | jq -r ".users[] | select(.username == \"$username\") | .$attr"
 }
 
@@ -32,10 +32,10 @@ function getUserData() {
 	export mobile_number=$(getField $user_group $server_group $username mobile)
 	export email=$(getField $user_group $server_group $username email)
 
-	export key_ssh_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.enc)
-	export key_ppk_enc=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.ppk)
+	export key_ssh_enc=$(cat $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.enc)
+	export key_ppk_enc=$(cat $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.ppk)
 
-	#export jump_server=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.$server_group.hosts[] | select(.host_type==\"jump\") | .public_ip")
+	#export jump_server=$(ansible-inventory -i $pmaker_home/data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.$server_group.hosts[] | select(.host_type==\"jump\") | .public_ip")
 	# Bug in ansible - not able to specify the same host in two groups
 	# as workaround added jumps server group:
 	# [jumps]
@@ -43,10 +43,10 @@ function getUserData() {
 	# dev_jump ansible_user=pmaker public_ip=130.61.91.110 host_type=jump
 
 	server_group_real=$server_group\_jump
-	export jump_server=$(ansible-inventory -i data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.jumps.hosts[\"$server_group_real\"].public_ip")
+	export jump_server=$(ansible-inventory -i $pmaker_home/data/$user_group.inventory.cfg  -y --list | y2j | jq -r  ".all.children.jumps.hosts[\"$server_group_real\"].public_ip")
 	
 	
-	export first_host=$(cat data/$user_group.inventory.cfg | grep -v '^#' | grep -A1 "\[$server_group\]" | tail -1 | cut -f1 -d' ')
+	export first_host=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep -v '^#' | grep -A1 "\[$server_group\]" | tail -1 | cut -f1 -d' ')
 
 	export date=$(date +"%F %T")
 
@@ -64,15 +64,15 @@ function generateWelcomeEmailBody() {
 
 	: ${mail_template:=welcome_email-body}
 
-	cp state/$user_group/$server_group/$username/.ssh/id_rsa.enc state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.enc
-	cp state/$user_group/$server_group/$username/.ssh/id_rsa.ppk state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk
+	cp $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.enc $pmaker_home/state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.enc
+	cp $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.ppk $pmaker_home/state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk
 
-	mkdir -p tmp
+	mkdir -p $pmaker_home/tmp
 	cat templates/$mail_template.j2 |
-		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
-		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' state/$user_group/$server_group/$username/.ssh/id_rsa.ppk >tmp/$mail_template.j2
-	j2 tmp/$mail_template.j2
-	rm -f tmp/$mail_template.j2
+		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
+		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.ppk > $pmaker_home/tmp/$mail_template.j2
+	j2 $pmaker_home/tmp/$mail_template.j2
+	rm -f $pmaker_home/tmp/$mail_template.j2
 }
 
 function generateWelcomeEmailHeader() {
@@ -84,7 +84,7 @@ function generatePasswordSMS() {
 	local server_group=$2
 	local username=$3
 
-	export password_account=$(cat state/$user_group/$server_group/$username/.ssh/pass.secret)
+	export password_account=$(cat $pmaker_home/state/$user_group/$server_group/$username/.ssh/pass.secret)
 	j2 templates/welcome_password_account.j2
 }
 
@@ -93,7 +93,7 @@ function generateKeySMS() {
 	local server_group=$2
 	local username=$3
 
-	export password_key=$(cat state/$user_group/$server_group/$username/.ssh/id_rsa.secret)
+	export password_key=$(cat $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.secret)
 	j2 templates/welcome_password_key.j2
 }
 
@@ -105,7 +105,7 @@ function generateUserMessages() {
 
 	: ${mail_template:=welcome_email-body}
 
-	mkdir -p state/$user_group/$server_group/$username/outbox
+	mkdir -p $pmaker_home/state/$user_group/$server_group/$username/outbox
 
 	echo Getting data...
 	getUserData $user_group $server_group $username
@@ -121,7 +121,7 @@ function generateUserMessages() {
 		generatePasswordSMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/pass_sms.txt
 		echo OK
 	else
-		rm -f state/$user_group/$server_group/$username/outbox/pass_sms.txt
+		rm -f $pmaker_home/state/$user_group/$server_group/$username/outbox/pass_sms.txt
 		echo Skipped
 	fi
 
@@ -130,7 +130,7 @@ function generateUserMessages() {
 		generateKeySMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/key_sms.txt
 		echo OK
 	else
-		rm -f state/$user_group/$server_group/$username/outbox/key_sms.txt
+		rm -f $pmaker_home/state/$user_group/$server_group/$username/outbox/key_sms.txt
 		echo Skipped
 	fi
 }
@@ -170,7 +170,7 @@ function generateAllMessages() {
 
 	if [ "$server_group" == "all" ]; then
 
-		server_groups=$(cat data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
+		server_groups=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep '\[' | cut -f2 -d'[' | cut -f1 -d']' | grep -v jumps | grep -v controller)
 		for server_group in $server_groups; do
 			generateEnvMessages $user_group $server_group
 			if [ $? -ne 0 ]; then
@@ -198,15 +198,15 @@ function getWelcomeEmail() {
 	local username=$3
 	local header=$4
 
-	if [ ! -f state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt ]; then
+	if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt ]; then
 		return 1
 	fi
 
 	if [ "$header" == "header" ]; then
-		cat state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
+		cat $pmaker_home/state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
 		echo '---'
 	fi
-	cat state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
+	cat $pmaker_home/state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
 }
 
 function getPasswordSMS() {
@@ -214,11 +214,11 @@ function getPasswordSMS() {
 	local server_group=$2
 	local username=$3
 
-	if [ ! -f state/$user_group/$server_group/$username/outbox/pass_sms.txt ]; then
+	if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/outbox/pass_sms.txt ]; then
 		return 1
 	fi
 
-	cat state/$user_group/$server_group/$username/outbox/pass_sms.txt
+	cat $pmaker_home/state/$user_group/$server_group/$username/outbox/pass_sms.txt
 }
 
 function getKeySMS() {
@@ -226,9 +226,9 @@ function getKeySMS() {
 	local server_group=$2
 	local username=$3
 
-	if [ ! -f state/$user_group/$server_group/$username/outbox/key_sms.txt ]; then
+	if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/outbox/key_sms.txt ]; then
 		return 1
 	fi
 
-	cat state/$user_group/$server_group/$username/outbox/key_sms.txt
+	cat $pmaker_home/state/$user_group/$server_group/$username/outbox/key_sms.txt
 }
