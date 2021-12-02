@@ -150,8 +150,8 @@ function test_ssh_access() {
     : ${pmaker_home:=/opt/pmaker}
     
     oldTmp=$tmp
-    tmp=$HOME/pmaker/tmp/$$
-    rm -rf $HOME/pmaker/tmp/$$
+    tmp=$pmaker_home/tmp/$$
+    rm -rf $pmaker_home/tmp/$$
     mkdir -p $tmp
 
     dateStr=$(date -I)T$(date +%T)
@@ -448,7 +448,6 @@ function test_ssh_access() {
                 say Not permitted.
             fi
 
-
             say -n "Test root user access"
             cat state/$user_group/$server_group/users.yaml | 
             y2j | jq -r ".users[]  | select(.username == \"$username\") | .became_root[]" |
@@ -495,19 +494,19 @@ function test_ssh_access() {
         ssh-add -d state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
     done
 
-    mkdir -p $HOME/pmaker/report
+    mkdir -p $pmaker_home/log
 
-    summary | tee $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log
+    summary | tee $pmaker_home/log/$user_group\_$server_group\_user_access_report_summary_$dateStr.log
 
     cat $tmp/$user_group\_$server_group\_user_access_report_$dateStr.log |
     sed 's/Killed by signal 1//g' \
-    > $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log
+    > $pmaker_home/log/$user_group\_$server_group\_user_access_report_full_$dateStr.log
 
     echo
-    echo "Full report available at: $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_full_$dateStr.log"
-    echo "Summary report availabe at: $HOME/pmaker/report/$user_group\_$server_group\_user_access_report_summary_$dateStr.log"
+    echo "Full report available at: $pmaker_home/log/$user_group\_$server_group\_user_access_report_full_$dateStr.log"
+    echo "Summary report availabe at: $pmaker_home/log/$user_group\_$server_group\_user_access_report_summary_$dateStr.log"
     
-    rm -rf $HOME/pmaker/tmp/$$
+    rm -rf $pmaker_home/tmp/$$
     tmp=$oldTmp
 }
 

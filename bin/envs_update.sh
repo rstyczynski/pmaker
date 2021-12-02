@@ -22,6 +22,10 @@ function y2j {
    ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'
 }
 
+pmaker_bin=$pmaker_home/bin
+pmaker_lib=$pmaker_home/lib
+pmaker_log=$pmaker_home/log
+
 if [ -z "$server_groups" ]; then
    server_groups=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
    #Source: https://stackoverflow.com/questions/29822622/get-all-unique-json-key-names-with-jq
@@ -35,7 +39,7 @@ for server_group in $server_groups; do
    echo Processing env: $server_group
    echo '========================='
 
-   ansible-playbook $pmaker_home/env_users.yaml \
+   ansible-playbook $pmaker_lib/env_users.yaml \
    -e user_group=$user_group \
    -e server_group=$server_group \
    -l localhost
@@ -47,13 +51,6 @@ done
 echo '==========================================================================='
 echo Users ready.
 echo '==========================================================================='
-
-# it's controlld using ssh config
-# echo 
-# echo '==========================================================================='
-# echo Activating ssh agent to handle ssh keys
-# echo '==========================================================================='
-# eval `ssh-agent`
 
 echo
 echo '==========================================================================='
@@ -71,16 +68,16 @@ for server_group in $server_groups; do
    # it's controlled using ssh config
    if [ -f state/$user_group/$server_group/pmaker/.ssh/id_rsa ]; then
       echo "Setting up ssh config for $server_group"
-      $pmaker_home/prepare_ssh_config.sh $user_group $server_group pmaker state/$user_group/$server_group/pmaker/.ssh/id_rsa
+      $pmaker_bin/prepare_ssh_config.sh $user_group $server_group pmaker $pmaker_home/state/$user_group/$server_group/pmaker/.ssh/id_rsa
    fi
 
-   ansible-playbook $pmaker_home/env_configure_controller.yaml \
+   ansible-playbook $pmaker_lib/env_configure_controller.yaml \
    -e server_group=$server_group \
    -e user_group=$user_group \
    -i $pmaker_home/data/$user_group.inventory_hosts.cfg \
    -l localhost
 
-   ansible-playbook $pmaker_home/env_configure_hosts.yaml \
+   ansible-playbook $pmaker_lib/env_configure_hosts.yaml \
    -e server_group=$server_group \
    -e user_group=$user_group \
    -i $pmaker_home/data/$user_group.inventory.cfg \
