@@ -294,21 +294,13 @@ function pmaker() {
       fi
       ;;
 
-    redeliver)
+    clear)
       result=0
       for env in $envs; do
         # clear sent flag
         clear_welcome_email $user_group $env $user_filter || result=$?
         clear_welcome_sms $user_group $env $user_filter || result=$?
         clear_welcome_password_sms $user_group $env $user_filter || result=$?
-
-        # regenerate mesages
-        generateUserMessages $user_group $env $user_filter || result=$?
-
-        # deliver emails and sms
-        welcome_email $user_group $env $user_filter deliver || result=$?
-        welcome_sms $user_group $env $user_filter deliver $sms_delivery || result=$?
-        welcome_password_sms $user_group $env $user_filter deliver $sms_delivery || result=$?
       done
 
       ;;
