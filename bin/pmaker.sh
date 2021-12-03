@@ -10,10 +10,10 @@ unset prereq
 declare -A prereq
 
 # enter prerequisities. Use comma as command separator
-prereq[deploy]="import excel"
+prereq[deploy]="import-excel"
 prereq[welcome]="deploy"
-prereq[welcome validate]="welcome generate"
-prereq[welcome send]="welcome validate"
+prereq[welcome validate]="welcome-generate"
+prereq[welcome send]="welcome-validate"
 
 #
 # helpers
