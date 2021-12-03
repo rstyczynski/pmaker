@@ -34,13 +34,17 @@ function y2j {
 function pmaker() {
 
   dependency_check=TRUE
-  if [ $1 == force ]; then
+  if [ "$1" == force ]; then
     dependency_check=FALSE
     shift
   fi
 
-  command=$1
-  shift
+  if [ -z "$1" ]; then
+    command=help
+  else
+    command=$1
+    shift
+  fi
 
   what=$1
   shift
@@ -56,15 +60,17 @@ function pmaker() {
     command=exit_on_error
   fi
 
-  if [ -z $user_filter ]; then
-    echo "Warning. user_filter not specified. All users will be processed. To avoid set user_filter variable to proper list using space as a separator."
-  else
-    # replace spaces with pipe. For some reson pipe was used.
-    user_filter=$(echo $user_filter | tr ' ' '|')
-  fi
+  if [ $command != exit_on_error ]; then
+    if [ -z $user_filter ]; then
+      echo "Warning. user_filter not specified. All users will be processed. To avoid set user_filter variable to proper list using space as a separator."
+    else
+      # replace spaces with pipe. For some reson pipe was used.
+      user_filter=$(echo $user_filter | tr ' ' '|')
+    fi
 
-  if [ -z $envs ]; then
-    echo "Warning. envs not specified. All environments will be processed. To avoid set envs variable to proper list using space as a separator."
+    if [ -z $envs ]; then
+      echo "Warning. envs not specified. All environments will be processed. To avoid set envs variable to proper list using space as a separator."
+    fi
   fi
 
   : ${sms_delivery:=aws}
@@ -111,6 +117,20 @@ function pmaker() {
     echo "Error. Critical error occured. Cannot continue. "
     result=90
     ;;
+  help)
+    cat <<_help_EOF
+pmaker accepts following commands:
+- import excel         - imports user access information from spreadsheet.
+- generate ssh config  - converts Ansible inventory to ssg config file, enabling pmaker user access to managed hosts.
+- generate keys        - generates ssh keys for new users. Already existing keys are not changed.
+- deploy               - deploys keys, and user configuration to managed hosts.
+- validate             - tests user access with verification of sudo escalatio rights.
+- message generate     - prepares welcome messages i.e. e-mails & sms'es.
+- message validate     - displays welcome messages. Mssages are sent only once.
+- message send         - delivers welcome emails. 
+- message clear        - clears message sent flag; used to redeliver messages.
+_help_EOF
+    ;;
   import)
     command="${command}_${what}"
     case $what in
@@ -123,7 +143,16 @@ function pmaker() {
       ;;
     esac
 
-    known_envs=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+    if [ result -eq 0 ]; then
+      for this_env in $envs; do
+        ansible-playbook $pmaker_lib/env_users.yaml \
+        -e pmaker_home=$pmaker_home \
+        -e user_group=$user_group \
+        -e server_group=$this_env \
+        -l localhost || result=$?
+      done
+      known_envs=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+    fi
 
     ;;
   generate)
@@ -200,11 +229,6 @@ function pmaker() {
     command="${command}_${what}"
     case $what in
     users)
-
-      if [ -z "$envs" ] || [ "$envs" = all ]; then
-        #envs=$(find $pmaker_home/state/$user_group -maxdepth 1 -type d | egrep -v 'all|functional' | sed "s|$pmaker_home/state/$user_group/||g" | grep -v '^$')
-        envs=$known_envs
-      fi
 
       result=0
       for this_env in $envs; do
@@ -308,18 +332,20 @@ function pmaker() {
     ;;
 
   *)
-    echo "unknown comnand."
+    echo "Error. Unknown comnand."
     ;;
   esac
 
   # store executon result
   if [ $result -eq 0 ]; then
-    executed["$command"]=YES
+    executed[$command]=YES
     echo 'Done.'
   else
-    executed["$command"]=FAILED
+    executed[$command]=FAILED
     echo 'Failed.'
   fi
 
   return $result
 }
+
+echo "pmaker loaded. Use pmaker to proceed."
