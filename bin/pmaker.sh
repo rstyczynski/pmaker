@@ -159,7 +159,7 @@ _help_EOF
       ;;
     users)
       env=$(echo $1 | tr [A-Z] [a-z]); shift
-      if [ $env == all]; then
+      if [ -z "$env" ] || [ "$env" == all]; then
         cat $pmaker_home/data/$organisation.users.yaml | y2j | jq -r '.users[].username'
       else
         if [ -f $pmaker_home/state/$user_group/$env/users.yaml ]; then
