@@ -196,8 +196,7 @@ _help_EOF
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
         -e user_group=$organisation \
-        -e server_group=$env \
-        -l localhost || result=$?
+        -e server_group=$env || result=$?
       done
       known_environments=$(cat $pmaker_home/data/$organisation.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
     fi
@@ -283,8 +282,7 @@ _help_EOF
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
         -e user_group=$organisation \
-        -e server_group=$this_env \
-        -l localhost || result=$?
+        -e server_group=$this_env || result=$?
       done
       ;;
     *)
