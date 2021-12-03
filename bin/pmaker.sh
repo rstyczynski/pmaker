@@ -152,17 +152,21 @@ _help_EOF
     command="${command}_${what}"
     case $what in
     organisations)
+      echo "All known to pmaker organisations:"
       ls $pmaker_home/data/*.users.xlsm | sed "s|$pmaker_home/data/||g" | sed 's|\.users\.xlsm||g'
       ;;
     environments)
+      echo "All server groups known at $organisation:"
       echo $known_environments
       ;;
     users)
       env=$(echo $1 | tr [A-Z] [a-z]); shift
-      if [ -z "$env" ] || [ "$env" == all]; then
+      if [ -z "$env" ] || [ "$env" == all ]; then
+        echo "All users known at $organisation:"
         cat $pmaker_home/data/$organisation.users.yaml | y2j | jq -r '.users[].username'
       else
         if [ -f $pmaker_home/state/$user_group/$env/users.yaml ]; then
+          echo "Users known at $organisation / $env:"
           cat $pmaker_home/state/$user_group/$env/users.yaml | y2j | jq -r '.users[].username'
         else
           result=1
