@@ -155,7 +155,7 @@ _help_EOF
       ;;
     esac
 
-    if [ result -eq 0 ]; then
+    if [ $result -eq 0 ]; then
       for this_env in $envs; do
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
