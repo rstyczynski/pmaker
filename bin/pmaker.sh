@@ -287,10 +287,9 @@ _help_EOF
           if [ -f $pmaker_home/data/$pmaker_org.inventory.cfg ]; then
             echo "Setting up ssh config for $env"
             if [ -f $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa ]; then
-                $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa || result=$?
+              $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa || result=$?
             else
-              result=1
-              echo "Error. pmaker key not available."
+              $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker ~/.ssh/id_rsa || result=$?
             fi
           else
             result=1
