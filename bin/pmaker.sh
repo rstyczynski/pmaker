@@ -90,9 +90,6 @@ function pmaker() {
     echo "Info. Dependency check disabled."
   fi
 
-  # not all functions use pmaker_hoem, so It's mandatory to set current dir
-  cd $pmaker_home
-
   # select environments to process
   if [ -f $pmaker_home/data/$user_group.users.yaml ]; then
     known_envs=$(cat $pmaker_home/data/$user_group.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
@@ -302,11 +299,8 @@ function pmaker() {
         clear_welcome_sms $user_group $env $user_filter || result=$?
         clear_welcome_password_sms $user_group $env $user_filter || result=$?
       done
-
       ;;
-
-
-      *)
+    *)
       echo "Error. Unknown action for welcome."
       result=1
       ;;
@@ -321,13 +315,11 @@ function pmaker() {
   # store executon result
   if [ $result -eq 0 ]; then
     executed["$command"]=YES
-    echo Done.
+    echo 'Done.'
   else
     executed["$command"]=FAILED
-    echo Failed.
+    echo 'Failed.'
   fi
 
-  cd - >/dev/null
   return $result
-
 }
