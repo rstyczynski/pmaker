@@ -286,7 +286,7 @@ _help_EOF
         for env in $pmaker_envs; do
           if [ -f $pmaker_home/data/$pmaker_org.inventory.cfg ]; then
             echo "Setting up ssh config for $env"
-            if [ -f state/$pmaker_org/$env/pmaker/.ssh/id_rsa ]; then
+            if [ -f $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa ]; then
                 $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa || result=$?
             else
               result=1
