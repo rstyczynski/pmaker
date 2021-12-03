@@ -32,15 +32,15 @@ function y2j {
 # main logic
 #
 function pmaker() {
-  command=$1
-  shift
 
   dependency_check=TRUE
-  if [ $command == force ]; then
+  if [ $1 == force ]; then
     dependency_check=FALSE
-    command=$1
     shift
   fi
+
+  command=$1
+  shift
 
   what=$1
   shift
@@ -76,7 +76,7 @@ function pmaker() {
   mkdir -p $pmaker_log
 
 
-  if [ $dependency_check == TRUE ; then
+  if [ $dependency_check == TRUE ]; then
     # prerequisities verification
     IFS=,
     for prereq in ${prereq[$command]} ${prereq[$command $what]}; do
