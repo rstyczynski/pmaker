@@ -50,7 +50,7 @@ function pmaker() {
   shift
 
   # variable verification
-  if [ -z $user_group ] && [ $command != help ]; then
+  if [ -z $user_group ]; then
     echo "Error. user_group must be defined."
     if [ $command != help ]; then
       command=exit_on_error
