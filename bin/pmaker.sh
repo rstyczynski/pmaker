@@ -278,11 +278,11 @@ _help_EOF
     users)
 
       result=0
-      for this_env in $environments; do
+      for env in $environments; do
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
         -e user_group=$organisation \
-        -e server_group=$this_env || result=$?
+        -e server_group=$env || result=$?
       done
       ;;
     *)
