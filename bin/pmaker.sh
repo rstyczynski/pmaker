@@ -52,12 +52,16 @@ function pmaker() {
   # variable verification
   if [ -z $user_group ] && [ $command != help ]; then
     echo "Error. user_group must be defined."
-    command=exit_on_error
+    if [ $command != help ]; then
+      command=exit_on_error
+    fi
   fi
 
-  if [ -z $pmaker_home ] && [ $command != help ]; then
+  if [ -z $pmaker_home ]; then
     echo "Error. pmaker_home must be defined."
-    command=exit_on_error
+    if [ $command != help ]; then
+      command=exit_on_error
+    fi
   fi
 
   if [ $command != exit_on_error ]; then
