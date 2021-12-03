@@ -119,6 +119,7 @@ function pmaker() {
     ;;
   help)
     cat <<_help_EOF
+
 pmaker accepts following commands:
 - import excel         - imports user access information from spreadsheet.
 - generate ssh config  - converts Ansible inventory to ssg config file, enabling pmaker user access to managed hosts.
@@ -129,6 +130,13 @@ pmaker accepts following commands:
 - message validate     - displays welcome messages. Mssages are sent only once.
 - message send         - delivers welcome emails. 
 - message clear        - clears message sent flag; used to redeliver messages.
+
+To proceed you need to set environment variables:
+- pmaker_home          - pmaker's home directory. Typically already set via .bash_profile.
+- user_group           - organization name. Used to get right inventory file and right source of users.
+- envs                 - environments to process. When not specified or set to all, all environments are processed.
+- user_filter          - subset of users to process; usernames are separated by pipe. When not specified all users are processed
+
 _help_EOF
     ;;
   import)
