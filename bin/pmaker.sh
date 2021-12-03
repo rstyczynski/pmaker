@@ -96,13 +96,14 @@ function pmaker() {
         return 100
       fi
     done
+    unset IFS
   else
     echo "Info. Dependency check disabled."
   fi
 
   # select environments to process
   if [ -f $pmaker_home/data/$organisation.users.yaml ]; then
-    known_environments=$(cat $pmaker_home/data/$organisation.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+    known_environments=$(cat $pmaker_home/data/$organisation.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]' | tr '\n' ' ')
     if [ -z "$environments" ] || [ "$environments" = all ]; then
       environments=$known_environments
     fi
