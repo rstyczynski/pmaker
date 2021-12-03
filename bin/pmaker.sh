@@ -137,8 +137,8 @@ pmaker accepts following operational commands:
 - message clear        - clears message sent flag; used to redeliver messages.
 
 pmaker accepts following informative commands:
-- list pmaker_orgs     - lists pmaker_org names with known spreadsheet with user access informaton
-- list pmaker_envs     - list server groups for current pmaker_org.
+- list orgs            - lists pmaker_org names with known spreadsheet with user access informaton
+- list envs            - list server groups for current pmaker_org.
 - list users env       - list users for given environment, where env in server group name. Use all to see all users.
 
 To proceed you need to set environment variables:
@@ -152,11 +152,11 @@ _help_EOF
   list)
     command="${command}_${what}"
     case $what in
-    pmaker_orgs)
+    orgs)
       echo "All known to pmaker pmaker_orgs:"
       ls $pmaker_home/data/*.users.xlsm | sed "s|$pmaker_home/data/||g" | sed 's|\.users\.xlsm||g'
       ;;
-    pmaker_envs)
+    envs)
       echo "All server groups known at $pmaker_org:"
       echo $known_pmaker_envs
       ;;
@@ -166,9 +166,9 @@ _help_EOF
         echo "All users known at $pmaker_org:"
         cat $pmaker_home/data/$pmaker_org.users.yaml | y2j | jq -r '.users[].username'
       else
-        if [ -f $pmaker_home/state/$user_group/$env/users.yaml ]; then
-          echo "Users known at $pmaker_org / $env:"
-          cat $pmaker_home/state/$user_group/$env/users.yaml | y2j | jq -r '.users[].username'
+        if [ -f $pmaker_home/state/$pmaker_org/$env/users.yaml ]; then
+          echo "Users known at $pmaker_org/$env:"
+          cat $pmaker_home/state/$pmaker_org/$env/users.yaml | y2j | jq -r '.users[].username'
         else
           result=1
           echo "Error. Environment does not exist"
