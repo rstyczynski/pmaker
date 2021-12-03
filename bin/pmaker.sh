@@ -4,15 +4,13 @@
 # init runtime context
 #
 
-#unset executed
+unset executed
 declare -A executed
+unset prereq
 declare -A prereq
 
 # enter prerequisities. Use comma as command separator
 prereq[deploy]="import excel"
-
-prereq[rebuild]="deploy"
-prereq[validate]="rebuild users"
 prereq[welcome]="deploy"
 prereq[welcome validate]="welcome generate"
 prereq[welcome send]="welcome validate"
@@ -200,7 +198,11 @@ function pmaker() {
 
       result=0
       for this_env in $envs; do
-        ansible-playbook $pmaker_lib/env_users.yaml -e user_group=$user_group -e server_group=$this_env -l localhost || result=$?
+        ansible-playbook $pmaker_lib/env_users.yaml \
+        -e pmaker_home=$pmaker_home \
+        -e user_group=$user_group \
+        -e server_group=$this_env \
+        -l localhost || result=$?
       done
       ;;
     *)
