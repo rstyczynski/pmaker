@@ -72,7 +72,7 @@ function pmaker() {
       user_filter=$(echo $user_filter | tr ' ' '|')
     fi
 
-    if [ -z $environments ]; then
+    if [ -z "$environments" ]; then
       echo "Warning. environments not specified. All environments will be processed. To avoid set environments variable to proper list using space as a separator."
     fi
   fi
