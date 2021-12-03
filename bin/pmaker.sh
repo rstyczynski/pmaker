@@ -10,10 +10,10 @@ unset prereq
 declare -A prereq
 
 # enter prerequisities. Use comma as command separator
-prereq[deploy]="import-excel"
+prereq[deploy]="import_excel"
 prereq[welcome]="deploy"
-prereq[welcome validate]="welcome-generate"
-prereq[welcome send]="welcome-validate"
+prereq[welcome validate]="welcome_generate"
+prereq[welcome send]="welcome_validate"
 
 #
 # helpers
@@ -79,7 +79,7 @@ function pmaker() {
   if [ $dependency_check == TRUE ]; then
     # prerequisities verification
     IFS=,
-    for prereq in ${prereq[$command]} ${prereq[$command\-$what]}; do
+    for prereq in ${prereq[$command]} ${prereq[${command}_${what}]}; do
       echo testing $prereq...
       if [ -z ${executed[$prereq]} ] || [ ${executed[$prereq]} == FAILED ]; then
         echo "Can't run this command before: ${prereq[$command]}"
@@ -112,7 +112,7 @@ function pmaker() {
     result=90
     ;;
   import)
-    command="$command\-$what"
+    command="${command}_${what}"
     case $what in
     excel)
       $pmaker_bin/users2pmaker.sh $pmaker_home/data/$user_group.users.xlsm "$user_filter" >$pmaker_home/data/$user_group.users.yaml || result=$?
@@ -127,7 +127,7 @@ function pmaker() {
 
     ;;
   generate)
-    command="$command\-$what"
+    command="${command}_${what}"
     case $what in
     keys)
       for env in $envs; do
@@ -141,7 +141,7 @@ function pmaker() {
       ;;
     ssh)
       where=$1; shift
-      command="$command\-$what $where"
+      command="${command}_${what} $where"
       case $where in
       config)
         for env in $envs; do
@@ -197,7 +197,7 @@ function pmaker() {
     ;;
 
   rebuild)
-    command="$command\-$what"
+    command="${command}_${what}"
     case $what in
     users)
 
@@ -247,7 +247,7 @@ function pmaker() {
     ;;
 
   welcome)
-    command="$command\-$what"
+    command="${command}_${what}"
 
     source $pmaker_lib/generate_welcome_msg.sh
     source $pmaker_lib/deliver_welcome_msg.sh
