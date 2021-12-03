@@ -139,7 +139,12 @@ pmaker accepts following operational commands:
 pmaker accepts following informative commands:
 - list orgs            - lists pmaker_org names with known spreadsheet with user access informaton
 - list envs            - list server groups for current pmaker_org.
-- list users env       - list users for given environment, where env in server group name. Use all to see all users.
+- list users env       - list active users for given environment, where env in server group name. Use all to see all users. Active means that this subset of users will be processed by pmaker; list may be shorter than the real one.
+- show context         - shows current values of pmaker home, org, envs, and user filter
+- show home            - shows pmaker home
+- show org             - shows selected organisation
+- show envs            - shows selected environments to process
+- show users           - shows selected users to process
 
 To proceed you need to set environment variables:
 - pmaker_home          - pmaker's home directory. Typically already set via .bash_profile.
@@ -176,7 +181,35 @@ _help_EOF
       fi
       ;;
     *)
+      result=1
       echo "Error. Unknown object for list."
+      ;;
+    esac
+    ;;
+  show)
+    command="${command}_${what}"
+    case $what in
+    envs)
+      echo "Environments to process in this session: $pmaker_envs"
+      ;;
+    users)
+      echo "Users to process in this session: $pmaker_users"
+      ;;
+    home)
+      echo "pmaker home: $pmaker_home"
+      ;;
+    org)
+      echo "pmaker organisation: $pmaker_org"
+      ;;
+    context)
+      echo "pmaker home:                             $pmaker_home"
+      echo "pmaker organisation:                     $pmaker_org"
+      echo "Environments to process in this session: $pmaker_envs"
+      echo "Users to process in this session:        $pmaker_users"
+      ;;
+    *)
+      result=1
+      echo "Error. Unknown object for show."
       ;;
     esac
     ;;
