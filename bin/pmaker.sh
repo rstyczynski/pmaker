@@ -90,7 +90,7 @@ function pmaker() {
     fi
 
     if [ -z "$known_envs" ]; then
-      echo "Warning. Environment list empty. Verify that spreadshhet contains proper access data."
+      echo "Warning. Environment list empty. Verify that spreadsheet contains proper access data."
     fi
   else
     echo "Warning. User directory not ready. Use import excel."
@@ -124,6 +124,7 @@ function pmaker() {
     keys)
       for env in $envs; do
         ansible-playbook $pmaker_lib/env_configure_controller.yaml \
+        -e pmaker_home=$pmaker_home \
         -e server_group=$env \
         -e user_group=$user_group \
         -i $pmaker_home/data/$user_group.inventory_hosts.cfg \
@@ -136,12 +137,17 @@ function pmaker() {
       case $where in
       config)
         for env in $envs; do
-          echo "Setting up ssh config for $env"
-          if [ -f state/$user_group/$env/pmaker/.ssh/id_rsa ]; then
-              $pmaker_bin/prepare_ssh_config.sh $user_group $env pmaker $pmaker_home/state/$user_group/$env/pmaker/.ssh/id_rsa || result=$?
+          if [ -f $pmaker_home/data/$user_group.inventory.cfg ]; then
+            echo "Setting up ssh config for $env"
+            if [ -f state/$user_group/$env/pmaker/.ssh/id_rsa ]; then
+                $pmaker_bin/prepare_ssh_config.sh $user_group $env pmaker $pmaker_home/state/$user_group/$env/pmaker/.ssh/id_rsa || result=$?
+            else
+              result=1
+              echo "Error. pmaker key not available."
+            fi
           else
             result=1
-            echo "Error. pmaker key not available."
+            echo "Error. Inventory file not found."
           fi
         done
         ;;
@@ -170,6 +176,7 @@ function pmaker() {
       echo '========================='
 
       ansible-playbook $pmaker_lib/env_configure_hosts.yaml \
+      -e pmaker_home=$pmaker_home \
       -e server_group=$env \
       -e user_group=$user_group \
       -i $pmaker_home/data/$user_group.inventory.cfg \

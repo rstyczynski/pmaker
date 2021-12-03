@@ -5,7 +5,7 @@
 - hosts: all
 
   tasks:
-  - include_vars: ../config.yaml
+  - include_vars: "{{ pmaker_home }}/etc/config.yaml"
 
   # - debug:
   #     var: username
