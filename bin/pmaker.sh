@@ -195,7 +195,7 @@ _help_EOF
       for env in $environments; do
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
-        -e organisation=$organisation \
+        -e user_group=$organisation \
         -e server_group=$env \
         -l localhost || result=$?
       done
@@ -211,7 +211,7 @@ _help_EOF
         ansible-playbook $pmaker_lib/env_configure_controller.yaml \
         -e pmaker_home=$pmaker_home \
         -e server_group=$env \
-        -e organisation=$organisation \
+        -e user_group=$organisation \
         -i $pmaker_home/data/$organisation.inventory_hosts.cfg \
         -l localhost || result=$?
       done
@@ -263,7 +263,7 @@ _help_EOF
       ansible-playbook $pmaker_lib/env_configure_hosts.yaml \
       -e pmaker_home=$pmaker_home \
       -e server_group=$env \
-      -e organisation=$organisation \
+      -e user_group=$organisation \
       -i $pmaker_home/data/$organisation.inventory.cfg \
       -l "$server_list" | 
       tee -a $pmaker_log/environments_update-$organisation-$env-$(date -I).log
@@ -282,7 +282,7 @@ _help_EOF
       for this_env in $environments; do
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
-        -e organisation=$organisation \
+        -e user_group=$organisation \
         -e server_group=$this_env \
         -l localhost || result=$?
       done
