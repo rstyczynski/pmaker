@@ -50,8 +50,8 @@ function pmaker() {
   shift
 
   # variable verification
-  if [ -z $organisation ]; then
-    echo "Error. organisation must be defined."
+  if [ -z $pmaker_org ]; then
+    echo "Error. pmaker_org must be defined."
     if [ $command != help ]; then
       command=exit_on_error
     fi
@@ -65,15 +65,15 @@ function pmaker() {
   fi
 
   if [ $command != exit_on_error ]; then
-    if [ -z $user_filter ]; then
-      echo "Warning. user_filter not specified. All users will be processed. To avoid set user_filter variable to proper list using space as a separator."
+    if [ -z $pmaker_users ]; then
+      echo "Warning. pmaker_users not specified. All users will be processed. To avoid set pmaker_users variable to proper list using space as a separator."
     else
       # replace spaces with pipe. For some reson pipe was used.
-      user_filter=$(echo $user_filter | tr ' ' '|')
+      pmaker_users=$(echo $pmaker_users | tr ' ' '|')
     fi
 
-    if [ -z "$environments" ]; then
-      echo "Warning. environments not specified. All environments will be processed. To avoid set environments variable to proper list using space as a separator."
+    if [ -z "$pmaker_envs" ]; then
+      echo "Warning. pmaker_envs not specified. All pmaker_envs will be processed. To avoid set pmaker_envs variable to proper list using space as a separator."
     fi
   fi
 
@@ -101,14 +101,14 @@ function pmaker() {
     echo "Info. Dependency check disabled."
   fi
 
-  # select environments to process
-  if [ -f $pmaker_home/data/$organisation.users.yaml ]; then
-    known_environments=$(cat $pmaker_home/data/$organisation.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]' | tr '\n' ' ')
-    if [ -z "$environments" ] || [ "$environments" = all ]; then
-      environments=$known_environments
+  # select pmaker_envs to process
+  if [ -f $pmaker_home/data/$pmaker_org.users.yaml ]; then
+    known_pmaker_envs=$(cat $pmaker_home/data/$pmaker_org.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]' | tr '\n' ' ')
+    if [ -z "$pmaker_envs" ] || [ "$pmaker_envs" = all ]; then
+      pmaker_envs=$known_pmaker_envs
     fi
 
-    if [ -z "$known_environments" ]; then
+    if [ -z "$known_pmaker_envs" ]; then
       echo "Warning. Environment list empty. Verify that spreadsheet contains proper access data."
     fi
   else
@@ -137,37 +137,37 @@ pmaker accepts following operational commands:
 - message clear        - clears message sent flag; used to redeliver messages.
 
 pmaker accepts following informative commands:
-- list organisations   - lists organisation names with known spreadsheet with user access informaton
-- list environments    - list server groups for current organisation.
+- list pmaker_orgs     - lists pmaker_org names with known spreadsheet with user access informaton
+- list pmaker_envs     - list server groups for current pmaker_org.
 - list users env       - list users for given environment, where env in server group name. Use all to see all users.
 
 To proceed you need to set environment variables:
 - pmaker_home          - pmaker's home directory. Typically already set via .bash_profile.
-- organisation         - organization name. Used to get right inventory file and right source of users.
-- environments         - environments to process. When not specified or set to all, all environments are processed.
-- user_filter          - subset of users to process; usernames are separated by pipe. When not specified all users are processed
+- pmaker_org           - organization name. Used to get right inventory file and right source of users.
+- pmaker_envs          - pmaker_envs to process. When not specified or set to all, all pmaker_envs are processed.
+- pmaker_users         - subset of users to process; usernames are separated by pipe. When not specified all users are processed
 
 _help_EOF
     ;;
   list)
     command="${command}_${what}"
     case $what in
-    organisations)
-      echo "All known to pmaker organisations:"
+    pmaker_orgs)
+      echo "All known to pmaker pmaker_orgs:"
       ls $pmaker_home/data/*.users.xlsm | sed "s|$pmaker_home/data/||g" | sed 's|\.users\.xlsm||g'
       ;;
-    environments)
-      echo "All server groups known at $organisation:"
-      echo $known_environments
+    pmaker_envs)
+      echo "All server groups known at $pmaker_org:"
+      echo $known_pmaker_envs
       ;;
     users)
       env=$(echo $1 | tr [A-Z] [a-z]); shift
       if [ -z "$env" ] || [ "$env" == all ]; then
-        echo "All users known at $organisation:"
-        cat $pmaker_home/data/$organisation.users.yaml | y2j | jq -r '.users[].username'
+        echo "All users known at $pmaker_org:"
+        cat $pmaker_home/data/$pmaker_org.users.yaml | y2j | jq -r '.users[].username'
       else
         if [ -f $pmaker_home/state/$user_group/$env/users.yaml ]; then
-          echo "Users known at $organisation / $env:"
+          echo "Users known at $pmaker_org / $env:"
           cat $pmaker_home/state/$user_group/$env/users.yaml | y2j | jq -r '.users[].username'
         else
           result=1
@@ -184,7 +184,7 @@ _help_EOF
     command="${command}_${what}"
     case $what in
     excel)
-      $pmaker_bin/users2pmaker.sh $pmaker_home/data/$organisation.users.xlsm "$user_filter" >$pmaker_home/data/$organisation.users.yaml || result=$?
+      $pmaker_bin/users2pmaker.sh $pmaker_home/data/$pmaker_org.users.xlsm "$pmaker_users" >$pmaker_home/data/$pmaker_org.users.yaml || result=$?
       ;;
     *)
       echo "Error. Unknown object for import."
@@ -193,13 +193,13 @@ _help_EOF
     esac
 
     if [ $result -eq 0 ]; then
-      for env in $environments; do
+      for env in $pmaker_envs; do
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
-        -e user_group=$organisation \
+        -e user_group=$pmaker_org \
         -e server_group=$env || result=$?
       done
-      known_environments=$(cat $pmaker_home/data/$organisation.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
+      known_pmaker_envs=$(cat $pmaker_home/data/$pmaker_org.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]')
     fi
 
     ;;
@@ -207,12 +207,12 @@ _help_EOF
     command="${command}_${what}"
     case $what in
     keys)
-      for env in $environments; do
+      for env in $pmaker_envs; do
         ansible-playbook $pmaker_lib/env_configure_controller.yaml \
         -e pmaker_home=$pmaker_home \
         -e server_group=$env \
-        -e user_group=$organisation \
-        -i $pmaker_home/data/$organisation.inventory_hosts.cfg \
+        -e user_group=$pmaker_org \
+        -i $pmaker_home/data/$pmaker_org.inventory_hosts.cfg \
         -l localhost || result=$?
       done
       ;;
@@ -221,11 +221,11 @@ _help_EOF
       command="${command}_${what} $where"
       case $where in
       config)
-        for env in $environments; do
-          if [ -f $pmaker_home/data/$organisation.inventory.cfg ]; then
+        for env in $pmaker_envs; do
+          if [ -f $pmaker_home/data/$pmaker_org.inventory.cfg ]; then
             echo "Setting up ssh config for $env"
-            if [ -f state/$organisation/$env/pmaker/.ssh/id_rsa ]; then
-                $pmaker_bin/prepare_ssh_config.sh $organisation $env pmaker $pmaker_home/state/$organisation/$env/pmaker/.ssh/id_rsa || result=$?
+            if [ -f state/$pmaker_org/$env/pmaker/.ssh/id_rsa ]; then
+                $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa || result=$?
             else
               result=1
               echo "Error. pmaker key not available."
@@ -251,9 +251,9 @@ _help_EOF
 
   deploy)
 
-    for env in $environments; do
+    for env in $pmaker_envs; do
 
-      server_list="controller $(ansible-inventory -i $pmaker_home/data/$organisation.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$env.hosts | keys[]] | unique | .[]")"
+      server_list="controller $(ansible-inventory -i $pmaker_home/data/$pmaker_org.inventory.cfg  -y --list | y2j | jq -r  "[.all.children.$env.hosts | keys[]] | unique | .[]")"
 
       echo '========================='
       echo Processing env: $env
@@ -263,10 +263,10 @@ _help_EOF
       ansible-playbook $pmaker_lib/env_configure_hosts.yaml \
       -e pmaker_home=$pmaker_home \
       -e server_group=$env \
-      -e user_group=$organisation \
-      -i $pmaker_home/data/$organisation.inventory.cfg \
+      -e user_group=$pmaker_org \
+      -i $pmaker_home/data/$pmaker_org.inventory.cfg \
       -l "$server_list" | 
-      tee -a $pmaker_log/environments_update-$organisation-$env-$(date -I).log
+      tee -a $pmaker_log/pmaker_envs_update-$pmaker_org-$env-$(date -I).log
       if [ ${PIPESTATUS[0]} -ne 0 ]; then
         result=1
       fi
@@ -279,10 +279,10 @@ _help_EOF
     users)
 
       result=0
-      for env in $environments; do
+      for env in $pmaker_envs; do
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
-        -e user_group=$organisation \
+        -e user_group=$pmaker_org \
         -e server_group=$env || result=$?
       done
       ;;
@@ -296,20 +296,20 @@ _help_EOF
     eval $(ssh-agent)
     ssh-add -D
 
-    user_subset=$(echo $user_filter | tr '|' ,)
-    if [ -z "$environments" ] || [ "$environments" = all ]; then
-      environments=$(cat $pmaker_home/data/$organisation.inventory.cfg |
+    user_subset=$(echo $pmaker_users | tr '|' ,)
+    if [ -z "$pmaker_envs" ] || [ "$pmaker_envs" = all ]; then
+      pmaker_envs=$(cat $pmaker_home/data/$pmaker_org.inventory.cfg |
         grep '^\[' |
         grep -v '\[jumps\]' |
         grep -v '\[controller\]' |
         tr -d '[]')
     fi
 
-    for env in $environments; do
+    for env in $pmaker_envs; do
         $pmaker_bin/test_ssh_access.sh \
-        $organisation \
+        $pmaker_org \
         $env \
-        $pmaker_home/data/$organisation.inventory.cfg \
+        $pmaker_home/data/$pmaker_org.inventory.cfg \
         $user_subset \
         all &
     done
@@ -329,19 +329,19 @@ _help_EOF
       # generate
       #
       result=0
-      for env in $environments; do
+      for env in $pmaker_envs; do
         # generate e-mail and sms
-        generateAllMessages $organisation $env || result=$?
+        generateAllMessages $pmaker_org $env || result=$?
       done
       ;;
 
     validate)
       result=0
-      for env in $environments; do
+      for env in $pmaker_envs; do
         # verify emails and sms
-        welcome_email $organisation $env || result=$?
-        welcome_sms $organisation $env || result=$?
-        welcome_password_sms $organisation $env || result=$?
+        welcome_email $pmaker_org $env || result=$?
+        welcome_sms $pmaker_org $env || result=$?
+        welcome_password_sms $pmaker_org $env || result=$?
       done
       ;;
 
@@ -353,22 +353,22 @@ _help_EOF
         source ~/.pmaker/smtp.cfg
 
         result=0
-        for env in $environments; do
+        for env in $pmaker_envs; do
           # deliver emails and sms
-          welcome_email $organisation $env all deliver || result=$?
-          welcome_sms $organisation $env all deliver $sms_delivery || result=$?
-          welcome_password_sms $organisation $env all deliver $sms_delivery || result=$?
+          welcome_email $pmaker_org $env all deliver || result=$?
+          welcome_sms $pmaker_org $env all deliver $sms_delivery || result=$?
+          welcome_password_sms $pmaker_org $env all deliver $sms_delivery || result=$?
         done
       fi
       ;;
 
     clear)
       result=0
-      for env in $environments; do
+      for env in $pmaker_envs; do
         # clear sent flag
-        clear_welcome_email $organisation $env $user_filter || result=$?
-        clear_welcome_sms $organisation $env $user_filter || result=$?
-        clear_welcome_password_sms $organisation $env $user_filter || result=$?
+        clear_welcome_email $pmaker_org $env $pmaker_users || result=$?
+        clear_welcome_sms $pmaker_org $env $pmaker_users || result=$?
+        clear_welcome_password_sms $pmaker_org $env $pmaker_users || result=$?
       done
       ;;
     *)
