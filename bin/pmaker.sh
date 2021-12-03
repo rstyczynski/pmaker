@@ -9,7 +9,7 @@ declare -A executed
 unset prereq
 declare -A prereq
 
-# enter prerequisities. Use comma as pmaker_command separator
+# enter prerequisities. Use comma as command separator
 prereq[deploy]="import excel"
 prereq[welcome]="deploy"
 prereq[welcome validate]="welcome generate"
@@ -39,7 +39,7 @@ function pmaker() {
     shift
   fi
 
-  pmaker_command=$1
+  command=$1
   shift
 
   what=$1
@@ -48,12 +48,12 @@ function pmaker() {
   # variable verification
   if [ -z $user_group ]; then
     echo "Error. user_group must be defined."
-    pmaker_command=exit_on_error
+    command=exit_on_error
   fi
 
   if [ -z $pmaker_home ]; then
     echo "Error. pmaker_home must be defined."
-    pmaker_command=exit_on_error
+    command=exit_on_error
   fi
 
   if [ -z $user_filter ]; then
@@ -79,10 +79,10 @@ function pmaker() {
   if [ $dependency_check == TRUE ]; then
     # prerequisities verification
     IFS=,
-    for prereq in ${prereq[$pmaker_command]} ${prereq[$pmaker_command $what]}; do
+    for prereq in ${prereq[$command]} ${prereq[$command\-$what]}; do
       echo testing $prereq...
       if [ -z ${executed[$prereq]} ] || [ ${executed[$prereq]} == FAILED ]; then
-        echo "Can't run this pmaker_command before: ${prereq[$pmaker_command]}"
+        echo "Can't run this command before: ${prereq[$command]}"
         return 100
       fi
     done
@@ -104,15 +104,15 @@ function pmaker() {
     echo "Warning. User directory not ready. Use import excel."
   fi
 
-  # execute pmaker_command
+  # execute command
   result=0
-  case $pmaker_command in
+  case $command in
   exit_on_error)
     echo "Error. Critical error occured. Cannot continue. "
     result=90
     ;;
   import)
-    pmaker_command="$pmaker_command $what"
+    command="$command\-$what"
     case $what in
     excel)
       $pmaker_bin/users2pmaker.sh $pmaker_home/data/$user_group.users.xlsm "$user_filter" >$pmaker_home/data/$user_group.users.yaml || result=$?
@@ -127,7 +127,7 @@ function pmaker() {
 
     ;;
   generate)
-    pmaker_command="$pmaker_command $what"
+    command="$command\-$what"
     case $what in
     keys)
       for env in $envs; do
@@ -141,7 +141,7 @@ function pmaker() {
       ;;
     ssh)
       where=$1; shift
-      pmaker_command="$pmaker_command $what $where"
+      command="$command\-$what $where"
       case $where in
       config)
         for env in $envs; do
@@ -197,7 +197,7 @@ function pmaker() {
     ;;
 
   rebuild)
-    pmaker_command="$pmaker_command $what"
+    command="$command\-$what"
     case $what in
     users)
 
@@ -247,7 +247,7 @@ function pmaker() {
     ;;
 
   welcome)
-    pmaker_command="$pmaker_command $what"
+    command="$command\-$what"
 
     source $pmaker_lib/generate_welcome_msg.sh
     source $pmaker_lib/deliver_welcome_msg.sh
@@ -314,10 +314,10 @@ function pmaker() {
 
   # store executon result
   if [ $result -eq 0 ]; then
-    executed["$pmaker_command"]=YES
+    executed["$command"]=YES
     echo 'Done.'
   else
-    executed["$pmaker_command"]=FAILED
+    executed["$command"]=FAILED
     echo 'Failed.'
   fi
 
