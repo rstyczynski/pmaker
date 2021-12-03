@@ -34,6 +34,14 @@ function y2j {
 function pmaker() {
   command=$1
   shift
+
+  dependency_check=TRUE
+  if [ $command == force ]; then
+    dependency_check=FALSE
+    command=$1
+    shift
+  fi
+
   what=$1
   shift
 
@@ -67,15 +75,20 @@ function pmaker() {
 
   mkdir -p $pmaker_log
 
-  # prerequisities verification
-  IFS=,
-  for prereq in ${prereq[$command]} ${prereq[$command $what]}; do
-    echo testing $prereq...
-    if [ -z ${executed[$prereq]} ] || [ ${executed[$prereq]} == FAILED ]; then
-      echo "Can't run this command before: ${prereq[$command]}"
-      return 100
-    fi
-  done
+
+  if [ $dependency_check == TRUE ; then
+    # prerequisities verification
+    IFS=,
+    for prereq in ${prereq[$command]} ${prereq[$command $what]}; do
+      echo testing $prereq...
+      if [ -z ${executed[$prereq]} ] || [ ${executed[$prereq]} == FAILED ]; then
+        echo "Can't run this command before: ${prereq[$command]}"
+        return 100
+      fi
+    done
+  else
+    echo "Info. Dependency check disabled."
+  fi
 
   # not all functions use pmaker_hoem, so It's mandatory to set current dir
   cd $pmaker_home
