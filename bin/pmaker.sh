@@ -136,6 +136,11 @@ pmaker accepts following operational commands:
 - message send         - delivers welcome emails. 
 - message clear        - clears message sent flag; used to redeliver messages.
 
+pmaker acepts following configuration commands:
+- set org to name      - set active organisation to name given on parameter
+- set envs to list     - set active environments to givel list or just one env
+- set users to list    - set active users to givel list or just one user
+
 pmaker accepts following informative commands:
 - list orgs            - lists pmaker_org names with known spreadsheet with user access informaton
 - list envs            - list server groups for current pmaker_org.
@@ -212,6 +217,30 @@ _help_EOF
       echo "Error. Unknown object for show."
       ;;
     esac
+    ;;
+  set)
+    command="${command}_${what}"
+    if [ "$1" == to ]; then
+      shift
+      case $what in
+      org)
+        pmaker_org=$@
+        ;;
+      envs)
+        pmaker_envs="$@"
+        ;;
+      users)
+        pmaker_users="$@"
+        ;;
+      *)
+        result=1
+        echo "Error. Unknown object for set."
+        ;;
+      esac
+    else
+      result=1
+      echo "Error. Syntax violated. Use set what to value"
+    fi
     ;;
   import)
     command="${command}_${what}"
