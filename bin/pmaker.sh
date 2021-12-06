@@ -10,7 +10,8 @@ unset prereq
 declare -A prereq
 
 # enter prerequisities. Use comma as command separator
-prereq[deploy]="import_excel"
+prereq[generate_keys]="import_excel"
+prereq[deploy]="generate_keys"
 prereq[welcome]="deploy"
 prereq[welcome validate]="welcome_generate"
 prereq[welcome send]="welcome_validate"
@@ -92,7 +93,7 @@ function pmaker() {
     for prereq in ${prereq[$command]} ${prereq[${command}_${what}]}; do
       echo testing $prereq...
       if [ -z ${executed[$prereq]} ] || [ ${executed[$prereq]} == FAILED ]; then
-        echo "Can't run this command before: ${prereq[$command]}"
+        echo "Can't run this command before: $(${prereq[$command]} | tr _ ' ')"
         return 100
       fi
     done
@@ -131,10 +132,10 @@ pmaker accepts following operational commands:
 - generate keys        - generates ssh keys for new users. Already existing keys are not changed.
 - deploy               - deploys keys, and user configuration to managed hosts.
 - validate             - tests user access with verification of sudo escalatio rights.
-- message generate     - prepares welcome messages i.e. e-mails & sms'es.
-- message validate     - displays welcome messages. Mssages are sent only once.
-- message send         - delivers welcome emails. 
-- message clear        - clears message sent flag; used to redeliver messages.
+- welcome generate     - prepares welcome messages i.e. e-mails & sms'es.
+- welcome validate     - displays welcome messages. Mssages are sent only once.
+- welcome deliver      - delivers welcome emails. 
+- welcome clear        - clears message sent flag; used to redeliver messages.
 
 pmaker acepts following configuration commands:
 - set org to name      - set active organisation to name given on parameter
@@ -151,7 +152,7 @@ pmaker accepts following informative commands:
 - show envs            - shows selected environments to process
 - show users           - shows selected users to process
 
-To proceed you need to set environment variables:
+To proceed you need to set environment variables via shell or set commands:
 - pmaker_home          - pmaker's home directory. Typically already set via .bash_profile.
 - pmaker_org           - organization name. Used to get right inventory file and right source of users.
 - pmaker_envs          - pmaker_envs to process. When not specified or set to all, all pmaker_envs are processed.
@@ -195,10 +196,18 @@ _help_EOF
     command="${command}_${what}"
     case $what in
     envs)
-      echo "Environments to process in this session: $pmaker_envs"
+      if [ -z "$pmaker_envs" ]; then
+        echo "Environments to process in this session: all"
+      else
+        echo "Environments to process in this session: $pmaker_envs"
+      fi
       ;;
     users)
-      echo "Users to process in this session: $pmaker_users"
+      if [ -z "$pmaker_users" ]; then
+        echo "Users to process in this session: all"
+      else
+        echo "Users to process in this session: $pmaker_users"
+      fi
       ;;
     home)
       echo "pmaker home: $pmaker_home"
@@ -209,8 +218,18 @@ _help_EOF
     context)
       echo "pmaker home:                             $pmaker_home"
       echo "pmaker organisation:                     $pmaker_org"
-      echo "Environments to process in this session: $pmaker_envs"
-      echo "Users to process in this session:        $pmaker_users"
+
+      if [ -z "$pmaker_envs" ]; then
+        echo "Environments to process in this session: all"
+      else
+        echo "Environments to process in this session: $pmaker_envs"
+      fi
+
+      if [ -z "$pmaker_users" ]; then
+        echo "Users to process in this session: all"
+      else
+        echo "Users to process in this session: $pmaker_users"
+      fi
       ;;
     *)
       result=1
@@ -225,6 +244,8 @@ _help_EOF
       case $what in
       org)
         pmaker_org=$@
+        unset pmaker_envs
+        unset pmaker_users
         ;;
       envs)
         pmaker_envs="$@"
@@ -256,6 +277,10 @@ _help_EOF
 
     if [ $result -eq 0 ]; then
       for env in $pmaker_envs; do
+        echo '======================='
+        echo "Processing $env"
+        echo '======================='
+
         ansible-playbook $pmaker_lib/env_users.yaml \
         -e pmaker_home=$pmaker_home \
         -e user_group=$pmaker_org \
@@ -280,7 +305,7 @@ _help_EOF
       ;;
     ssh)
       where=$1; shift
-      command="${command}_${what} $where"
+      command="${command}_${what}_${where}"
       case $where in
       config)
         for env in $pmaker_envs; do

@@ -136,7 +136,7 @@ function welcome_sms() {
     fi
 
     if [ ! -d $pmaker_home/state ]; then
-        echo "Error. SMS delivery requires state to be ready. Import data first.."
+        echo "Error. SSH key SMS delivery requires state to be ready. Import data first.."
         return 1
     fi
 
@@ -160,11 +160,11 @@ function welcome_sms() {
                 echo -n ">>> $server_group $username: "
                 if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/sms.sent ]; then
                     if [ "$deliver" == 'deliver' ]; then
-                        echo -n " sms delivery...."
+                        echo -n " SSH key SMS delivery...."
                         sms_message=$(getKeySMS $user_group $server_group $username)
 
                         if [ -z "$sms_message" ]; then
-                            echo "Skipping. sms not yet prepared."
+                            echo "Skipping. SSH key SMS not yet prepared."
                         else
                             case "$channel" in
                             aws)
@@ -183,10 +183,10 @@ function welcome_sms() {
                         fi
                     else
                         echo
-                        echo "============ sms verification ================="
+                        echo "============ SMS verification ================="
                         sms_message=$(getKeySMS $user_group $server_group $username header)
                         if [ -z "$sms_message" ]; then
-                            echo "Skipping. sms not yet prepared."
+                            echo "Skipping. SSH key SMS not yet prepared."
                         else
                             echo $sms_message
                             read -p "press any key"
@@ -230,7 +230,7 @@ function welcome_password_sms() {
     fi
 
     if [ ! -d $pmaker_home/state ]; then
-        echo "Error. SMS delivery requires state to be ready. Import data first.."
+        echo "Error. Password SMS delivery requires state to be ready. Import data first.."
         return 1
     fi
 
@@ -260,11 +260,11 @@ function welcome_password_sms() {
 
                 if [ ! -f $pmaker_home/state/$user_group/$server_group/$username/password_sms.sent ]; then
                     if [ "$deliver" == 'deliver' ]; then
-                        echo -n " sms delivery...."
+                        echo -n " Password SMS delivery...."
                         sms_message=$(getPasswordSMS $user_group $server_group $username)
 
                         if [ -z "$sms_message" ]; then
-                            echo "Skipping. sms not yet prepared."
+                            echo "Skipping. Password SMS not yet prepared."
                         else
                             case "$channel" in
                             aws)
@@ -284,10 +284,10 @@ function welcome_password_sms() {
 
                     else
                         echo
-                        echo "============ sms verification ================="
+                        echo "============ SMS verification ================="
                         sms_message=$(getPasswordSMS $user_group $server_group $username header)
                         if [ -z "$sms_message" ]; then
-                            echo "Skipping. sms not yet prepared."
+                            echo "Skipping. Password SMS not yet prepared."
                         else
                             echo $sms_message
                             read -p "press any key"
