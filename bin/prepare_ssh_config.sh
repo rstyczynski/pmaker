@@ -25,10 +25,8 @@ group_jump_server_ip=$(cat $pmaker_home/data/$user_group.inventory.cfg | sed -n 
 
 tmp=$pmaker_home/tmp; mkdir -p $tmp
 
-# take copy of ssh config w/o section
-cat ~/.ssh/config | sed "/# START - $user_group $server_group access/,/# STOP - $user_group $server_group access/d" >$tmp/ssh_config
 
-    cat >>$tmp/ssh_config <<EOF
+cat >$tmp/ssh_config <<EOF
 # START - $user_group $server_group access
 EOF
 
@@ -88,5 +86,10 @@ done
 echo "# STOP - $user_group $server_group access" >>$tmp/ssh_config
 
 mv ~/.ssh/config ~/.ssh/config.old
+
+# new data added to front of ssh config
 mv $tmp/ssh_config ~/.ssh/config
+# take copy of ssh config w/o section
+cat ~/.ssh/config.old | sed "/# START - $user_group $server_group access/,/# STOP - $user_group $server_group access/d" >> ~/.ssh/config
+
 chmod 600 ~/.ssh/config

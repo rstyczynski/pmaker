@@ -127,39 +127,68 @@ function pmaker() {
     cat <<_help_EOF
 
 pmaker accepts following operational commands:
-- import excel         - imports user access information from spreadsheet. Note that you may import only subset of users by setting user_flter.
-- generate ssh config  - converts Ansible inventory to ssg config file, enabling pmaker user access to managed hosts.
-- generate keys        - generates ssh keys for new users. Already existing keys are not changed.
-- deploy               - deploys keys, and user configuration to managed hosts.
-- validate             - tests user access with verification of sudo escalatio rights.
-- welcome generate     - prepares welcome messages i.e. e-mails & sms'es.
-- welcome validate     - displays welcome messages. Mssages are sent only once.
-- welcome deliver      - delivers welcome emails. 
-- welcome clear        - clears message sent flag; used to redeliver messages.
+- import excel            - imports user access information from spreadsheet. Note that you may import only subset of users by setting user_flter.
+- generate ssh config     - converts Ansible inventory to ssg config file, enabling pmaker user access to managed hosts.
+- generate keys           - generates ssh keys for new users. Already existing keys are not changed.
+- deploy                  - deploys keys, and user configuration to managed hosts.
+- validate                - tests user access with verification of sudo escalatio rights.
+- welcome generate        - prepares welcome messages i.e. e-mails & sms'es.
+- welcome validate        - displays welcome messages. Mssages are sent only once.
+- welcome deliver         - delivers welcome emails. 
+- welcome clear           - clears message sent flag; used to redeliver messages.
 
-pmaker acepts following configuration commands:
-- set org to name      - set active organisation to name given on parameter
-- set envs to list     - set active environments to givel list or just one env
-- set users to list    - set active users to givel list or just one user
+pmaker makes it possible to share keys between organisations:
+- share user key [id_rsa] - shares user's named key 
+
+pmaker accepts following configuration commands:
+- set org to name         - set active organisation to name given on parameter
+- set envs to list        - set active environments to givel list or just one env
+- set users to list       - set active users to givel list or just one user
 
 pmaker accepts following informative commands:
-- list orgs            - lists pmaker_org names with known spreadsheet with user access informaton
-- list envs            - list server groups for current pmaker_org.
-- list users env       - list active users for given environment, where env in server group name. Use all to see all users. Active means that this subset of users will be processed by pmaker; list may be shorter than the real one.
-- show context         - shows current values of pmaker home, org, envs, and user filter
-- show home            - shows pmaker home
-- show org             - shows selected organisation
-- show envs            - shows selected environments to process
-- show users           - shows selected users to process
+- list orgs               - lists pmaker_org names with known spreadsheet with user access informaton
+- list envs               - list server groups for current pmaker_org.
+- list users env          - list active users for given environment, where env in server group name. Use all to see all users. Active means that this subset of users will be processed by pmaker; list may be shorter than the real one.
+- show context            - shows current values of pmaker home, org, envs, and user filter
+- show home               - shows pmaker home
+- show org                - shows selected organisation
+- show envs               - shows selected environments to process
+- show users              - shows selected users to process
 
 To proceed you need to set environment variables via shell or set commands:
-- pmaker_home          - pmaker's home directory. Typically already set via .bash_profile.
-- pmaker_org           - organization name. Used to get right inventory file and right source of users.
-- pmaker_envs          - pmaker_envs to process. When not specified or set to all, all pmaker_envs are processed.
-- pmaker_users         - subset of users to process; usernames are separated by pipe. When not specified all users are processed
+- pmaker_home             - pmaker's home directory. Typically already set via .bash_profile.
+- pmaker_org              - organization name. Used to get right inventory file and right source of users.
+- pmaker_envs             - pmaker_envs to process. When not specified or set to all, all pmaker_envs are processed.
+- pmaker_users            - subset of users to process; usernames are separated by pipe. When not specified all users are processed
 
 _help_EOF
     ;;
+  share)
+    subject=$1; shift
+    command="${command}_${what}_${subject}"
+    case ${what}_${subject} in
+    user_key)
+      shared_key=$1
+
+      log -n "Sharing $shared_key... "
+      : ${shared_key:=id_rsa}
+      mkdir -p $pmaker_home/state/shared
+      env=$(echo $pmaker_envs | cut -f1 -d' ')
+
+      if [ -f $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key ]; then
+        shared_key_md5=$(echo $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key)
+        mkdir -p $pmaker_home/state/shared/$env/pmaker/.ssh
+        cp $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key $pmaker_home/state/shared/.ssh/$shared_key_md5
+        log OK
+      else
+        log "Error. Key not found."
+      fi
+      ;;
+    *)
+      result=1
+      echo "Error. Unknown object for share."
+      ;;
+    esac    
   list)
     command="${command}_${what}"
     case $what in
@@ -314,7 +343,19 @@ _help_EOF
             if [ -f $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa ]; then
               $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/id_rsa || result=$?
             else
-              $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker ~/.ssh/id_rsa || result=$?
+              
+              # check if pmaker key is shared
+              if [ -f $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/shared ]; then
+                shared_by=$(cat $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/shared | cut -f1 -d'|')
+                shared_key=$(cat $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/shared | cut -f2 -d'|')
+
+                shared_key_md5=$(echo $pmaker_home/state/$shared_by/$env/pmaker/.ssh/$shared_key)
+
+                $pmaker_bin/prepare_ssh_config.sh shared $env pmaker $pmaker_home/state/shared/.ssh/$shared_key_md5 || result=$?
+
+              else
+                $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker ~/.ssh/id_rsa || result=$?
+              fi
             fi
           else
             result=1
