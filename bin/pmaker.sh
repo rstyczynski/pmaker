@@ -28,6 +28,17 @@ function y2j {
    ruby -ryaml -rjson -e 'puts JSON.dump(YAML.load(STDIN.read))'
 }
 
+unset log
+function log() {
+  echo $@
+
+  if [ "$1" == '-n' ]; then
+    echo -n "$(date +%Y-%m-%dT%H:%M:%S)|" >> $pmaker_home/log/${pmaker_org}_state.log
+  fi
+  echo $@ >> $pmaker_home/log/${pmaker_org}_state.log
+}
+
+
 
 #
 # main logic
@@ -102,18 +113,22 @@ function pmaker() {
     echo "Info. Dependency check disabled."
   fi
 
-  # select pmaker_envs to process
-  if [ -f $pmaker_home/data/$pmaker_org.users.yaml ]; then
-    known_pmaker_envs=$(cat $pmaker_home/data/$pmaker_org.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]' | tr '\n' ' ')
-    if [ -z "$pmaker_envs" ] || [ "$pmaker_envs" = all ]; then
-      pmaker_envs=$known_pmaker_envs
-    fi
 
-    if [ -z "$known_pmaker_envs" ]; then
-      echo "Warning. Environment list empty. Verify that spreadsheet contains proper access data."
+
+  if [ $command != exit_on_error ]; then
+    # select pmaker_envs to process
+    if [ -f $pmaker_home/data/$pmaker_org.users.yaml ]; then
+      known_pmaker_envs=$(cat $pmaker_home/data/$pmaker_org.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]' | tr '\n' ' ')
+      if [ -z "$pmaker_envs" ] || [ "$pmaker_envs" = all ]; then
+        pmaker_envs=$known_pmaker_envs
+      fi
+
+      if [ -z "$known_pmaker_envs" ]; then
+        echo "Warning. Environment list empty. Verify that spreadsheet contains proper access data."
+      fi
+    else
+      echo "Warning. User directory not ready. Use import excel."
     fi
-  else
-    echo "Warning. User directory not ready. Use import excel."
   fi
 
   # execute command
@@ -138,7 +153,7 @@ pmaker accepts following operational commands:
 - welcome clear           - clears message sent flag; used to redeliver messages.
 
 pmaker makes it possible to share keys between organisations:
-- share user key [id_rsa] - shares user's named key 
+- share user key [id_rsa] - shares user's named key. Creates virtual org "shared".
 
 pmaker accepts following configuration commands:
 - set org to name         - set active organisation to name given on parameter
@@ -176,8 +191,8 @@ _help_EOF
       env=$(echo $pmaker_envs | cut -f1 -d' ')
 
       if [ -f $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key ]; then
-        shared_key_md5=$(echo $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key)
-        mkdir -p $pmaker_home/state/shared/$env/pmaker/.ssh
+        shared_key_md5=$(echo $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key | md5sum | cut -f1 -d' ' )
+        mkdir -p $pmaker_home/state/shared/.ssh
         cp $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key $pmaker_home/state/shared/.ssh/$shared_key_md5
         log OK
       else
@@ -188,7 +203,8 @@ _help_EOF
       result=1
       echo "Error. Unknown object for share."
       ;;
-    esac    
+    esac 
+    ;;   
   list)
     command="${command}_${what}"
     case $what in
@@ -349,9 +365,9 @@ _help_EOF
                 shared_by=$(cat $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/shared | cut -f1 -d'|')
                 shared_key=$(cat $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/shared | cut -f2 -d'|')
 
-                shared_key_md5=$(echo $pmaker_home/state/$shared_by/$env/pmaker/.ssh/$shared_key)
+                shared_key_md5=$(echo $pmaker_home/state/$shared_by/$env/pmaker/.ssh/$shared_key | md5sum | cut -f1 -d' ' )
 
-                $pmaker_bin/prepare_ssh_config.sh shared $env pmaker $pmaker_home/state/shared/.ssh/$shared_key_md5 || result=$?
+                $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker $pmaker_home/state/shared/.ssh/$shared_key_md5 || result=$?
 
               else
                 $pmaker_bin/prepare_ssh_config.sh $pmaker_org $env pmaker ~/.ssh/id_rsa || result=$?
