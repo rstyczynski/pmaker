@@ -153,7 +153,7 @@ pmaker accepts following operational commands:
 - welcome clear           - clears message sent flag; used to redeliver messages.
 
 pmaker makes it possible to share keys between organisations:
-- share user key [id_rsa] - shares user's named key. Creates virtual org "shared".
+- share user key [pmaker/id_rsa] - shares user's named key.
 
 pmaker accepts following configuration commands:
 - set org to name         - set active organisation to name given on parameter
@@ -183,15 +183,19 @@ _help_EOF
     command="${command}_${what}_${subject}"
     case ${what}_${subject} in
     user_key)
-      shared_key=$1
+      shared_user=$(echo $1 | cut -f1 -d'/')
+      shared_key=$(echo $1 | cut -f2 -d'/')
 
-      log -n "Sharing $shared_key... "
+      : ${shared_user:=pmaker}
       : ${shared_key:=id_rsa}
+
+      log -n "Sharing $shared_user/$shared_key... "
+
       mkdir -p $pmaker_home/state/shared
       env=$(echo $pmaker_envs | cut -f1 -d' ')
 
-      if [ -f $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key ]; then
-        shared_key_md5=$(echo $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key | md5sum | cut -f1 -d' ' )
+      if [ -f $pmaker_home/state/$pmaker_org/$env/$shared_user/.ssh/$shared_key ]; then
+        shared_key_md5=$(echo $pmaker_home/state/$pmaker_org/$env/$shared_user/.ssh/$shared_key | md5sum | cut -f1 -d' ' )
         mkdir -p $pmaker_home/state/shared/.ssh
         cp $pmaker_home/state/$pmaker_org/$env/pmaker/.ssh/$shared_key $pmaker_home/state/shared/.ssh/$shared_key_md5
         log OK
