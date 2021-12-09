@@ -112,13 +112,13 @@ function generateUserMessages() {
 
 	echo Generating messages...
 	echo -n "\- welcome mail..."
-	generateWelcomeEmailBody $user_group $server_group $username $mail_template >state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
-	generateWelcomeEmailHeader >state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
+	generateWelcomeEmailBody $user_group $server_group $username $mail_template > $pmaker_home/state/$user_group/$server_group/$username/outbox/welcome_mail-body.txt
+	generateWelcomeEmailHeader > $pmaker_home/state/$user_group/$server_group/$username/outbox/welcome_mail-header.txt
 	echo OK
 
 	echo -n "\- access password..."
 	if [ "$password_access" == true ]; then
-		generatePasswordSMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/pass_sms.txt
+		generatePasswordSMS $user_group $server_group $username > $pmaker_home/state/$user_group/$server_group/$username/outbox/pass_sms.txt
 		echo OK
 	else
 		rm -f $pmaker_home/state/$user_group/$server_group/$username/outbox/pass_sms.txt
@@ -127,7 +127,7 @@ function generateUserMessages() {
 
 	echo -n "\- key password..."
 	if [ "$key_access" == true ]; then
-		generateKeySMS $user_group $server_group $username >state/$user_group/$server_group/$username/outbox/key_sms.txt
+		generateKeySMS $user_group $server_group $username > $pmaker_home/state/$user_group/$server_group/$username/outbox/key_sms.txt
 		echo OK
 	else
 		rm -f $pmaker_home/state/$user_group/$server_group/$username/outbox/key_sms.txt
