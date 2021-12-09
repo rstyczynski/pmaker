@@ -115,7 +115,7 @@ function pmaker() {
 
 
 
-  if [ $command != exit_on_error ] && [ $comnand != set ]; then
+  if [ $command != exit_on_error ] && [ $command != set ]; then
     # select pmaker_envs to process
     if [ -f $pmaker_home/data/$pmaker_org.users.yaml ]; then
       known_pmaker_envs=$(cat $pmaker_home/data/$pmaker_org.users.yaml |  y2j |  jq -r '[.users[].server_groups[]] | unique | .[]' | tr '\n' ' ')
