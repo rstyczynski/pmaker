@@ -77,7 +77,7 @@ function pmaker() {
   fi
 
   if [ $command != exit_on_error ]; then
-    if [ -z $pmaker_users ] && [ $command != 'set' ]; then
+    if [ -z "$pmaker_users" ] && [ $command != 'set' ]; then
       echo "Warning. pmaker_users not specified. All users will be processed. To avoid set pmaker_users variable to proper list using space as a separator."
     else
       # replace spaces with pipe. For some reson pipe was used.
