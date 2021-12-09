@@ -64,7 +64,7 @@ function pmaker() {
   # variable verification
   if [ -z $pmaker_org ]; then
     echo "Error. pmaker_org must be defined."
-    if [ $command != help ]; then
+    if [ $command != help ] || [ $command != 'set' ] ; then
       command=exit_on_error
     fi
   fi
