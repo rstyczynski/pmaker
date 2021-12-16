@@ -68,7 +68,7 @@ EOF
         fi
     else
         if [ -z "$group_jump_server" ]; then
-            echo "Error. jump server does not found in inventory file."
+            echo "Error. jump server does not found in inventory file. Info: $host"
             exit 1
         fi
         cat >>$tmp/ssh_config<<EOF
