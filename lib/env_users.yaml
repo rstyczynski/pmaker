@@ -5,6 +5,7 @@
 
 - hosts: localhost
   connection: local
+  gather_facts: no
 
   tasks:
     - include_vars: "{{ pmaker_home }}/etc/config.yaml"
