@@ -112,6 +112,7 @@ for server_group in $server_groups; do
                 -e keyfile=$keyfile \
                 -e server_group=$server_group \
                 -e user_group=$user_group \
+                -e date_time=$(date --iso-8601=seconds) \
                 -l $server_group \
                 -i $pmaker_home/data/$user_group.inventory.cfg
                 ;;  

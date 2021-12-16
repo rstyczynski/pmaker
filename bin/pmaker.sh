@@ -411,7 +411,7 @@ _help_EOF
       -e pmaker_home=$pmaker_home \
       -e server_group=$env \
       -e user_group=$pmaker_org \
-      -e date_time=$(date --iso-8601=seconds)
+      -e date_time=$(date --iso-8601=seconds) \
       -i $pmaker_home/data/$pmaker_org.inventory.cfg \
       -l "$server_list" | 
       tee -a $pmaker_log/pmaker_envs_update-$pmaker_org-$env-$(date -I).log

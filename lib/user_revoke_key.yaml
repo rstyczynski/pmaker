@@ -93,7 +93,7 @@
 
   - name: Log key revoke at host
     lineinfile:
-      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      line: "{{ date_time }} | {{ inventory_hostname }} | REVOKED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
       create: yes
@@ -104,7 +104,7 @@
 
   - name: Log failed key revoke at host
     lineinfile:
-      line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+      line: "{{ date_time }} | {{ inventory_hostname }} | REVOKE FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
       insertafter: EOF
       dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
       create: yes
@@ -112,7 +112,7 @@
 
   # - name: Log skipped key revoke at host
   #   lineinfile:
-  #     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+  #     line: "{{ date_time }} | {{ inventory_hostname }} | REVOKE CONFIRMED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
   #     insertafter: EOF
   #     dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item }}/.ssh/registry"
   #     create: yes
