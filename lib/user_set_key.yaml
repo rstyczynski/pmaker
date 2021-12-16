@@ -74,7 +74,7 @@
 #
 - name: Log key registration at host
   lineinfile:
-     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+     line: "{{ date_time }} | {{ inventory_hostname }} | REGISTERED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
      create: yes
@@ -83,7 +83,7 @@
   
 - name: Log failed key registration at host
   lineinfile:
-     line: "{{ ansible_date_time.iso8601 }} | {{ inventory_hostname }} | FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
+     line: "{{ date_time }} | {{ inventory_hostname }} | FAILED | {{ authorized_keys_result.user }} | {{ authorized_keys_result.key }}"
      insertafter: EOF
      dest: "{{ pmaker_home }}/state/{{ user_group }}/{{ server_group }}/{{ item.username }}/.ssh/registry"
      create: yes
