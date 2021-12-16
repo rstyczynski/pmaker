@@ -13,7 +13,7 @@ declare -A prereq
 prereq[generate_keys]="import_excel"
 prereq[deploy]="generate_keys"
 prereq[welcome_validate]="welcome_generate"
-prereq[welcome_send]="welcome_validate"
+prereq[welcome_deliver]="welcome_validate"
 
 #
 # helpers
