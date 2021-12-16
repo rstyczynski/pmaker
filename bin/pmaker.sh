@@ -12,9 +12,8 @@ declare -A prereq
 # enter prerequisities. Use comma as command separator
 prereq[generate_keys]="import_excel"
 prereq[deploy]="generate_keys"
-prereq[welcome]="deploy"
-prereq[welcome validate]="welcome_generate"
-prereq[welcome send]="welcome_validate"
+prereq[welcome_validate]="welcome_generate"
+prereq[welcome_send]="welcome_validate"
 
 #
 # helpers

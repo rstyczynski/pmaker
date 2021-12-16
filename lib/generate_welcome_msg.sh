@@ -68,7 +68,7 @@ function generateWelcomeEmailBody() {
 	cp $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.ppk $pmaker_home/state/$user_group/$server_group/$username/outbox/id_rsa_$server_group.ppk
 
 	mkdir -p $pmaker_home/tmp
-	cat templates/$mail_template.j2 |
+	cat $pmaker_home/templates/$mail_template.j2 |
 		insertFile 'key_ssh_enc' 'key_ssh_enc_stop' $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.enc |
 		insertFile 'key_ppk_enc' 'key_ppk_enc_stop' $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.ppk > $pmaker_home/tmp/$mail_template.j2
 	j2 $pmaker_home/tmp/$mail_template.j2
@@ -76,7 +76,7 @@ function generateWelcomeEmailBody() {
 }
 
 function generateWelcomeEmailHeader() {
-	j2 templates/welcome_email-header.j2
+	j2 $pmaker_home/templates/welcome_email-header.j2
 }
 
 function generatePasswordSMS() {
@@ -85,7 +85,7 @@ function generatePasswordSMS() {
 	local username=$3
 
 	export password_account=$(cat $pmaker_home/state/$user_group/$server_group/$username/.ssh/pass.secret)
-	j2 templates/welcome_password_account.j2
+	j2 $pmaker_home/templates/welcome_password_account.j2
 }
 
 function generateKeySMS() {
@@ -94,7 +94,7 @@ function generateKeySMS() {
 	local username=$3
 
 	export password_key=$(cat $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa.secret)
-	j2 templates/welcome_password_key.j2
+	j2 $pmaker_home/templates/welcome_password_key.j2
 }
 
 function generateUserMessages() {
