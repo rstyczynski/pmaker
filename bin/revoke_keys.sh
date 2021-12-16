@@ -82,6 +82,7 @@ for server_group in $server_groups; do
                 ansible-playbook  \
                 setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=global \
+                -e pmaker_home=$pmaker_home \
                 -e keyfile=$keyfile \ 
                 -e server_group=$server_group \
                 -e user_group=$user_group \
@@ -94,6 +95,7 @@ for server_group in $server_groups; do
                 ansible-playbook  \
                 setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=env \
+                -e pmaker_home=$pmaker_home \
                 -e keyfile=$keyfile \ 
                 -e server_group=$server_group \
                 -e user_group=$user_group \
@@ -106,6 +108,7 @@ for server_group in $server_groups; do
                 ansible-playbook  \
                 lib/user_revoke_keys.yaml \
                 -e username=$username \
+                -e pmaker_home=$pmaker_home \
                 -e keyfile=$keyfile \
                 -e server_group=$server_group \
                 -e user_group=$user_group \
