@@ -92,7 +92,7 @@ function welcome_email() {
 
                             if [ $? -eq 0 ]; then
                                 echo "Done."
-                                cat /tmp/email.$$.tmp >state/$user_group/$server_group/$username/welcome.sent
+                                cat /tmp/email.$$.tmp >$pmaker_home/state/$user_group/$server_group/$username/welcome.sent
                             else
                                 echo "Error sending email. Code: $?. Connect log: "
                                 cat /tmp/email.$$.tmp
