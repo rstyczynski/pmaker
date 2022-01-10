@@ -156,8 +156,8 @@ pmaker makes it possible to share keys between organisations:
 
 pmaker accepts following configuration commands:
 - set org to name         - set active organisation to name given on parameter
-- set envs to list        - set active environments to givel list or just one env
-- set users to list       - set active users to givel list or just one user
+- set envs to list        - set active environments to a list or just one env
+- set users to list       - set active users to a list or just one user
 
 pmaker accepts following informative commands:
 - list orgs               - lists pmaker_org names with known spreadsheet with user access informaton
@@ -299,13 +299,13 @@ _help_EOF
         pmaker_envs="$@"
         ;;
       users)
-        pmaker_users="$@"
+        pmaker_users="$(echo $@ | tr ' ' '|')"
         ;;
       *)
         result=1
         echo "Error. Unknown object for set."
         ;;
-      esac
+      esac  
     else
       result=1
       echo "Error. Syntax violated. Use set what to value"
