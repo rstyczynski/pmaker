@@ -105,6 +105,7 @@ function summary() {
     say "# server group: $server_group"
     say "# jump server:  $jump_server"
     say "# inventory:    $inventory"
+    say "# ssh key:      $ssh_key"
     say "# all users: $(cat $pmaker_home/data/$user_group.users.yaml | y2j | jq -r '.users[].username' | tr '\n' ' ')"
     say "# all users with access to server group: $(cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username'| tr '\n' ' ')"
     say "# all servers in the group:  $(ansible-inventory -i $inventory --list | jq -r ".$server_group.hosts[]" | tr '\n' ' ')"
