@@ -170,6 +170,8 @@ function test_ssh_access() {
     say "# server group: $server_group"
     say "# inventory:    $inventory"
     say "# user filter:  $user_subset"
+    say "# inventory:    $inventory"
+    say "# ssh key:      $ssh_key"
     say "# server filter:$server_subset"
     say "##########################################"
     say "# tested on:    $(date)"
