@@ -138,6 +138,8 @@ function test_ssh_access() {
     shift
     server_subset=$1
     shift
+    ssh_key=$1
+    shift
 
     if [ -z "$user_group" ] || [ -z "$server_group" ]; then
         usage
@@ -146,6 +148,7 @@ function test_ssh_access() {
 
     : ${user_subset:=all}
     : ${server_subset:=all}
+    : ${ssh_key:=id_rsa}
 
     : ${pmaker_home:=/opt/pmaker}
     
@@ -308,13 +311,15 @@ function test_ssh_access() {
     say "Testing user access..."
     for username in $(cat $tmp/$user_group.$server_group.users); do
 
-        if [ -f $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa ]; then
-            ssh-add $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa  | tee -a $report
+        if [ -f $pmaker_home/state/$user_group/$server_group/$username/.ssh/$ssh_key ]; then
+            key=$pmaker_home/state/$user_group/$server_group/$username/.ssh/$ssh_key
         else
-            key=$(ls -t $pmaker_home/state/$user_group/$server_group/$username/.ssh/*.key | head -1)
-            echo "id_rsa key not found. Taking latest available key: $key" | tee -a $report
-            ssh-add $key | tee -a $report
+            # key=$(ls -t $pmaker_home/state/$user_group/$server_group/$username/.ssh/*.key | head -1)
+            # echo "id_rsa key not found. Taking latest available key: $key" | tee -a $report
+            echo 'Error. ssh key not found. Cannot continue.' | tee -a $report
+            return 1
         fi
+        ssh-add $key | tee -a $report
 
         userline="$(sayatcell -n -f $username 15)"
         for target_host in $(cat $tmp/$user_group.$server_group.servers); do
@@ -491,7 +496,7 @@ function test_ssh_access() {
         done
         echo "$userline" >> $tmp/$user_group.$server_group.access
 
-        ssh-add -d $pmaker_home/state/$user_group/$server_group/$username/.ssh/id_rsa | tee -a $report
+        ssh-add -d $key | tee -a $report
     done
 
     mkdir -p $pmaker_home/log
