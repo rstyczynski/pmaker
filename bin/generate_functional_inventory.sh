@@ -17,20 +17,20 @@ function build_functional_inventory() {
             keys=$(cat $pmaker_home/state/$user_group/$server_group/inventory.cfg | perl -ne "/$group_by_variable=(\w+) / && print(\$1 ,\"\n\")" 2>/dev/null | sort -u)
 
             for group_by in $keys; do
-                echo "[$group_by]" | tee -a $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg
+                echo "[$group_by]" >> $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg
 
-                grep "$group_by_variable=$group_by" $pmaker_home/state/$user_group/$server_group/inventory.cfg | tee -a $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg
-                echo "" | tee -a $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg
+                grep "$group_by_variable=$group_by" $pmaker_home/state/$user_group/$server_group/inventory.cfg >> $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg
+                echo "" >> $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg
 
                 group_by_prev=$group_by
             done
-            echo "Server group functional inventory by $group_by_variable file created for $server_group."
+            echo "Server group functional inventory by $group_by_variable file created for $server_group. File: $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg"
             # backward compatiblity
             if [ $group_by_variable == 'host_product' ]; then 
                 cp $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg $pmaker_home/state/$user_group/$server_group/functional/inventory.cfg
             fi
         else
-            echo "Server group functional inventory by $group_by_variable up to date for $server_group."
+            echo "Server group functional inventory by $group_by_variable up to date for $server_group. File: $pmaker_home/state/$user_group/$server_group/functional/$group_by_variable.cfg"
         fi   
     done 
 }
