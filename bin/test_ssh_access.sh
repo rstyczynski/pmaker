@@ -130,17 +130,11 @@ function summary() {
 
 function test_ssh_access() {
     user_group="$1"
-    shift
-    server_group="$1"
-    shift
-    inventory="$1"
-    shift
-    user_subset="$1"
-    shift
-    server_subset="$1"
-    shift
-    ssh_key="$1"
-    shift
+    server_group="$2"
+    inventory="$3"
+    user_subset="$4"
+    server_subset="$5"
+    ssh_key="$6"
 
     if [ -z "$user_group" ] || [ -z "$server_group" ]; then
         usage
@@ -191,7 +185,7 @@ function test_ssh_access() {
         else
             # Change user separator to space
             # Fix egrep filter
-            
+
             # user_filter structure:    
             # ^user1,|^user2,|^user3,|^user4,
             unset user_filter
@@ -536,7 +530,7 @@ function test_ssh_access() {
     tmp=$oldTmp
 }
 
-test_ssh_access $@
+test_ssh_access "$1" "$2" "$3" "$4" "$5" "$6"
 
 
 
