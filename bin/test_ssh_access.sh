@@ -129,17 +129,17 @@ function summary() {
 }
 
 function test_ssh_access() {
-    user_group=$1
+    user_group="$1"
     shift
-    server_group=$1
+    server_group="$1"
     shift
-    inventory=$1
+    inventory="$1"
     shift
-    user_subset=$1
+    user_subset="$1"
     shift
-    server_subset=$1
+    server_subset="$1"
     shift
-    ssh_key=$1
+    ssh_key="$1"
     shift
 
     if [ -z "$user_group" ] || [ -z "$server_group" ]; then
@@ -189,13 +189,31 @@ function test_ssh_access() {
             cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username' >$tmp/$user_group.$server_group.users
             say Done.
         else
+            # Change user separator to space
+            # Fix egrep filter
+            
+            # user_filter structure:    
+            # ^user1,|^user2,|^user3,|^user4,
+            unset user_filter
+            if [ ! -z "$user_subset" ]; then
+
+                for username in $user_subset; do
+                    if [ -z "$user_filter" ]; then
+                        user_filter="^$username$"
+                    else
+                        user_filter="$user_filter|^$username$"
+                    fi
+                done
+            fi
+
             cat $pmaker_home/state/$user_group/$server_group/users.yaml | y2j | jq -r '.users[].username' |
-                egrep "$(echo $user_subset | tr -d ' '  | tr ',' '|')" \
+                egrep "$user_filter" \
                 > $tmp/$user_group.$server_group.users
                 say Done.
             if [ $(cat $tmp/$user_group.$server_group.users | wc -l) -eq 0 ]; then
                 say "Warning. User list empty after applying filter. Assuming requested user is a deleted one. Will perform negative test."
-                echo $user_subset | tr -d ' ' | tr ',' '\n' > $tmp/$user_group.$server_group.users
+                # Change user separator to space
+                echo $user_subset | tr ' ' '\n' > $tmp/$user_group.$server_group.users
             fi
         fi
 
