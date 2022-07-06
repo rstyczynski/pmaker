@@ -27,15 +27,25 @@ function y2j() {
 }
 
 function users2pmaker() {
-    excel_file=$1
-    username=$2
+    excel_file="$1"
+    # usernames separated by space if more than one provided
+    usernames="$2"
 
     tmp=$pmaker_home/tmp; mkdir -p $tmp
     users_file=$(basename $excel_file)
 
+    # user_filter structure:    
+    # ^user1,|^user2,|^user3,|^user4,
     unset user_filter
-    if [ ! -z "$username" ]; then
-        user_filter="^$username,"
+    if [ ! -z "$usernames" ]; then
+
+        for username in $usernames; do
+            if [ -z "$user_filter" ]; then
+                user_filter="^$username,"
+            else
+                user_filter="$user_filter|^$username,"
+            fi
+        done
     fi
 
     xlsx2csv $excel_file | 
@@ -58,6 +68,4 @@ users:|' | # adds users: as name of data structure
 
 }
 
-users2pmaker $@
-
-# jq 'del(.[0])' |
+users2pmaker "$1" "$2"
