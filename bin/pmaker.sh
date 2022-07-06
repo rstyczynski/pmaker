@@ -78,9 +78,6 @@ function pmaker() {
   if [ $command != exit_on_error ]; then
     if [ -z "$pmaker_users" ] && [ $command != 'set' ]; then
       echo "Warning. pmaker_users not specified. All users will be processed. To avoid set pmaker_users variable to proper list using space as a separator."
-    else
-      # replace spaces with pipe. For some reson pipe was used.
-      pmaker_users=$(echo $pmaker_users | tr ' ' '|')
     fi
 
     if [ -z "$pmaker_envs" ] && [ $command != 'set' ]; then
@@ -95,7 +92,6 @@ function pmaker() {
   pmaker_log=$pmaker_home/log
 
   mkdir -p $pmaker_log
-
 
   if [ $dependency_check == TRUE ]; then
     # prerequisities verification
@@ -172,8 +168,8 @@ pmaker accepts following informative commands:
 To proceed you need to set environment variables via shell or set commands:
 - pmaker_home             - pmaker's home directory. Typically already set via .bash_profile.
 - pmaker_org              - organization name. Used to get right inventory file and right source of users.
-- pmaker_envs             - pmaker_envs to process. When not specified or set to all, all pmaker_envs are processed.
-- pmaker_users            - subset of users to process; usernames are separated by pipe. When not specified all users are processed
+- pmaker_envs             - environments to process; separated by space. When not specified or set to all, all environments are processed.
+- pmaker_users            - subset of users to process; separated by space. When not specified all users are processed
 
 _help_EOF
     ;;
@@ -299,7 +295,7 @@ _help_EOF
         pmaker_envs="$@"
         ;;
       users)
-        pmaker_users="$(echo $@ | tr ' ' '|')"
+        pmaker_users="$@"
         ;;
       *)
         result=1
@@ -443,7 +439,6 @@ _help_EOF
     eval $(ssh-agent)
     ssh-add -D
 
-    user_subset=$(echo $pmaker_users | tr '|' ,)
     if [ -z "$pmaker_envs" ] || [ "$pmaker_envs" = all ]; then
       pmaker_envs=$(cat $pmaker_home/data/$pmaker_org.inventory.cfg |
         grep '^\[' |
@@ -457,7 +452,7 @@ _help_EOF
         $pmaker_org \
         $env \
         $pmaker_home/data/$pmaker_org.inventory.cfg \
-        $user_subset \
+        "$pmaker_users" \
         all &
     done
     wait
@@ -513,9 +508,9 @@ _help_EOF
       result=0
       for env in $pmaker_envs; do
         # clear sent flag
-        clear_welcome_email $pmaker_org $env $pmaker_users || result=$?
-        clear_welcome_sms $pmaker_org $env $pmaker_users || result=$?
-        clear_welcome_password_sms $pmaker_org $env $pmaker_users || result=$?
+        clear_welcome_email $pmaker_org $env "$pmaker_users" || result=$?
+        clear_welcome_sms $pmaker_org $env "$pmaker_users" || result=$?
+        clear_welcome_password_sms $pmaker_org $env "$pmaker_users" || result=$?
       done
       ;;
     *)
