@@ -531,6 +531,3 @@ function test_ssh_access() {
 }
 
 test_ssh_access "$1" "$2" "$3" "$4" "$5" "$6"
-
-
-
