@@ -57,10 +57,11 @@ for host in $hosts; do
     jump_server=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep "^$host\s" | tr -s ' ' | tr ' ' '\n' | grep "^jump=" | cut -d= -f2) 
     host_type=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep "^$host\s" | tr -s ' ' | tr ' ' '\n' | grep "^host_type=" | cut -d= -f2)
     
+    echo "$host,$host_type,$jump_server"
     if [ "$host_type" == jump ]; then
             cat >>$tmp/ssh_config<<EOF
 Host $host
-IdentityFile $server_group_key
+    IdentityFile $server_group_key
 EOF
 
     else
@@ -71,7 +72,7 @@ Host $host
 EOF
             if [ $server_group_key != no ]; then
         cat >>$tmp/ssh_config <<EOF
-IdentityFile $server_group_key
+    IdentityFile $server_group_key
 EOF
             fi
         else
@@ -81,11 +82,11 @@ EOF
             fi
             cat >>$tmp/ssh_config<<EOF
 Host $host
-ProxyJump $group_jump_server
+    ProxyJump $group_jump_server
 EOF
             if [ $server_group_key != no ]; then
                 cat >>$tmp/ssh_config <<EOF
-IdentityFile $server_group_key
+    IdentityFile $server_group_key
 EOF
             fi
         fi
