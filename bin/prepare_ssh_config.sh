@@ -57,7 +57,8 @@ for host in $hosts; do
     jump_server=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep "^$host\s" | tr -s ' ' | tr ' ' '\n' | grep "^jump=" | cut -d= -f2) 
     host_type=$(cat $pmaker_home/data/$user_group.inventory.cfg | grep "^$host\s" | tr -s ' ' | tr ' ' '\n' | grep "^host_type=" | cut -d= -f2)
     
-    echo "$host,$host_type,$jump_server"
+    echo "$host,$host_type,$jump_server" >>$tmp/ssh_config
+    
     if [ "$host_type" == jump ]; then
             cat >>$tmp/ssh_config<<EOF
 Host $host
