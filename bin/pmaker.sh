@@ -137,7 +137,7 @@ function pmaker() {
     cat <<_help_EOF
 
 pmaker accepts following operational commands:
-- import excel            - imports user access information from spreadsheet. Note that you may import only subset of users by setting user_flter.
+- import excel            - imports user access information from spreadsheet. Note that you may import a subset of users by setting user_flter.
 - generate ssh config     - converts Ansible inventory to ssg config file, enabling pmaker user access to managed hosts.
 - generate keys           - generates ssh keys for new users. Already existing keys are not changed.
 - deploy                  - deploys keys, and user configuration to managed hosts.
