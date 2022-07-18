@@ -27,7 +27,7 @@
     state: present
     mode: 0440
     create: yes
-    validate: "visudo -cf %s"
+    # validate: "visudo -cf %s"
   when: server_group in item.became_root
 
 - name: Remove user from root sudoers
@@ -38,7 +38,7 @@
     state: absent
     mode: 0440
     create: yes
-    validate: "visudo -cf %s"
+    # validate: "visudo -cf %s"
   when: server_group not in item.became_root
 
 - name: Add user to oracle sudoers
@@ -54,7 +54,7 @@
     state: present
     mode: 0440
     create: yes
-    validate: "visudo -cf %s"
+    # validate: "visudo -cf %s"
   when: server_group in item.became_oracle
 
 - name: Remove user from oracle sudoers
@@ -70,7 +70,7 @@
     state: absent
     mode: 0440
     create: yes
-    validate: "visudo -cf %s"
+    # validate: "visudo -cf %s"
   when: server_group not in item.became_oracle
 
 - name: Add user to appl sudoers
@@ -84,7 +84,7 @@
     state: present
     mode: 0440
     create: yes
-    validate: "visudo -cf %s"
+    # validate: "visudo -cf %s"
   when: server_group in item.became_appl
 
 - name: Remove user from appl sudoers
@@ -98,5 +98,5 @@
     state: absent
     mode: 0440
     create: yes
-    validate: "visudo -cf %s"
+    # validate: "visudo -cf %s"
   when: server_group not in item.became_appl
