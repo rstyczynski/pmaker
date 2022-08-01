@@ -8,6 +8,10 @@ user_to_process=$1
 shift
 keyfile=$1
 shift
+ignore_errors=$1
+shift
+
+: ${ignore_errors:=no}
 
 function usage() {
     echo Usage: revoke_keys.sh user_group [server_groups] [user] [keyfile]
@@ -117,7 +121,7 @@ for server_group in $server_groups; do
                 -i $pmaker_home/data/$user_group.inventory.cfg
                 ;;  
         esac
-        if [ $? -eq 0 ]; then
+        if [ $? -eq 0 ] || [ $ignore_errors == "ignore_errors" ]; then
             # check if all keys were revoked
             known_servers=$(ls $ssh_root/servers | grep -v localhost | wc -l)
 
