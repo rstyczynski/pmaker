@@ -325,6 +325,8 @@ function test_ssh_access() {
 
     say "Testing user access..."
     for username in $(cat $tmp/$user_group.$server_group.users); do
+        
+        echo "ssh key: $pmaker_home/state/$user_group/$server_group/$username/.ssh/$ssh_key"
 
         if [ -f $pmaker_home/state/$user_group/$server_group/$username/.ssh/$ssh_key ]; then
             key=$pmaker_home/state/$user_group/$server_group/$username/.ssh/$ssh_key
