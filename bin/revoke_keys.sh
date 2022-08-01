@@ -80,7 +80,7 @@ for server_group in $server_groups; do
                 ssh_root=$pmaker_home/.ssh
 
                 ansible-playbook  \
-                setup/pmaker_revoke_keys.yaml \
+                $pmaker_home/setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=global \
                 -e pmaker_home=$pmaker_home \
                 -e keyfile=$keyfile \ 
@@ -93,7 +93,7 @@ for server_group in $server_groups; do
                 ssh_root=$pmaker_home/state/$user_group/$server_group/$username/.ssh
 
                 ansible-playbook  \
-                setup/pmaker_revoke_keys.yaml \
+                $pmaker_home/setup/pmaker_revoke_keys.yaml \
                 -e pmaker_type=env \
                 -e pmaker_home=$pmaker_home \
                 -e keyfile=$keyfile \ 
@@ -106,7 +106,7 @@ for server_group in $server_groups; do
                 ssh_root=$pmaker_home/state/$user_group/$server_group/$username/.ssh
                 
                 ansible-playbook  \
-                lib/user_revoke_keys.yaml \
+                $pmaker_home/lib/user_revoke_keys.yaml \
                 -e username=$username \
                 -e pmaker_home=$pmaker_home \
                 -e keyfile=$keyfile \
